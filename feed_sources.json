@@ -1,0 +1,18 @@
+{
+  "feeds": [
+    {"name":"Google Ads & Commerce","url":"https://blog.google/products/ads-commerce/rss/","category":"广告平台","region":"global","platform":"Google Ads","enabled":true},
+    {"name":"Meta Newsroom","url":"https://about.fb.com/news/feed/","category":"广告平台","region":"global","platform":"Meta Ads","enabled":true},
+    {"name":"GitHub Blog AI","url":"https://github.blog/ai-and-ml/feed/","category":"AI营销","region":"global","platform":"AI 工具","enabled":true}
+  ],
+  "watch_pages": [
+    {"name":"腾讯广告官方","url":"https://e.qq.com/","region":"cn","platform":"腾讯广告","status":"manual-watch","note":"暂未核验稳定官方 RSS/API，禁止将页面全文抓取直接发布"},
+    {"name":"巨量引擎 / 巨量学","url":"https://school.oceanengine.com/","region":"cn","platform":"巨量引擎","status":"manual-watch"},
+    {"name":"快手磁力引擎","url":"https://www.e.kuaishou.com/","region":"cn","platform":"快手磁力","status":"manual-watch"},
+    {"name":"小红书商业化","url":"https://ad.xiaohongshu.com/","region":"cn","platform":"小红书聚光","status":"manual-watch"},
+    {"name":"百度营销","url":"https://e.baidu.com/","region":"cn","platform":"百度营销","status":"manual-watch"},
+    {"name":"TikTok for Business Blog","url":"https://ads.tiktok.com/business/en/blog/","region":"global","platform":"TikTok Ads","status":"manual-watch"},
+    {"name":"TikTok Business API","url":"https://business-api.tiktok.com/portal/blog","region":"global","platform":"TikTok Ads","status":"manual-watch"},
+    {"name":"Google Ads Developer Blog","url":"https://ads-developers.googleblog.com/","region":"global","platform":"Google Ads","status":"manual-watch"},
+    {"name":"Meta for Business","url":"https://www.facebook.com/business/news","region":"global","platform":"Meta Ads","status":"manual-watch"}
+  ]
+}
