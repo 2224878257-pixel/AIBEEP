@@ -313,10 +313,16 @@
       "category": "广告平台",
       "excerpt": "Get actionable insights on bidding and budgeting tools in the latest episode of Google's \"Ads Decoded\" podcast.",
       "published": "Wed, 21 Oct 2026 13:00:00 +0000",
-      "reviewStatus": "pending",
+      "reviewStatus": "needs_review",
       "relevanceHint": 22,
       "platform": "Google Ads",
-      "region": "global"
+      "region": "global",
+      "audit": {
+        "auditedAt": "2026-10-29T23:55:28.013479+00:00",
+        "version": "AI-review-v1",
+        "decision": "needs_review",
+        "reason": "processing error: ValueError: insufficient original source text"
+      }
     },
     {
       "id": "b63210037f7d6dc5",
@@ -326,10 +332,51 @@
       "category": "广告平台",
       "excerpt": "We’re introducing new safeguards in early 2027 to help protect people in the U.S. and Canada from financial scams.",
       "published": "Tue, 20 Oct 2026 15:00:00 +0000",
-      "reviewStatus": "pending",
+      "reviewStatus": "needs_review",
       "relevanceHint": 32,
       "platform": "Google Ads",
-      "region": "global"
+      "region": "global",
+      "editorial": {
+        "title": "谷歌将金融服务验证扩展至美加，2027年初生效",
+        "summary": "谷歌宣布将于2027年初把金融服务验证项目扩展至美国和加拿大，要求金融广告主在投放前证明其已获得相关监管机构或认可注册机构的授权，以防范品牌冒充和金融诈骗。该项目此前已在42个国家保护约20亿互联网用户。谷歌还将与美国银行家协会和加拿大银行家协会合作，利用其注册库核验授权银行，并通过分阶段实施适应各国监管差异。",
+        "intro": "在已有身份验证的基础上，谷歌正在美国与加拿大引入金融服务验证，作为打击金融诈骗广告的又一道防线。广告主须通过专门核验证明自身获得监管授权，才能投放特定金融类广告；谷歌表示将提前向企业提供国别指引，在正式执行前留出合规时间。",
+        "sections": [
+          {
+            "title": "验证机制：在身份核验之上增加金融资质检查",
+            "paragraphs": [
+              "谷歌介绍，美国与加拿大市场上超过97%的谷歌广告已来自通过身份验证的广告主。金融服务验证在此基础上增加一项专门检查，核实广告主是否获得相关监管机构或认可注册机构的授权，从而帮助防止品牌冒充、阻止不良行为者触达用户。",
+              "谷歌称，自己是首个要求此类验证的主要平台，该项目于2021年在英国启动，最近扩展至欧盟。前置的广告主验证与安全系统协同工作；2025年，Gemini帮助其系统在政策违规广告投放前拦截了超过99%的此类广告。"
+            ]
+          },
+          {
+            "title": "跨行业协作：借助银行注册库核验授权机构",
+            "paragraphs": [
+              "谷歌表示，有效的广告安全需要跨行业协调。在美国，谷歌正与美国银行家协会合作，利用其专门注册库在广告投放前核验获得授权的银行；在加拿大，谷歌正与加拿大银行家协会密切沟通，为上线做准备。",
+              "由于各国监管不同，谷歌将采用分阶段实施、按国别调整的方式，在保护消费者的同时确保合法机构能够触达其服务对象。谷歌称这项工作与全球信号交换等更广泛的跨科技、金融和执法领域的反欺诈信息共享努力相辅相成。"
+            ]
+          },
+          {
+            "title": "上线安排：2027年初推出，提前向广告主提供指引",
+            "paragraphs": [
+              "谷歌计划于2027年初在美加上线金融服务验证。在此之前，谷歌将提供针对各国的广告主信息，包括认可的注册库、所需资质和入驻说明。",
+              "验证开放后，广告主将收到通知，了解是否需要以及何时完成验证流程，以便在政策执行开始前获得合规指引。谷歌表示，此举是其持续提升广告平台安全性、透明度和可靠性的一部分。"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "auditedAt": "2026-10-29T23:55:28.320012+00:00",
+        "version": "AI-review-v1",
+        "decision": "needs_review",
+        "reason": "insufficient factual fidelity",
+        "relevance": 98,
+        "fidelity": 97,
+        "issues": [
+          "草稿称“2025年，Gemini帮助其系统在政策违规广告投放前拦截了超过99%的此类广告”，来源原文是“In 2025, Gemini helped our systems catch over 99% of policy-violating ads before they ever served”，基本对应，但“此类广告”在草稿语境中可理解更具体，属轻微表述偏差。",
+          "草稿称“谷歌还将与……加拿大银行家协会合作，利用其注册库核验授权银行”，来源中美国部分明确提到ABA注册库，加拿大仅称与加拿大银行家协会密切沟通，未明确称利用其注册库核验授权银行，存在轻微扩展。"
+        ],
+        "sourceEvidenceChars": 5681
+      }
     },
     {
       "id": "d84eb0687bc52748",
@@ -339,10 +386,51 @@
       "category": "广告平台",
       "excerpt": "Universal Cart helps make holiday shopping easier. It’s now available in the U.S. across Search and the Gemini app.",
       "published": "Thu, 15 Oct 2026 13:00:00 +0000",
-      "reviewStatus": "pending",
+      "reviewStatus": "needs_review",
       "relevanceHint": 32,
       "platform": "Google Ads",
-      "region": "global"
+      "region": "global",
+      "editorial": {
+        "title": "Google 推出智能购物车 Universal Cart，在美国上线",
+        "summary": "Google 今日在美国推出 Universal Cart，一款跨搜索和 Gemini 应用的智能购物车。它可保存来自多个零售商的商品，追踪价格变化，推荐促销代码和支付方式，并通过 Google Pay 或商家网站完成安全结账。",
+        "intro": "Google 今日在美国正式推出 Universal Cart，这是一款智能购物车，旨在帮助用户跨零售商组织购物。该工具已在 Google 搜索和 Gemini 应用中上线，可集中保存商品、监控价格波动、发现优惠信息，并提供便捷的结账体验。",
+        "sections": [
+          {
+            "title": "跨零售商保存商品，告别杂乱标签页",
+            "paragraphs": [
+              "Universal Cart 提供了一个更有序的替代方案，让用户无需再依赖浏览器标签页或截图来管理购物。无论用户在 Google 搜索的 AI 模式中保存了 Steve Madden 的手袋，还是在 Gemini 应用中保存了 Quince 的毛衣和 Ulta Beauty 的唇彩，这些商品都会保存在购物车中，方便用户随时回来继续选购。",
+              "购物车会跨 Google 服务保存进度，用户无需从头开始购物。"
+            ]
+          },
+          {
+            "title": "监控价格与库存，主动提醒",
+            "paragraphs": [
+              "Universal Cart 基于 Google 购物图谱中超过 600 亿条持续更新的商品列表构建，能够在后台主动工作，在商品降价或补货时向用户发送通知。",
+              "用户可以为整个清单追踪价格或库存变化，确保不错过任何优惠或心仪商品的到货信息。"
+            ]
+          },
+          {
+            "title": "智能发现优惠与支付方式，无缝结账",
+            "paragraphs": [
+              "购物车的智能推理能力可帮助用户发现隐藏的节省或积分。它基于 Google Wallet 构建，能理解用户信用卡的权益，智能帮助用户在多种支付方式间选择，并直接在购物车中显示相关的促销代码。",
+              "当用户准备购买时，可以通过 Google Pay 在几秒钟内安全结账，支持的商家包括 Nike、Sephora、Target、Ulta Beauty、Walmart、Wayfair 以及许多 Shopify 商家；也可以将商品直接转移到商家网站完成购买。无论哪种方式，用户都会收到商家的直接确认和客户支持，商家始终是销售记录方。"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "auditedAt": "2026-10-29T23:55:35.520465+00:00",
+        "version": "AI-review-v1",
+        "decision": "needs_review",
+        "reason": "insufficient factual fidelity",
+        "relevance": 95,
+        "fidelity": 92,
+        "issues": [
+          "草稿将“few taps”译为“几秒钟内”，结账时长并非来源明确保证，属轻微改写。",
+          "来源称“today”上线，草稿写“今日”与来源一致，但未注明原文日期 2026-10-15。"
+        ],
+        "sourceEvidenceChars": 6160
+      }
     },
     {
       "id": "a0b267f3074cce8a",
