@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-29T07:44:08.280867+00:00",
+  "updatedAt": "2026-10-29T09:18:28.434919+00:00",
   "candidates": [
     {
       "id": "70900e9483bbbec4",
@@ -9,7 +9,38 @@
       "category": "广告平台",
       "excerpt": "Google is expanding AI Mode ads to 10 new countries, including Canada and India. See how these relevant sponsored results improve your search experience.",
       "published": "Wed, 28 Oct 2026 21:30:00 +0000",
-      "reviewStatus": "pending"
+      "reviewStatus": "approved",
+      "editorial": {
+        "title": "Google将AI Mode广告扩展至10个新市场",
+        "summary": "Google宣布将AI Mode中的广告扩展至澳大利亚、加拿大、印度、肯尼亚、马来西亚、新西兰、尼日利亚、巴基斯坦、菲律宾和新加坡10个国家，并计划于2026年第四季度进一步拓展至巴西、墨西哥和英国；同时在美国推出多轮广告，支持在后续追问中展示广告。",
+        "intro": "随着AI改变人们的搜索方式，查询正变得越来越口语化。Google表示，AI Mode中的查询平均比传统搜索长三倍，AI帮助其更好理解用户需求，从而将用户与最匹配的企业和服务连接起来。Google研究显示，用户对AI Mode中的广告感到舒适并认为其高度相关，AI Mode内赞助商与自然产品列表项的点击率已经相近。",
+        "sections": [
+          {
+            "title": "广告扩展至10个新市场",
+            "paragraphs": [
+              "Google正在将AI Mode中的广告扩展至澳大利亚、加拿大、印度、肯尼亚、马来西亚、新西兰、尼日利亚、巴基斯坦、菲律宾和新加坡。",
+              "Google计划在2026年第四季度将广告扩展至更多地区，包括巴西、墨西哥和英国。"
+            ]
+          },
+          {
+            "title": "在美国推出多轮广告",
+            "paragraphs": [
+              "为允许在AI Mode的后续查询中展示广告，Google正在美国推出多轮广告。",
+              "广告将被明确标注为“Sponsored”，Google表示将继续测试新格式，以确保广告保持有帮助且相关。"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "auditedAt": "2026-10-29T09:18:28.532530+00:00",
+        "version": "AI-review-v1",
+        "decision": "approved",
+        "reason": "meets strict auto-approval threshold",
+        "relevance": 100,
+        "fidelity": 100,
+        "issues": [],
+        "sourceEvidenceChars": 1712
+      }
     },
     {
       "id": "20d01fa066aa63af",
@@ -19,7 +50,48 @@
       "category": "广告平台",
       "excerpt": "Google's Ads Decoded podcast tells you how to make smarter marketing decisions using the latest data on how consumers search.",
       "published": "Wed, 28 Oct 2026 19:00:00 +0000",
-      "reviewStatus": "pending"
+      "reviewStatus": "needs_review",
+      "editorial": {
+        "title": "顺应今日搜索方式，调整你的广告策略",
+        "summary": "Google Ads 发布文章指出，搜索体验与用户习惯正快速变化，AI Overviews 与 AI Mode 正在改变人们搜索的方式。Google Ads 产品联络人 Ginny Marvin 与搜索数据科学与用户体验研究副总裁 Shivani Mohan 在 Ads Decoded 节目中讨论了相关研究，并解读长查询趋势对企业的意义。",
+        "intro": "搜索正在经历快速变化——从新的体验与能力到不断演变的搜索习惯——这些变化直接影响广告格局。在本期 Ads Decoded 节目中，Google Ads 产品联络人 Ginny Marvin 与搜索数据科学与用户体验研究副总裁 Shivani Mohan 对谈。Shivani 及其团队研究数十亿用户如何搜索，并探索随着 AI Overviews 和 AI Mode 的引入，用户习惯正在如何转变。节目还介绍了其团队研究背后的洞察、现代搜索体验，以及长查询趋势对当今企业意味着什么。",
+        "sections": [
+          {
+            "title": "搜索习惯正在改变",
+            "paragraphs": [
+              "搜索体验与能力持续更新，用户的搜索习惯也随之演变，并直接作用于广告生态。",
+              "Google Ads 产品联络人 Ginny Marvin 与搜索数据科学与用户体验研究副总裁 Shivani Mohan 在 Ads Decoded 节目中围绕这些变化展开对谈。"
+            ]
+          },
+          {
+            "title": "AI Overviews 与 AI Mode 的影响",
+            "paragraphs": [
+              "Shivani Mohan 的团队研究数十亿用户的搜索行为，并关注 AI Overviews 和 AI Mode 推出后用户习惯的转变。",
+              "节目分享了其团队研究背后的洞察，以及现代搜索体验的实际面貌。"
+            ]
+          },
+          {
+            "title": "长查询趋势对企业意味着什么",
+            "paragraphs": [
+              "节目讨论了长查询趋势对当今企业的影响，帮助广告主理解搜索行为变化带来的启示。",
+              "相关内容包括如何根据人们当下的搜索方式调整广告策略。"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "auditedAt": "2026-10-29T09:18:33.202498+00:00",
+        "version": "AI-review-v1",
+        "decision": "needs_review",
+        "reason": "insufficient factual fidelity",
+        "relevance": 95,
+        "fidelity": 90,
+        "issues": [
+          "草稿称节目“帮助广告主理解搜索行为变化带来的启示”，来源仅笼统提及长查询趋势对企业的意义，未明确“帮助广告主”这一表述。",
+          "草稿标题与intro基本忠实于来源，但将来源的“Listen here”及发布时间等细节省略，属合理整理，不构成失实。"
+        ],
+        "sourceEvidenceChars": 1141
+      }
     },
     {
       "id": "0581385f35cc1b68",
@@ -29,7 +101,47 @@
       "category": "行业动态",
       "excerpt": "Meta is bringing Superintelligence models, research funding, and direct researcher collaboration to US universities that are using our models to solve critical issues in science and medicine. The post Meta Partners With Five US Universities to Accelerate Medical and Scientific Breakthroughs appeared first on Meta Newsroom .",
       "published": "Wed, 28 Oct 2026 17:00:49 +0000",
-      "reviewStatus": "pending"
+      "reviewStatus": "needs_review",
+      "editorial": {
+        "title": "Meta与美国五所大学合作加速医学与科学突破",
+        "summary": "Meta与加州理工学院、俄亥俄州立大学、路易斯安那州立大学、印第安纳大学和UTHealth Houston的研究人员合作，利用其模型解决医学与科学中的关键问题，涵盖婴儿气管造口管、心力衰竭早期识别和痴呆症患者沟通等方向，并提供200万美元资助和最新模型访问权限。",
+        "intro": "Meta宣布与美国五所大学的研究团队合作，借助其人工智能模型推动医学和科学领域的突破性研究。这些项目旨在改善婴儿气管造口管的使用效果、提前识别心力衰竭风险，并帮助痴呆症患者进行沟通。Meta通过200万美元的资助和最新模型访问权限支持这些工作。",
+        "sections": [
+          {
+            "title": "合作机构与研究目标",
+            "paragraphs": [
+              "参与合作的研究人员来自加州理工学院、俄亥俄州立大学、路易斯安那州立大学、印第安纳大学和UTHealth Houston。",
+              "他们使用Meta的模型来应对医学和科学中的关键问题，目标是加速科学和医学突破，改善患者结局。"
+            ]
+          },
+          {
+            "title": "具体研究项目",
+            "paragraphs": [
+              "这些研究项目包括改善带有气管造口管的婴儿的治疗效果、早期识别心力衰竭风险，以及帮助痴呆症患者进行沟通等。"
+            ]
+          },
+          {
+            "title": "支持方式",
+            "paragraphs": [
+              "Meta为这些研究提供200万美元的资助，并开放其最新模型的访问权限。"
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "auditedAt": "2026-10-29T09:18:38.814990+00:00",
+        "version": "AI-review-v1",
+        "decision": "needs_review",
+        "reason": "insufficient factual fidelity",
+        "relevance": 100,
+        "fidelity": 98,
+        "issues": [
+          "草稿将“改善婴儿气管造口管的使用效果”表述为研究目标之一，来源原文为“improving outcomes for infants with tracheostomy tubes”，含义基本一致但措辞略有细化。",
+          "草稿称“帮助痴呆症患者进行沟通”，来源原文为“helping patients with dementia communicate”，语义一致，但未提及“患者”一词是否仅限痴呆症患者。",
+          "草稿未提及来源中的发布日期（2026年10月28日），但摘要类整理可省略时间信息，不构成事实错误。"
+        ],
+        "sourceEvidenceChars": 1594
+      }
     },
     {
       "id": "13347cc46aef6df7",
@@ -124,6 +236,19 @@
       "reviewStatus": "pending",
       "relevanceHint": 54,
       "platform": "Meta Ads",
+      "region": "global"
+    },
+    {
+      "id": "d3fd215220eeb851",
+      "title": "Guide your campaign spending with new priority and allocation features",
+      "url": "https://blog.google/products/ads-commerce/channel-prioritization-budget-allocation/",
+      "source": "Google Ads & Commerce",
+      "category": "广告平台",
+      "excerpt": "New controls in Google Ads let marketers categorize channel groupings by priority and better control how budget is allocated",
+      "published": "Wed, 14 Oct 2026 15:00:00 +0000",
+      "reviewStatus": "pending",
+      "relevanceHint": 54,
+      "platform": "Google Ads",
       "region": "global"
     }
   ]
