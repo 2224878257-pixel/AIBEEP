@@ -1,0 +1,41 @@
+name: AIBEEP GitHub Pages (manual release gate)
+
+# Disabled by default: automatic release requires explicit repository variable.
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["AIBEEP official feeds and AI audit"]
+    types: [completed]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: aibeep-pages-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && vars.AIBEEP_ENABLE_PUBLIC_PAGES == 'true')
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Verify static output exists
+        run: |
+          test -s dist/index.html
+          test -s dist/content.json
+          test -s dist/articles.json
+          python -m json.tool dist/content.json > /dev/null
+          python -m json.tool dist/articles.json > /dev/null
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

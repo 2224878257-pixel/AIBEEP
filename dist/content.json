@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "updatedAt": "2026-10-29T14:00:00+08:00",
+  "editorialNote": "首批官方来源人工核对精选；非实时自动采集。",
+  "items": [
+    {
+      "id": "google-ai-mode-ads-20261028",
+      "title": "Google 扩大 AI Mode 搜索广告覆盖范围，新增十个市场",
+      "category": "广告平台",
+      "source": "Google Ads & Commerce",
+      "url": "https://blog.google/products/ads-commerce/ads-in-ai-mode-global/",
+      "summary": "Google 宣布在澳大利亚、加拿大、印度、肯尼亚、马来西亚、新西兰、尼日利亚、巴基斯坦、菲律宾和新加坡扩展 AI Mode 广告，并在美国测试多轮对话广告。值得关注搜索意图与广告展示形态的变化。",
+      "addedAt": "2026-10-28T10:00:00+08:00"
+    },
+    {
+      "id": "google-demand-gen-october-20261027",
+      "title": "Google Demand Gen 十月更新：强化数据质量与转化衡量",
+      "category": "广告平台",
+      "source": "Google Accelerate",
+      "url": "https://business.google.com/us/accelerate/announcements/demand-gen-drop-october-2026/",
+      "summary": "Google 介绍了 Data Strength Uplift 衡量指标、Data Manager 与更多分析产品的连接，以及增强型转化衡量能力。对依赖线索与转化回传的广告主，数据配置质量值得持续检查。",
+      "addedAt": "2026-10-27T10:00:00+08:00"
+    },
+    {
+      "id": "openai-chatgpt-work-20261026",
+      "title": "OpenAI 发布 ChatGPT 工作应用研究，涉及营销内容等任务",
+      "category": "AI营销",
+      "source": "OpenAI",
+      "url": "https://openai.com/index/chatgpt-expanding-world-of-work/",
+      "summary": "OpenAI 介绍了研究人员观察 ChatGPT 工作用途的新数据，其中包括营销内容制作、业务数据分析和编程等活动。这是研究 AI 实际工作场景的资料来源，并不等同于具体营销效果验证。",
+      "addedAt": "2026-10-26T10:00:00+08:00"
+    },
+    {
+      "id": "google-channel-allocation-20261014",
+      "title": "Google Ads 推出渠道优先级与预算分配控制功能",
+      "category": "实操教程",
+      "source": "Google Ads & Commerce",
+      "url": "https://blog.google/products/ads-commerce/channel-prioritization-budget-allocation/",
+      "summary": "Google 正逐步推出广告渠道的优先级与预算分配设置，让广告主能优先保障关键渠道，再将部分预算分配给低优先级渠道测试。这与 Search、Shopping、Performance Max 和 Demand Gen 的预算决策有关。",
+      "addedAt": "2026-10-14T10:00:00+08:00"
+    },
+    {
+      "id": "google-ads-api-v26-20261014",
+      "title": "Google Ads API v26 发布：涉及广告系列与转化设置变更",
+      "category": "广告平台",
+      "source": "Google for Developers",
+      "url": "https://developers.google.com/google-ads/api/docs/release-notes",
+      "summary": "Google Ads API v26 于 10 月 14 日发布，包括 Local Services Performance Max 广告系列创建字段要求，以及增强型线索转化设置等接口调整。使用自动化投放和数据回传的团队需要检查升级影响。",
+      "addedAt": "2026-10-14T09:00:00+08:00"
+    },
+    {
+      "id": "meta-facebook-algorithm-20261013",
+      "title": "Meta 介绍 Facebook 内容推荐的新控制方式",
+      "category": "行业动态",
+      "source": "Meta Newsroom",
+      "url": "https://about.fb.com/news/2026/10/introducing-your-algorithm-facebook/",
+      "summary": "Meta 介绍让用户进一步影响 Facebook 推荐内容的功能。对品牌内容运营来说，这是一项值得追踪的平台分发机制变化；目前不能据此推断广告投放成本或广告竞价会如何变化。",
+      "addedAt": "2026-10-13T10:00:00+08:00"
+    },
+    {
+      "id": "openai-ad-format-measurement-20261005",
+      "title": "OpenAI 讨论 ChatGPT 广告格式与效果衡量方式",
+      "category": "AI营销",
+      "source": "OpenAI",
+      "url": "https://openai.com/index/new-chatgpt-ads-format-and-measurement/",
+      "summary": "OpenAI 介绍围绕 AI 使用场景的广告形式和衡量方向，其中提到增量效果测量的重要性。适合关注生成式 AI 产品中广告体验、品牌触达与归因方式的变化。",
+      "addedAt": "2026-10-05T10:00:00+08:00"
+    },
+    {
+      "id": "tiktok-ad-network-us-20261005",
+      "title": "TikTok Ad Network 开放美国定向投放，扩展站外覆盖",
+      "category": "广告平台",
+      "source": "TikTok for Business",
+      "url": "https://ads.tiktok.com/business/en-US/blog/tiktok-ad-network",
+      "summary": "TikTok 宣布 TikTok Ad Network（原 Pangle）面向美国定向广告主开放，可将现有 TikTok 广告系列扩展到站外应用。广告主需要关注站外流量质量、转化回传与渠道归因。",
+      "addedAt": "2026-10-05T09:00:00+08:00"
+    },
+    {
+      "id": "openai-advertising-with-ai-20260916",
+      "title": "OpenAI 公布 AI 广告新方向，包括 Sponsored Agents 测试",
+      "category": "AI营销",
+      "source": "OpenAI",
+      "url": "https://openai.com/index/reimagining-advertising-with-ai/",
+      "summary": "OpenAI 介绍在 ChatGPT 内测试 Sponsored Agents 等广告方向，让用户点击广告后可与商家支持的智能体继续交流。该形式仍属测试和探索，值得关注用户从广告互动走向咨询的路径。",
+      "addedAt": "2026-09-16T10:00:00+08:00"
+    }
+  ]
+}
