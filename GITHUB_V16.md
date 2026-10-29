@@ -7,14 +7,14 @@
 1. 新建 GitHub 公共仓库 `AIBEEP`，上传本项目源码（包括 `.github/workflows/`），但不要上传 `.env`、API 密钥、个人数据或本地数据库。
 2. 在 **Settings → Secrets and variables → Actions → New repository secret** 添加 `DEEPSEEK_API_KEY`。密钥由仓库所有者在 GitHub 网页输入；不要粘贴到聊天记录、源码、日志或公开 issue。
 3. 在 **Settings → Actions → General → Workflow permissions** 确认 `GITHUB_TOKEN` 有可写入仓库内容的权限（适用时选择 Read and write permissions），否则 `refresh-content.yml` 最后提交 JSON 会失败。可选使用受限机器人分支 + PR 审查，进一步降低自动写入主分支风险。
-4. 通过 **Actions → AIBEEP official feeds and AI audit → Run workflow** 手动跑第一轮，并检查每个步骤；之后默认每六小时左右自动触发，GitHub 不保证定时精确执行。
+4. 通过 **Actions → AIBEEP official feeds and AI audit → Run workflow** 手动跑第一轮，并检查每个步骤；之后默认每六小时左右自动触发，GitHub 不保证定时精确执行。真实调用会产生 DeepSeek API 用量，首轮工作流最多处理 3 条。
 5. 运行后只查看 `review_queue.json` 和 `dist/*.json` 是否变化；**不要把自动审核当成完全准确的事实核查**。来源抓取失败或审核不合格会保留而不发布。
 
 ## Pages 公开发布门槛
 
-`deploy-pages.yml` 默认不随采集自动公开部署。只有确认业务内容、版权、网站主体和合规要求后，才在 **Settings → Pages → Build and deployment → Source: GitHub Actions** 配置并从 Actions 手动运行 `AIBEEP GitHub Pages (manual release gate)`。
+`deploy-pages.yml` 默认不随采集自动公开部署。自动内容工作流完成后只验证静态产物，不部署。只有确认业务内容、版权、网站主体和合规要求后，才在 **Settings → Pages → Build and deployment → Source: GitHub Actions** 选择 **GitHub Actions**，并在 **Settings → Secrets and variables → Actions → Variables** 新增 `AIBEEP_ENABLE_PUBLIC_PAGES=true`。
 
-首次发布后，如需每轮抓取成功便自动部署，在仓库 **Settings → Secrets and variables → Actions → Variables** 中新增 `AIBEEP_ENABLE_PUBLIC_PAGES=true`。不设置或设置为 `false` 时，自动部署任务会跳过。此开关只影响网站发布，不能替代合规审核。
+完成上述配置后，仍必须由人工在 **Actions → AIBEEP GitHub Pages (manual release gate) → Run workflow** 发起每一次发布。不设置变量、变量不是精确小写 `true`，或仅由内容工作流自动触发时，部署任务都会跳过。这个双重门槛不能替代对每批内容的人工核对。
 
 GitHub Pages 是静态托管，不能用作主要商业交易或 SaaS 服务的免费后端。更适合本项目初期的免费知识/行业资料展示。
 

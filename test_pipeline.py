@@ -27,11 +27,37 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(len(items[0]["id"]), 16)
         self.assertEqual(items[0]["reviewStatus"], "pending")
 
+    def test_collection_does_not_rewrite_unchanged_queue(self):
+        import collect_feeds
+        prior = collect_feeds.BASE
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                queue = {"updatedAt": "2026-01-01T00:00:00+00:00", "candidates": []}
+                (root / "review_queue.json").write_text(json.dumps(queue), encoding="utf-8")
+                (root / "feed_sources.json").write_text(json.dumps({"feeds": [], "watch_pages": []}), encoding="utf-8")
+                before = (root / "review_queue.json").read_bytes()
+                collect_feeds.BASE = root
+                with patch("sys.argv", ["collect_feeds.py"]):
+                    collect_feeds.main()
+                self.assertEqual((root / "review_queue.json").read_bytes(), before)
+        finally:
+            collect_feeds.BASE = prior
+
     def test_ai_gate(self):
         item = {"reviewStatus":"approved", "audit":{"decision":"needs_review"}}
         self.assertIsNone(approved_item(item))
         item["audit"]["decision"] = "approved"
         self.assertIsNone(approved_item(item))
+
+    def test_backend_ingest_requires_approved_audit_with_evidence(self):
+        with self.assertRaises(ValueError):
+            backend.validate_approved_audit(None)
+        with self.assertRaises(ValueError):
+            backend.validate_approved_audit({"decision": "needs_review", "supported_facts": ["a", "b"]})
+        with self.assertRaises(ValueError):
+            backend.validate_approved_audit({"decision": "approved", "supported_facts": ["only one"]})
+        self.assertTrue(backend.validate_approved_audit({"decision": "approved", "supported_facts": ["官方资料支持事实一。", "官方资料支持事实二。"]}))
 
     def test_deepseek_json_retries_without_real_key(self):
         class FakeResponse:
@@ -87,8 +113,15 @@ class PipelineTests(unittest.TestCase):
                 "editorial": {"title": "广告更新", "summary": "产品更新摘要", "intro": "产品更新简介", "sections": [{"title": "说明", "paragraphs": ["官方描述了更新。"]}]}}
         content, bodies = {"items": []}, {"articles": {}}
         self.assertEqual(promoted({"candidates": [{**base, "audit": {"decision": "needs_review"}}]}, content, bodies), [])
-        self.assertEqual(promoted({"candidates": [{**base, "audit": {"decision": "approved"}}]}, content, bodies), [base["id"]])
+        approved = {**base, "published": "Wed, 29 Oct 2026 08:00:00 GMT", "audit": {
+            "decision": "approved", "relevance": 91, "fidelity": 98,
+            "supported_facts": ["官方发布了广告产品更新。", "公告说明了功能适用范围。"],
+        }}
+        self.assertEqual(promoted({"candidates": [approved]}, content, bodies), [base["id"]])
         self.assertEqual(len(content["items"]), 1)
+        self.assertEqual(content["items"][0]["reviewStatus"], "approved")
+        self.assertEqual(content["items"][0]["evidence"], approved["audit"]["supported_facts"])
+        self.assertEqual(content["items"][0]["publishedAt"], approved["published"])
 
 
 if __name__ == "__main__":

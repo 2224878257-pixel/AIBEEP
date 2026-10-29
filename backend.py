@@ -4,6 +4,7 @@ Start with `python3 backend.py`; bind to loopback by default. The public API
 reads articles; writes require an owner-only token. Docker can run the same app.
 """
 import hmac
+from contextlib import contextmanager
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
@@ -27,8 +28,19 @@ def connect():
     return db
 
 
+@contextmanager
+def database():
+    """A transactional connection that is always closed, including on Windows."""
+    db = connect()
+    try:
+        with db:
+            yield db
+    finally:
+        db.close()
+
+
 def initialize():
-    with connect() as db:
+    with database() as db:
         db.execute("""CREATE TABLE IF NOT EXISTS articles (
             id TEXT PRIMARY KEY, source_url TEXT NOT NULL UNIQUE,
             title TEXT NOT NULL, category TEXT NOT NULL, source TEXT NOT NULL,
@@ -61,9 +73,20 @@ def validate_item(item, body):
     return True
 
 
+def validate_approved_audit(audit):
+    if not isinstance(audit, dict) or audit.get("decision") != "approved":
+        raise ValueError("approved audit is required")
+    evidence = audit.get("supported_facts")
+    if not isinstance(evidence, list) or len(evidence) < 2:
+        raise ValueError("approved audit requires supporting evidence")
+    if not all(isinstance(fact, str) and fact.strip() for fact in evidence[:5]):
+        raise ValueError("invalid supporting evidence")
+    return True
+
+
 def save_article(item, body, audit=None):
     validate_item(item, body)
-    with connect() as db:
+    with database() as db:
         cur = db.execute("""INSERT OR IGNORE INTO articles
             (id,source_url,title,category,source,summary,added_at,body_json,review_status,audit_json)
             VALUES (?,?,?,?,?,?,?,?,?,?)""", (
@@ -86,17 +109,19 @@ def seed_existing():
 
 
 def get_content(limit=100):
-    with connect() as db:
+    with database() as db:
         rows = db.execute("SELECT * FROM articles WHERE review_status='approved' ORDER BY added_at DESC LIMIT ?", (min(max(int(limit), 1), 200),)).fetchall()
     return {"version": 2, "items": [{
         "id": r["id"], "title": r["title"], "category": r["category"],
         "source": r["source"], "summary": r["summary"],
-        "url": r["source_url"], "addedAt": r["added_at"]
+        "url": r["source_url"], "addedAt": r["added_at"],
+        "reviewStatus": r["review_status"],
+        "evidence": (json.loads(r["audit_json"]) or {}).get("supported_facts", [])[:5],
     } for r in rows]}
 
 
 def get_bodies(limit=200):
-    with connect() as db:
+    with database() as db:
         rows = db.execute("SELECT id,body_json FROM articles WHERE review_status='approved' ORDER BY added_at DESC LIMIT ?", (limit,)).fetchall()
     return {"articles": {r["id"]: json.loads(r["body_json"]) for r in rows}}
 
@@ -138,7 +163,7 @@ class Handler(SimpleHTTPRequestHandler):
         if route.path == "/api/admin/jobs":
             if not self.authorized():
                 return self.json_response(401, {"error": "unauthorized"})
-            with connect() as db:
+            with database() as db:
                 jobs = [dict(r) for r in db.execute("SELECT * FROM job_runs ORDER BY id DESC LIMIT 50")]
             return self.json_response(200, {"jobs": jobs})
         if route.path == "/api/admin/status":
@@ -146,7 +171,7 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.json_response(401, {"error": "unauthorized"})
             source_status = ROOT / "source_status.json"
             status = json.loads(source_status.read_text(encoding="utf-8")) if source_status.exists() else {"results":[],"state":"not-run"}
-            with connect() as db:
+            with database() as db:
                 totals = {"published": db.execute("SELECT count(*) FROM articles WHERE review_status='approved'").fetchone()[0], "pipelineRuns": db.execute("SELECT count(*) FROM job_runs").fetchone()[0]}
             return self.json_response(200, {"sources":status, "totals":totals})
         if route.path.startswith("/api/"):
@@ -165,6 +190,7 @@ class Handler(SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(length))
             if data.get("reviewStatus") != "approved":
                 return self.json_response(422, {"error": "only approved articles accepted"})
+            validate_approved_audit(data.get("audit"))
             inserted = save_article(data["item"], data["body"], data.get("audit"))
             return self.json_response(201 if inserted else 200, {"inserted": inserted})
         except (ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:

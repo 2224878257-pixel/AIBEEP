@@ -1,6 +1,7 @@
 // In-site Chinese editorial reader. Source articles remain linked, not reproduced verbatim.
 let articleBodies={},lastReadingView="featured",lastReadingScroll=0,currentArticleId="";
-const bodyRequest=fetch("/api/article-bodies",{cache:"no-cache"}).then(r=>{if(!r.ok)throw Error("API unavailable");return r.json()}).catch(()=>fetch("articles.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{articles:{}})).then(j=>{articleBodies=j.articles||{}}).catch(()=>{});
+const articleEndpoint=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?"/api/article-bodies":"articles.json";
+const bodyRequest=fetch(articleEndpoint,{cache:"no-cache"}).then(r=>{if(!r.ok)throw Error("Article data unavailable");return r.json()}).catch(()=>fetch("articles.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{articles:{}})).then(j=>{articleBodies=j.articles||{}}).catch(()=>{});
 function openArticle(id,fromHistory=false){const item=publicItems.find(x=>x.id===id);if(!item)return false;
  if(!$("#article").classList.contains("active")){lastReadingView=document.querySelector(".view.active")?.id||"featured";lastReadingScroll=window.scrollY}
  currentArticleId=id;
@@ -9,7 +10,9 @@ function openArticle(id,fromHistory=false){const item=publicItems.find(x=>x.id==
  $("#articleCategory").textContent=item.category;
  $("#articleTitle").textContent=item.title;
  $("#articleDeck").textContent=item.summary;
- $("#articleByline").textContent=`AIBEEP 编辑整理　·　${dayOf(item)}`;
+ const aiAssisted=item.reviewStatus==="approved";
+ $("#articleByline").textContent=`${aiAssisted?"AI 辅助整理 · 自动审核通过":"AIBEEP 编辑整理"}　·　${dayOf(item)}`;
+ $("#articleDisclosure").textContent=aiAssisted?"本文由 AIBEEP 基于公开官方资料进行 AI 辅助中文整理，并通过独立自动审核；不代表来源机构立场，具体事实以原文为准。":"本文为 AIBEEP 根据公开官方资料编写的中文整理与解读，不是原文全文翻译。";
  const details=articleBodies[id],sections=details?.sections?.length?details.sections:[{title:"核心信息",paragraphs:[item.summary]},{title:"为什么值得关注",paragraphs:["这项更新与广告投放、营销策略或企业增长有关。具体适用条件和后续产品变化请查看文末官方原始来源，避免把单条公告直接理解为所有账户的通用规则。"]}];
  $("#articleIntro").textContent=details?.intro||item.summary;
  $("#articleToc").innerHTML=sections.map((s,i)=>`<a href="#reading-${i}" data-toc="${i}">${esc(s.title)}</a>`).join("");

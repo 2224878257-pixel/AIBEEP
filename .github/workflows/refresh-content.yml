@@ -1,0 +1,58 @@
+name: AIBEEP official feeds and AI audit
+
+on:
+  schedule:
+    # UTC; approximately every six hours (GitHub schedules can be delayed).
+    - cron: '17 2,8,14,20 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aibeep-content-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify required secret
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          if [ -z "$DEEPSEEK_API_KEY" ]; then
+            echo 'DEEPSEEK_API_KEY missing. Add it to repository Actions secrets.' >&2
+            exit 1
+          fi
+      - name: Offline regression tests
+        run: python -m unittest test_pipeline.py -v
+      - name: Fetch official feeds
+        run: python collect_feeds.py --limit 8
+      - name: Generate and independently audit up to three articles
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_MODEL: deepseek-flash
+          DEEPSEEK_REVIEW_MODEL: deepseek-flash
+        run: python ai_review.py --limit 3
+      - name: Publish approved articles to static JSON
+        run: python publish_reviewed.py --apply
+      - name: Commit content and queue only
+        run: |
+          git config user.name 'aibeep-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add review_queue.json dist/content.json dist/articles.json
+          if git diff --cached --quiet; then
+            echo 'No new approved content or queue changes.'
+          else
+            git commit -m 'content: update reviewed AIBEEP articles'
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

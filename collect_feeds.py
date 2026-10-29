@@ -80,7 +80,8 @@ def main():
         ap.error("--ai requires DEEPSEEK_API_KEY")
     path = BASE / "review_queue.json"
     old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"candidates": []}
-    queue = {e["id"]: e for e in old["candidates"]}
+    previous_candidates = old.get("candidates", [])
+    queue = {e["id"]: e for e in previous_candidates}
     registry = json.loads((BASE / "feed_sources.json").read_text(encoding="utf-8"))
     outcomes = []
     for source in registry["feeds"]:
@@ -116,7 +117,10 @@ def main():
             report["error"] = f"{type(exc).__name__}: {str(exc)[:160]}"
             print(f"{source['name']}: unavailable ({type(exc).__name__}: {exc})")
         outcomes.append(report)
-    path.write_text(json.dumps({"updatedAt": dt.datetime.now(dt.timezone.utc).isoformat(), "candidates": list(queue.values())}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    candidates = list(queue.values())
+    # A successful poll with no new candidate must not create a meaningless bot commit.
+    if candidates != previous_candidates:
+        path.write_text(json.dumps({"updatedAt": dt.datetime.now(dt.timezone.utc).isoformat(), "candidates": candidates}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (BASE / "source_status.json").write_text(json.dumps({"checkedAt":dt.datetime.now(dt.timezone.utc).isoformat(),"results":outcomes,"watchCount":len(registry.get("watch_pages", []))},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(f"Queued {len(queue)} candidates for editorial review")
 

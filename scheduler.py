@@ -20,7 +20,7 @@ QUEUE_PATH = ROOT / "review_queue.json"
 
 
 def job(kind, status, detail):
-    with backend.connect() as db:
+    with backend.database() as db:
         db.execute("INSERT INTO job_runs(kind,status,detail) VALUES(?,?,?)", (kind, status, detail[:1500]))
 
 

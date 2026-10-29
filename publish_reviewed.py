@@ -46,6 +46,7 @@ def promoted(queue, content, articles):
     added = []
     for record in queue.get("candidates", []):
         note = check_article(record)
+        audit = record.get("audit") or {}
         url_key = record.get("url", "").split("#")[0].rstrip("/")
         if not note or record["id"] in updated or url_key in existing_urls:
             continue
@@ -54,6 +55,15 @@ def promoted(queue, content, articles):
             "category": record.get("category", "行业动态"),
             "source": record.get("source", "官方资料"), "url": record["url"],
             "summary": note["summary"].strip(),
+            "publishedAt": record.get("published") or None,
+            "reviewStatus": "approved",
+            "evidence": [fact.strip() for fact in audit.get("supported_facts", [])[:5] if isinstance(fact, str) and fact.strip()],
+            "audit": {
+                "decision": "approved",
+                "auditedAt": audit.get("auditedAt"),
+                "relevance": audit.get("relevance"),
+                "fidelity": audit.get("fidelity"),
+            },
             "addedAt": datetime.now(timezone.utc).isoformat()
         }
         bodies[record["id"]] = {"intro": note["intro"], "sections": note["sections"]}
