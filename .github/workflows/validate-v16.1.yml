@@ -6,6 +6,9 @@ on:
     paths:
       - '**.py'
       - '**.json'
+      - 'dist/**.html'
+      - 'dist/**.css'
+      - 'dist/**.js'
       - '.github/workflows/**'
 
 permissions:
@@ -24,6 +27,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate frontend JavaScript
+        run: |
+          node --check dist/app.js
+          node --check dist/editorial.js
+          node --check dist/article.js
       - name: Offline regression tests
         run: python -m unittest test_pipeline.py -v
       - name: Validate tracked JSON
