@@ -1,6 +1,6 @@
 // In-site Chinese editorial reader. Source articles remain linked, not reproduced verbatim.
 let articleBodies={},lastReadingView="featured",lastReadingScroll=0,currentArticleId="";
-const articleEndpoint=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?"/api/article-bodies":"articles.json";
+const articleEndpoint=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&location.port==="8080"?"/api/article-bodies":"articles.json";
 const bodyRequest=fetch(articleEndpoint,{cache:"no-cache"}).then(r=>{if(!r.ok)throw Error("Article data unavailable");return r.json()}).catch(()=>fetch("articles.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{articles:{}})).then(j=>{articleBodies=j.articles||{}}).catch(()=>{});
 function openArticle(id,fromHistory=false){const item=publicItems.find(x=>x.id===id);if(!item)return false;
  if(!$("#article").classList.contains("active")){lastReadingView=document.querySelector(".view.active")?.id||"featured";lastReadingScroll=window.scrollY}
