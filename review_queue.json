@@ -1030,8 +1030,13 @@
       "collectedAt": "2026-10-30T01:24:15.624675+00:00",
       "excerpt": "新手必看 / 行业专区（成长品牌） / 六、「出行旅游」赛道营销指南合集",
       "relevanceScore": 86,
-      "reviewStatus": "pending_human",
-      "publicationStatus": "withheld",
+      "reviewStatus": "pending_reaudit",
+      "publicationStatus": "pending_ai",
+      "humanApproval": {
+        "approvedBy": "2224878257-pixel",
+        "approvedAt": "2026-10-30T11:18:00+08:00",
+        "scope": "revised draft; publication only after independent AI re-audit passes"
+      },
       "category": "广告平台",
       "editorial": {
         "title": "小红书24h投放与AI客服：官方数据与案例要点",
@@ -1089,7 +1094,7 @@
         "sourceEvidenceChars": 3000
       },
       "humanReview": {
-        "status": "draft_revised",
+        "status": "approved_for_reaudit",
         "revisedAt": "2026-10-30T11:00:00+08:00",
         "note": "已删除审核指出的无来源营销推断；仍需仓库所有者核对原文并明确批准，当前禁止发布。"
       }
@@ -1105,8 +1110,13 @@
       "collectedAt": "2026-10-30T02:26:34.635296+00:00",
       "excerpt": "资讯",
       "relevanceScore": 40,
-      "reviewStatus": "pending_human",
-      "publicationStatus": "withheld",
+      "reviewStatus": "pending_reaudit",
+      "publicationStatus": "pending_ai",
+      "humanApproval": {
+        "approvedBy": "2224878257-pixel",
+        "approvedAt": "2026-10-30T11:18:00+08:00",
+        "scope": "revised draft; publication only after independent AI re-audit passes"
+      },
       "category": "广告平台",
       "editorial": {
         "title": "微信营销生态活跃流量主破千万：大会披露五组商业化数据",
@@ -1159,7 +1169,7 @@
         "sourceEvidenceChars": 1600
       },
       "humanReview": {
-        "status": "draft_revised",
+        "status": "approved_for_reaudit",
         "revisedAt": "2026-10-30T11:00:00+08:00",
         "note": "已将生态规模、产品能力与广告效果明确区分；仍需仓库所有者核对原文并明确批准，当前禁止发布。"
       }

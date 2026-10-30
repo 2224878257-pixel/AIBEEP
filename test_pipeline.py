@@ -161,6 +161,25 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in selected], ["tencent", "ocean", "xhs-high"])
         candidates[2]["reviewStatus"] = "needs_manual_source"
         self.assertNotIn("ocean", [item["id"] for item in ai_review.select_pending(candidates, 4)])
+        candidates.append({"id": "approved-reaudit", "platform": "腾讯广告", "reviewStatus": "pending_reaudit", "relevanceScore": 1})
+        self.assertEqual(ai_review.select_pending(candidates, 1)[0]["id"], "approved-reaudit")
+
+    def test_successful_reaudit_unlocks_only_explicit_human_approval(self):
+        candidate = {
+            "id": "abcdef0123456789", "url": "https://e.qq.com/example", "source": "腾讯广告", "platform": "腾讯广告",
+            "title": "腾讯广告更新", "reviewStatus": "pending_reaudit", "publicationStatus": "pending_ai",
+            "humanApproval": {"approvedBy": "owner", "approvedAt": "2026-10-30T11:00:00+08:00"},
+            "editorial": {"title": "更新", "summary": "官方更新摘要。", "intro": "官方更新说明。", "sections": [{"title": "事实", "paragraphs": ["官方公布了更新内容。"]}]},
+        }
+        audit = {"relevance": 95, "fidelity": 99, "duplicate_or_redundant": False, "unsupported_claims": False,
+                 "sensitive_or_legal_risk": False, "copyrighted_reproduction": False, "issues": [],
+                 "supported_facts": ["官方公布了广告产品更新内容。", "官方资料说明了功能适用范围。"]}
+        with patch.object(ai_review, "fetch_evidence", return_value="e" * 1200), \
+             patch.object(ai_review, "draft", side_effect=AssertionError("reaudit must preserve revised draft")), \
+             patch.object(ai_review, "model_review", return_value=audit):
+            self.assertEqual(ai_review.run({"candidates": [candidate]}, "dummy", 1), 1)
+        self.assertEqual(candidate["reviewStatus"], "approved")
+        self.assertEqual(candidate["publicationStatus"], "approved")
 
     def test_static_publish_requires_two_matching_approvals(self):
         base = {"id": "0123456789abcdef", "url": "https://blog.google/example", "source": "Google", "category": "广告平台", "reviewStatus": "approved",
