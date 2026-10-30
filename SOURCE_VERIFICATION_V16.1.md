@@ -7,7 +7,7 @@
 | 平台 | 官方入口 | 采集方式 | 验证结果 | 边界与风险 |
 | --- | --- | --- | --- | --- |
 | 腾讯广告 | `https://e.qq.com/latestnews/` | `official_api`：页面自身使用的 `POST /portal/information/new_search`，详情使用 `GET /portal/case_center/posts` | HTTP 200，可取得真实标题、时间、详情 URL 和正文证据 | 不是承诺稳定的开放 API，接口变化时失败关闭；仅低频读取，无登录 |
-| 巨量引擎 | `https://school.oceanengine.com/` | `public_webpage`：解析服务端渲染的官方课程/直播链接 | HTTP 200，可取得官方标题、时间和原始链接；`robots.txt` 当前允许 `/` | 不调用私有接口，不抓取需登录内容；页面结构变化时记录失败并隔离 |
+| 巨量引擎 | `https://school.oceanengine.com/` | `public_webpage`：解析服务端渲染的官方课程/直播链接 | 首页 HTTP 200，可取得官方标题、时间和原始链接；详情当前返回 `未登录` JSON | 只保留人工证据候选，不调用 AI，不绕过登录；不能作为自动全文审核来源 |
 | 小红书聚光/千帆 | `https://ad.xiaohongshu.com/next_help/home` | `official_api`：帮助中心前端使用的 `/api/light/help/doc/space/nav` 与 `/api/light/help/doc/content` | HTTP 200，可取得真实帮助文档标题、更新时间、路径和正文证据 | 不是承诺稳定的开放 API，接口变化时失败关闭；不访问商家后台或账户数据 |
 
 首次真实小批量采集共读取 57 条：腾讯广告 24 条、巨量引擎 9 条、小红书聚光/千帆 24 条。初筛生成 25 条候选、过滤 32 条；规则复核后又将 3 条主题不足的候选标记为 `rejected/withheld`，不会进入公开数据。该次运行没有调用 DeepSeek，也没有修改 `dist/content.json` 或 `dist/articles.json`。

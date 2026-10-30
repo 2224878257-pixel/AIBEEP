@@ -102,6 +102,7 @@ def collect(options):
     old = json.loads(queue_path.read_text(encoding="utf-8")) if queue_path.exists() else {"candidates": []}
     previous_candidates = old.get("candidates", [])
     queue = {entry["id"]: entry for entry in previous_candidates}
+    queue_changed = False
     known_urls = set()
     known_fingerprints = set()
     for entry in previous_candidates:
@@ -140,6 +141,23 @@ def collect(options):
             report["reason"] = source.get("note", "manual submission only")
             outcomes.append(report)
             continue
+        desired_status = source.get("reviewStatus")
+        if desired_status:
+            for existing in queue.values():
+                if existing.get("source") != source.get("name"):
+                    continue
+                if existing.get("reviewStatus") not in ("pending", "needs_review"):
+                    continue
+                desired_access = {
+                    "status": source.get("evidenceAccess", "manual_required"),
+                    "reason": source.get("note", "manual source evidence required"),
+                }
+                if existing.get("reviewStatus") == desired_status and existing.get("sourceAccess") == desired_access:
+                    continue
+                existing["reviewStatus"] = desired_status
+                existing["publicationStatus"] = "withheld"
+                existing["sourceAccess"] = desired_access
+                queue_changed = True
         try:
             entries, http_status = fetch_source(source, options.limit)
             report["httpStatus"] = http_status
@@ -162,10 +180,13 @@ def collect(options):
                     except Exception as exc:
                         entry["draftError"] = f"{type(exc).__name__}: {str(exc)[:160]}"
                 queue[entry["id"]] = entry
+                queue_changed = True
                 known_urls.add(entry["url"])
                 known_fingerprints.add(fingerprint)
                 report["newCandidates"] += 1
-            report["status"] = "ok"
+            report["status"] = "limited" if desired_status else "ok"
+            if desired_status:
+                report["reason"] = source.get("note", "manual source evidence required")
             report["successRate"] = 1.0
         except Exception as exc:
             report["httpStatus"] = getattr(exc, "http_status", None)
@@ -206,7 +227,7 @@ def collect(options):
         ],
     }
 
-    if candidates != previous_candidates:
+    if queue_changed or candidates != previous_candidates:
         queue_path.write_text(
             json.dumps({"updatedAt": completed.isoformat(), "candidates": candidates}, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
