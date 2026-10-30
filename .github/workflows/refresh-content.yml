@@ -45,7 +45,7 @@ jobs:
           fi
       - name: Offline regression tests
         run: python -m unittest test_pipeline.py -v
-      - name: Fetch official feeds
+      - name: Fetch official sources and discover recent coverage
         run: python collect_feeds.py --limit 8 --max-age-days 180 --delay 1
       - name: Generate and independently audit up to three articles
         env:

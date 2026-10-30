@@ -62,6 +62,26 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(items[0]["publishedAt"], "2026-10-27T06:00:00+08:00")
         self.assertEqual(items[0]["reviewStatus"], "needs_manual_source")
 
+    def test_news_search_discovers_but_does_not_trust_external_results(self):
+        payload = json.dumps({"articles": [
+            {"title": "Google Ads launches campaign update", "url": "https://blog.google/products/ads-commerce/update/", "seendate": "20261030T030000Z", "domain": "blog.google", "language": "English"},
+            {"title": "Commentary about advertising", "url": "https://news.example.com/story?utm_source=test", "seendate": "20261030T020000Z", "domain": "news.example.com", "language": "English"},
+        ]}).encode()
+        source = {
+            "name": "Discovery", "url": "https://api.gdeltproject.org/api/v2/doc/doc", "platform": "行业搜索",
+            "query": '("Google Ads" OR "Tencent Ads")', "allowed_domains": ["api.gdeltproject.org"],
+            "official_domains": ["blog.google"], "domain_platforms": {"blog.google": "Google Ads"},
+        }
+        with patch.object(source_adapters, "request_bytes", return_value=(payload, 200, source["url"], "application/json")):
+            items, status = source_adapters.fetch_gdelt_doc(source, 8)
+        self.assertEqual(status, 200)
+        self.assertEqual(items[0]["reviewStatus"], "pending")
+        self.assertEqual(items[0]["platform"], "Google Ads")
+        self.assertTrue(items[0]["discovery"]["verifiedPrimarySource"])
+        self.assertEqual(items[1]["reviewStatus"], "needs_source_verification")
+        self.assertEqual(items[1]["publicationStatus"], "withheld")
+        self.assertFalse(items[1]["discovery"]["verifiedPrimarySource"])
+
     def test_collection_does_not_rewrite_unchanged_queue(self):
         import collect_feeds
         prior = collect_feeds.BASE
@@ -112,7 +132,7 @@ class PipelineTests(unittest.TestCase):
     def test_ai_audit_automatic_approval_and_fail_closed(self):
         candidate = {"id": "0123456789abcdef", "url": "https://blog.google/example", "source": "Google", "category": "广告平台", "title": "Google Ads 新功能", "excerpt": "广告素材管理" , "reviewStatus": "pending"}
         editorial = {"title": "广告平台更新", "summary": "官方公布投放工具更新。", "intro": "此次更新包含新能力。", "sections": [{"title": "功能", "paragraphs": ["支持广告优化流程。"]}]}
-        audit = {"relevance": 90, "fidelity": 98, "duplicate_or_redundant": False, "unsupported_claims": False, "sensitive_or_legal_risk": False, "copyrighted_reproduction": False, "issues": [], "supported_facts": ["官方公布新的广告管理能力。", "更新介绍了具体的操作路径。"]}
+        audit = {"relevance": 90, "fidelity": 98, "duplicate_or_redundant": False, "unsupported_claims": False, "sensitive_or_legal_risk": False, "copyrighted_reproduction": False, "material_errors": [], "editorial_notes": ["可以补充一项非必要背景。"], "supported_facts": ["官方公布新的广告管理能力。", "更新介绍了具体的操作路径。"]}
         with patch.object(ai_review, "fetch_evidence", return_value="e" * 1200), \
              patch.object(ai_review, "draft", return_value=editorial), \
              patch.object(ai_review, "model_review", return_value=audit):
@@ -125,6 +145,9 @@ class PipelineTests(unittest.TestCase):
         self.assertIsNotNone(approved_item(candidate))
         flagged = {**audit, "unsupported_claims": True}
         self.assertEqual(ai_review.decision(candidate, flagged)[0], "needs_review")
+        material = {**audit, "material_errors": ["草稿把15%写成了50%。"]}
+        self.assertEqual(ai_review.decision(candidate, material)[0], "needs_review")
+        self.assertEqual(ai_review.decision(candidate, audit)[0], "approved")
         candidate["reviewStatus"] = "pending"
         with patch.object(ai_review, "fetch_evidence", side_effect=ValueError("offline")):
             ai_review.run({"candidates": [candidate]}, "dummy", 1)
@@ -143,7 +166,7 @@ class PipelineTests(unittest.TestCase):
                 self.assertEqual(len(backend.get_bodies()["articles"]), 9)
                 catalog = json.loads((backend.ROOT / "feed_sources.json").read_text(encoding="utf-8"))
                 self.assertEqual(len(catalog["feeds"]), 3)
-                self.assertEqual(len(catalog["automatic_sources"]), 3)
+                self.assertEqual(len(catalog["automatic_sources"]), 4)
                 self.assertGreaterEqual(len(catalog["watch_pages"]), 3)
         finally:
             backend.DB_PATH = prior
@@ -172,7 +195,7 @@ class PipelineTests(unittest.TestCase):
             "editorial": {"title": "更新", "summary": "官方更新摘要。", "intro": "官方更新说明。", "sections": [{"title": "事实", "paragraphs": ["官方公布了更新内容。"]}]},
         }
         audit = {"relevance": 95, "fidelity": 99, "duplicate_or_redundant": False, "unsupported_claims": False,
-                 "sensitive_or_legal_risk": False, "copyrighted_reproduction": False, "issues": [],
+                 "sensitive_or_legal_risk": False, "copyrighted_reproduction": False, "material_errors": [], "editorial_notes": [],
                  "supported_facts": ["官方公布了广告产品更新内容。", "官方资料说明了功能适用范围。"]}
         with patch.object(ai_review, "fetch_evidence", return_value="e" * 1200), \
              patch.object(ai_review, "draft", side_effect=AssertionError("reaudit must preserve revised draft")), \

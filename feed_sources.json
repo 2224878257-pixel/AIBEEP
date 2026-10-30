@@ -50,6 +50,34 @@
       "enabled":true,
       "verifiedAt":"2026-10-29",
       "note":"聚光帮助中心官方前端使用的无需登录公开 JSON 接口；抓取标题、更新时间和官方文档链接。"
+    },
+    {
+      "name":"GDELT 广告行业发现",
+      "url":"https://api.gdeltproject.org/api/v2/doc/doc",
+      "type":"news_search",
+      "adapter":"gdelt_doc",
+      "query":"(\"Tencent Ads\" OR \"Ocean Engine advertising\" OR \"Xiaohongshu advertising\" OR \"WeChat Ads\" OR \"Kuaishou advertising\" OR \"Baidu marketing\" OR \"Google Ads\" OR \"Meta Ads\")",
+      "timespan":"2d",
+      "max_records":40,
+      "category":"行业发现",
+      "region":"global",
+      "platform":"行业搜索",
+      "allowed_domains":["api.gdeltproject.org"],
+      "official_domains":["e.qq.com","oceanengine.com","ad.xiaohongshu.com","ad.weixin.qq.com","e.kuaishou.com","e.baidu.com","blog.google","developers.google.com","about.fb.com"],
+      "domain_platforms":{
+        "e.qq.com":"腾讯广告",
+        "oceanengine.com":"巨量引擎",
+        "ad.xiaohongshu.com":"小红书聚光/千帆",
+        "ad.weixin.qq.com":"微信广告",
+        "e.kuaishou.com":"快手磁力",
+        "e.baidu.com":"百度营销",
+        "blog.google":"Google Ads",
+        "developers.google.com":"Google Ads",
+        "about.fb.com":"Meta Ads"
+      },
+      "enabled":true,
+      "verifiedAt":"2026-10-30",
+      "note":"GDELT DOC 2.0 公共搜索仅用于候选发现。非官方域名结果默认 needs_source_verification，不调用 AI、不进入发布数据；接口限频或不可用时错误隔离。"
     }
   ],
   "watch_pages": [
