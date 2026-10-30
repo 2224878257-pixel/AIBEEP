@@ -75,6 +75,7 @@ def walk(value):
 class Collector:
     def __init__(self, browser=None):
         self.browser = browser
+        self.metadata = {}
 
     def html(self, url, source):
         if self.browser:
@@ -104,11 +105,18 @@ class Collector:
             rows = result.get('data', {}).get('data', [])
             if result.get('code') != 0 or not isinstance(rows, list):
                 raise ValueError('Tencent list schema changed')
+            for row in rows:
+                if row.get('post_id'):
+                    catalogs = row.get('catalogs') or []
+                    published = (catalogs[0].get('first_publish_at') if catalogs else None) or row.get('created_at')
+                    self.metadata[canonical(f"https://e.qq.com/latestnews/detail?pid={row['post_id']}")] = published
             return [f"https://e.qq.com/latestnews/detail?pid={r['post_id']}" for r in rows if r.get('post_id')][:limit]
         if source.get('adapter') == 'xiaohongshu':
             result = request('https://ad.xiaohongshu.com/api/light/help/doc/space/nav').json()
             rows = [r for r in walk(result.get('data', {})) if r.get('docInfoType') == 1 and r.get('shortcutId')]
             rows.sort(key=lambda r: int(r.get('updateTime') or 0), reverse=True)
+            for row in rows:
+                self.metadata[canonical(f"https://ad.xiaohongshu.com/next_help/docs/{row['shortcutId']}")] = row.get('updateTime')
             return list(dict.fromkeys(f"https://ad.xiaohongshu.com/next_help/docs/{r['shortcutId']}" for r in rows))[:limit]
         soup = BeautifulSoup(self.html(source['url'], source), 'html.parser')
         urls = [canonical(urljoin(source['url'], a['href'])) for a in soup.select('a[href]')
@@ -119,7 +127,8 @@ class Collector:
         if not allowed(url, source):
             raise ValueError('Not an official article URL')
         html = self.html(url, source)
-        doc = bare_extraction(html, url=url, with_metadata=True, as_dict=True)
+        extracted = bare_extraction(html, url=url, with_metadata=True)
+        doc = extracted.as_dict() if extracted else None
         if not doc or len(doc.get('text') or '') < 180:
             raise ValueError('No readable article body (possibly login/JS only)')
         soup = BeautifulSoup(html, 'html.parser')
@@ -135,12 +144,24 @@ class Collector:
         labelled = re.search(r'(?:发布时间|发布日期|发布于)\s*[:：]?\s*(20\d{2}[-/]\d{1,2}[-/]\d{1,2})', soup.get_text(' ', strip=True))
         if labelled:
             dates.append(labelled.group(1).replace('/', '-'))
+        if source['ch'] == 'hw':
+            # Meta displays its publication date beside the category above the headline.
+            heading = soup.get_text(' ', strip=True)[:500]
+            match = re.search(r'·\s*([A-Z][a-z]+ \d{1,2}, 20\d{2})', heading)
+            if match:
+                try:
+                    dates.append(datetime.strptime(match.group(1), '%B %d, %Y').isoformat())
+                except ValueError:
+                    pass
+        dates.append(self.metadata.get(canonical(url)))
         published = next((d for v in dates if (d := date_value(v))), None)
         if published is None:
             raise ValueError('Missing reliable publication date')
         title = doc.get('title') or (soup.h1.get_text(strip=True) if soup.h1 else '')
         if not title:
             raise ValueError('Missing title')
+        if source.get('adapter') == 'xiaohongshu':
+            title = '帮助文档更新：' + title
         return {'url': canonical(url), 'title': title, 'body': doc['text'][:16000], 'published_at': published.isoformat()}
 
 
