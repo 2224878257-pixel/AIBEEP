@@ -126,6 +126,18 @@ class Collector:
     def article(self, url, source):
         if not allowed(url, source):
             raise ValueError('Not an official article URL')
+        if source.get('adapter') == 'xiaohongshu':
+            shortcut = urlsplit(url).path.rsplit('/', 1)[-1]
+            result = request('https://ad.xiaohongshu.com/api/light/help/doc/content', params={'shortcutId': shortcut}).json()
+            data = (result.get('data') or {}).get('result') or {}
+            if not result.get('success') or not data.get('content'):
+                raise ValueError('Xiaohongshu detail unavailable')
+            content = json.loads(data['content'])
+            text = '\n'.join(r['text'] for r in walk(content) if isinstance(r.get('text'), str))
+            published = date_value(self.metadata.get(canonical(url)))
+            if len(text) < 180 or not published or not data.get('title'):
+                raise ValueError('Incomplete Xiaohongshu document')
+            return {'url': canonical(url), 'title': '帮助文档更新：' + data['title'], 'body': text[:16000], 'published_at': published.isoformat()}
         if source.get('adapter') == 'tencent':
             pid = dict(parse_qsl(urlsplit(url).query)).get('pid', '')
             result = request('https://e.qq.com/portal/case_center/posts', params={'post_id': pid}).json()
@@ -208,6 +220,8 @@ def atomic_json(path, value):
 
 
 def publish_row(article, ai, source):
+    if source.get('adapter') == 'xiaohongshu' and not ai['title'].startswith('帮助文档更新：'):
+        ai = {**ai, 'title': '帮助文档更新：' + ai['title']}
     return {**ai, 'id': int(hashlib.sha256(article['url'].encode()).hexdigest()[:12], 16),
             'ch': source['ch'], 't': 'week', 'src': source['name'], 'url': article['url'],
             'time': '', 'heat': 0, 'focus': 0, 'st': False, 'co': 1,
@@ -234,7 +248,10 @@ def run(args, collector):
                 status['errors'].append('No article links; list may require login or adapter update')
             for url in urls:
                 if canonical(url) in by_url:
-                    continue
+                    updated = date_value(collector.metadata.get(canonical(url))) if source.get('adapter') == 'xiaohongshu' else None
+                    cached = date_value(by_url[canonical(url)].get('published_at'))
+                    if not updated or (cached and updated <= cached):
+                        continue
                 try:
                     article = collector.article(url, source)
                     status['readable'] += 1

@@ -9,6 +9,18 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_xiaohongshu_document_is_labelled_as_update(self):
+        response = Mock()
+        response.json.return_value = {'success': True, 'data': {'result': {'title': '投放规范', 'content': json.dumps({'children': [{'text': '规范正文' * 60}]})}}}
+        source = {'adapter': 'xiaohongshu', 'ch': 'xhs', 'hosts': ['ad.xiaohongshu.com'], 'pattern': '/next_help/docs/'}
+        url = 'https://ad.xiaohongshu.com/next_help/docs/123'
+        collector = s.Collector()
+        collector.metadata[url] = 1793318400000
+        with patch.object(s, 'request', return_value=response):
+            row = collector.article(url, source)
+        self.assertTrue(row['title'].startswith('帮助文档更新：'))
+        self.assertGreater(len(row['body']), 180)
+
     def test_tencent_detail_extracts_rich_text(self):
         response = Mock()
         response.json.return_value = {'code': 0, 'data': {'title': '腾讯广告更新', 'created_at': '2026-10-30 08:00:00', 'content': json.dumps({'content': [{'type': 'rich_text', 'content': '<p>' + '广告正文内容' * 60 + '</p>'}]})}}
