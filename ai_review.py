@@ -199,7 +199,7 @@ def decision(item, review):
 
 def select_pending(candidates, limit):
     """Prefer one high-value item per domestic platform before global backlog."""
-    pending = [item for item in candidates if item.get("reviewStatus") == "pending"]
+    pending = [item for item in candidates if item.get("reviewStatus") in ("pending", "pending_reaudit")]
     indexed = {id(item): index for index, item in enumerate(candidates)}
 
     def value(item):
@@ -208,7 +208,8 @@ def select_pending(candidates, limit):
             score = float(score)
         except (TypeError, ValueError):
             score = 0
-        return (-score, indexed[id(item)])
+        reaudit_priority = 0 if item.get("reviewStatus") == "pending_reaudit" else 1
+        return (reaudit_priority, -score, indexed[id(item)])
 
     buckets = {}
     for item in pending:
@@ -239,7 +240,8 @@ def run(queue, token, limit):
             source_text = fetch_evidence(item["url"])
             # Draft from source material while keeping output original and compact.
             context_item = {**item, "excerpt": source_text[:11000]}
-            item["editorial"] = draft(context_item, token)
+            if not (item.get("reviewStatus") == "pending_reaudit" and item.get("editorial")):
+                item["editorial"] = draft(context_item, token)
             comparisons = [
                 {"title": other.get("title", ""), "url": other.get("url", "")}
                 for other in queue["candidates"] if other is not item
@@ -248,7 +250,17 @@ def run(queue, token, limit):
             outcome, why = decision(item, audit)
             item["reviewStatus"] = outcome
             if outcome == "approved" and item.get("publicationStatus") != "approved":
-                item["publicationStatus"] = "pending_human"
+                human = item.get("humanApproval") or {}
+                if (
+                    item.get("publicationStatus") == "pending_ai"
+                    and isinstance(human.get("approvedBy"), str) and human["approvedBy"].strip()
+                    and isinstance(human.get("approvedAt"), str) and human["approvedAt"].strip()
+                ):
+                    item["publicationStatus"] = "approved"
+                else:
+                    item["publicationStatus"] = "pending_human"
+            elif outcome != "approved":
+                item["publicationStatus"] = "withheld"
             log.update({
                 "decision": outcome,
                 "reason": why,
