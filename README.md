@@ -1,40 +1,63 @@
-# AIBEEP V16.2
+# AIBEEP 增长资讯站
 
-面向广告投放、AI 营销与企业增长从业者的资讯工作台。系统从允许访问的官方 RSS、官方前端公开接口和公开网页获取候选内容，经相关性初筛、DeepSeek 中文整理和独立事实审核后，只有满足人工发布门禁的条目才能写入公开静态数据。
+面向广告投放/企业获客/AI+增长从业者的每日资讯站。前端已完成，需要你补后端采集。
 
-## 安全边界
+## 项目结构
 
-- `DEEPSEEK_API_KEY` 只从服务器环境变量或 GitHub Actions Secret 读取，禁止写入仓库和 `dist/`。
-- AI 审核不是法律审查，也不等同于站外事实核查；发布前仍需人工确认来源、版权和合规。
-- GitHub Pages 默认关闭。只有仓库变量 `AIBEEP_ENABLE_PUBLIC_PAGES=true` 且人工手动触发部署工作流时才允许发布。
-- 候选、审核失败和处理异常不会进入 `dist/content.json` 或 `dist/articles.json`。
-- 定时采集和 AI 审核不会自动公开发布。AI 通过的条目仍需写入明确的人工审批元数据，再由人工手动触发发布。
-
-## V16.2 发现、核验与审核
-
-- 官方采集层继续读取腾讯广告、巨量学和小红书聚光的公开入口。
-- 候选发现层通过 GDELT DOC 2.0 公共接口低频搜索广告行业报道；接口失败只记录错误，不中断其他信源。
-- 搜索结果不等于事实证据：非官方域名候选固定为 `needs_source_verification`，不会调用 DeepSeek，也不会进入公开数据。
-- 独立审核将问题拆为 `material_errors` 和 `editorial_notes`。数字、日期、主体、范围、因果归因和效果承诺错误会硬拦截；同义改写与可选补充只进入编辑提示。
-- 搜索、AI 审核和人工批准仍是三道独立门禁。定时任务不会自动公开候选。
-
-## 国内信源
-
-- 腾讯广告：官方资讯页前端公开 JSON 接口。
-- 巨量引擎：巨量学官方公开网页。
-- 小红书聚光/千帆：聚光帮助中心前端公开 JSON 接口。
-- 微信广告/本地推/视频号、快手磁力、百度营销：当前保留人工链接，未声明为自动接入。
-
-详细验证结果和合规边界见 [SOURCE_VERIFICATION_V16.1.md](SOURCE_VERIFICATION_V16.1.md)。GDELT 仅提供发现能力，不替代该文件记录的官方来源核验。
-
-## 本地离线验证
-
-```bash
-python -m unittest test_pipeline.py -v
-python collect_feeds.py --limit 3 --max-age-days 180 --delay 1 --source "腾讯广告" --source "巨量引擎" --source "小红书聚光/千帆"
-python report_run.py
-python -m json.tool dist/content.json
-python -m json.tool dist/articles.json
+```
+index.html    — 前端单文件，已完成
+data.json     — 数据文件，采集脚本输出到这里
 ```
 
-GitHub Actions、DeepSeek Secret 和 Pages 配置见 [GITHUB_V16.md](GITHUB_V16.md)。
+## 前端数据格式
+
+前端从同目录 `data.json` 读数据。格式是一个 JSON 数组，每条字段如下：
+
+```json
+{
+  "id": 1,
+  "ch": "dj",              // 平台：dj=巨量引擎 tx=腾讯广告 ks=快手磁力 xhs=小红书 hw=海外投放
+  "t": "today",            // today=今天 week=近7天
+  "tag": "acq",            // 方向：ad=广告投放 acq=企业获客 mkt=营销方法 ai=AI+增长
+  "cat": "platform",       // 栏目：platform=平台动态 data=行业数据 ai=AI营销工具 case=投放案例 acq=获客趋势
+  "title": "标题",
+  "desc": "一句话摘要",
+  "content": "正文（详情抽屉里显示）",
+  "src": "来源名称",
+  "time": "09:12",
+  "heat": 874,
+  "focus": 0,
+  "st": false,
+  "url": "原文链接",
+  "score": 86,             // AI评分 0-100
+  "co": 1,
+  "reason": "推荐理由（橙色底块显示在标题下面）",
+  "orig": "原始内容"
+}
+```
+
+## 需要你做的事
+
+1. 写 Python 采集脚本（`scraper.py`），抓以下平台官方博客/更新日志：
+   - 巨量引擎（巨量学/巨量引擎官网更新日志）
+   - 腾讯广告（腾讯广告官网/腾讯营销洞察）
+   - 快手磁力（磁力引擎官网）
+   - 小红书（小红书商家中心/小红书商业动态）
+   - Meta Ads（Meta for Business 官方博客）
+
+2. 抓到原文后，调 DeepSeek API 做三件事：
+   - 分类：platform/data/ai/case/acq
+   - 写一句摘要（desc）
+   - 写推荐理由（reason）
+
+3. 输出成 `data.json`，格式和上面一致
+
+4. 写 GitHub Actions 配置（`.github/workflows/daily.yml`），每天早8点自动跑脚本，跑完提交 data.json 到仓库
+
+5. 配置 GitHub Pages 发布
+
+## 注意
+
+- 不要改 index.html 的结构，只加后端
+- data.json 为空数组时前端会自动 fallback 到内置示例数据
+- API key 用 GitHub Secrets 存，不要硬编码
