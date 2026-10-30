@@ -37,13 +37,16 @@ def approved_item(candidate):
         return None
     if not all(editorial.get(key) for key in ("title", "summary", "intro", "sections")):
         return None
-    published = candidate.get("published", "")
-    # The feed timestamp may use RFC-822. Use the audited date for consistent sorting.
+    published = candidate.get("publishedAt") or candidate.get("published", "")
+    # Source timestamps may use RFC-822 or ISO-8601. Use audit time as fallback.
     from email.utils import parsedate_to_datetime
     try:
         added = parsedate_to_datetime(published).astimezone(timezone.utc).isoformat()
     except (TypeError, ValueError, OverflowError):
-        added = audit.get("auditedAt") or datetime.now(timezone.utc).isoformat()
+        try:
+            added = datetime.fromisoformat(str(published).replace("Z", "+00:00")).astimezone(timezone.utc).isoformat()
+        except (TypeError, ValueError, OverflowError):
+            added = audit.get("auditedAt") or datetime.now(timezone.utc).isoformat()
     item = {"id": candidate["id"], "title": editorial.get("title"),
             "category": candidate.get("category"), "source": candidate.get("source"),
             "summary": editorial.get("summary"), "url": candidate.get("url"), "addedAt": added}

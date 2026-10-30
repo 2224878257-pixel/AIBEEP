@@ -9,6 +9,8 @@ import xml.etree.ElementTree as ET
 import backend
 import ai_review
 import deepseek_client
+import report_run
+import source_adapters
 from publish_reviewed import promoted
 from collect_feeds import likely_relevant, parse_feed, relevance
 from scheduler import approved_item
@@ -26,6 +28,38 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(len(items), 1)
         self.assertEqual(len(items[0]["id"]), 16)
         self.assertEqual(items[0]["reviewStatus"], "pending")
+        self.assertIn("publishedAt", items[0])
+        self.assertIn("collectedAt", items[0])
+
+    def test_url_normalization_and_content_fingerprint(self):
+        clean = source_adapters.normalize_url("https://Example.com/story/?utm_source=x&b=2&a=1#part")
+        self.assertEqual(clean, "https://example.com/story?b=2&a=1")
+        a = {"title": "广告 投放更新", "excerpt": "同一内容"}
+        b = {"title": "广告投放更新！", "excerpt": "同一内容"}
+        self.assertEqual(source_adapters.content_fingerprint(a), source_adapters.content_fingerprint(b))
+
+    def test_official_api_adapters_and_public_webpage(self):
+        tencent_data = json.dumps({"code": 0, "data": {"data": [{
+            "post_id": 123, "title": "腾讯广告转化产品更新", "created_at": "2026-10-20 10:00:00",
+            "tags": [{"name": "产品"}], "catalogs": []
+        }]}}).encode()
+        xhs_data = json.dumps({"msg": "ok", "data": {"menu": [{"menu": [{
+            "docInfoType": 1, "shortcutId": "a" * 32, "title": "聚光广告规则更新",
+            "updateTime": 1792466967000, "directory": ["物料审核规范"]
+        }]}]}}).encode()
+        page = b'<a href="/live/123">\xe3\x80\x90\xe5\xb7\xa8\xe9\x87\x8f\xe5\xad\xa6\xe3\x80\x91AI\xe8\x90\xa5\xe9\x94\x80\xe6\x8a\x95\xe6\x94\xbe\xe6\x96\xb0\xe5\xb7\xa5\xe5\x85\xb72026-10-27 06:00</a><a href="/login">login</a>'
+        with patch.object(source_adapters, "request_bytes", return_value=(tencent_data, 200, "https://e.qq.com/api", "application/json")):
+            items, status = source_adapters.fetch_tencent_latestnews({"name":"腾讯","url":"https://e.qq.com/api","platform":"腾讯广告","region":"cn"}, 3)
+        self.assertEqual(status, 200)
+        self.assertEqual(items[0]["url"], "https://e.qq.com/latestnews/detail?pid=123")
+        with patch.object(source_adapters, "request_bytes", return_value=(xhs_data, 200, "https://ad.xiaohongshu.com/api", "application/json")):
+            items, _ = source_adapters.fetch_xiaohongshu_help({"name":"小红书","url":"https://ad.xiaohongshu.com/api","platform":"小红书聚光","region":"cn"}, 3)
+        self.assertEqual(items[0]["url"], "https://ad.xiaohongshu.com/next_help/docs/" + "a" * 32)
+        webpage_source = {"name":"巨量学","url":"https://school.oceanengine.com/","platform":"巨量引擎","region":"cn","allowed_domains":["school.oceanengine.com"],"item_path_prefixes":["/live/"]}
+        with patch.object(source_adapters, "request_bytes", return_value=(page, 200, "https://school.oceanengine.com/", "text/html")):
+            items, _ = source_adapters.fetch_public_webpage(webpage_source, 3)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["publishedAt"], "2026-10-27T06:00:00+08:00")
 
     def test_collection_does_not_rewrite_unchanged_queue(self):
         import collect_feeds
@@ -77,12 +111,16 @@ class PipelineTests(unittest.TestCase):
     def test_ai_audit_automatic_approval_and_fail_closed(self):
         candidate = {"id": "0123456789abcdef", "url": "https://blog.google/example", "source": "Google", "category": "广告平台", "title": "Google Ads 新功能", "excerpt": "广告素材管理" , "reviewStatus": "pending"}
         editorial = {"title": "广告平台更新", "summary": "官方公布投放工具更新。", "intro": "此次更新包含新能力。", "sections": [{"title": "功能", "paragraphs": ["支持广告优化流程。"]}]}
-        audit = {"relevance": 90, "fidelity": 98, "unsupported_claims": False, "sensitive_or_legal_risk": False, "copyrighted_reproduction": False, "issues": [], "supported_facts": ["官方公布新的广告管理能力。", "更新介绍了具体的操作路径。"]}
+        audit = {"relevance": 90, "fidelity": 98, "duplicate_or_redundant": False, "unsupported_claims": False, "sensitive_or_legal_risk": False, "copyrighted_reproduction": False, "issues": [], "supported_facts": ["官方公布新的广告管理能力。", "更新介绍了具体的操作路径。"]}
         with patch.object(ai_review, "fetch_evidence", return_value="e" * 1200), \
              patch.object(ai_review, "draft", return_value=editorial), \
              patch.object(ai_review, "model_review", return_value=audit):
             self.assertEqual(ai_review.run({"candidates": [candidate]}, "dummy", 1), 1)
         self.assertEqual(candidate["reviewStatus"], "approved")
+        self.assertEqual(candidate["publicationStatus"], "pending_human")
+        self.assertIsNone(approved_item(candidate))
+        candidate["publicationStatus"] = "approved"
+        candidate["humanApproval"] = {"approvedBy": "editor", "approvedAt": "2026-10-29T10:00:00+08:00"}
         self.assertIsNotNone(approved_item(candidate))
         flagged = {**audit, "unsupported_claims": True}
         self.assertEqual(ai_review.decision(candidate, flagged)[0], "needs_review")
@@ -104,7 +142,8 @@ class PipelineTests(unittest.TestCase):
                 self.assertEqual(len(backend.get_bodies()["articles"]), 9)
                 catalog = json.loads((backend.ROOT / "feed_sources.json").read_text(encoding="utf-8"))
                 self.assertEqual(len(catalog["feeds"]), 3)
-                self.assertGreaterEqual(len(catalog["watch_pages"]), 9)
+                self.assertEqual(len(catalog["automatic_sources"]), 3)
+                self.assertGreaterEqual(len(catalog["watch_pages"]), 3)
         finally:
             backend.DB_PATH = prior
 
@@ -113,7 +152,8 @@ class PipelineTests(unittest.TestCase):
                 "editorial": {"title": "广告更新", "summary": "产品更新摘要", "intro": "产品更新简介", "sections": [{"title": "说明", "paragraphs": ["官方描述了更新。"]}]}}
         content, bodies = {"items": []}, {"articles": {}}
         self.assertEqual(promoted({"candidates": [{**base, "audit": {"decision": "needs_review"}}]}, content, bodies), [])
-        approved = {**base, "published": "Wed, 29 Oct 2026 08:00:00 GMT", "audit": {
+        approved = {**base, "publishedAt": "2026-10-29T08:00:00+00:00", "publicationStatus": "approved",
+                    "humanApproval": {"approvedBy": "editor", "approvedAt": "2026-10-29T09:00:00+00:00"}, "audit": {
             "decision": "approved", "relevance": 91, "fidelity": 98,
             "supported_facts": ["官方发布了广告产品更新。", "公告说明了功能适用范围。"],
         }}
@@ -121,7 +161,16 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(len(content["items"]), 1)
         self.assertEqual(content["items"][0]["reviewStatus"], "approved")
         self.assertEqual(content["items"][0]["evidence"], approved["audit"]["supported_facts"])
-        self.assertEqual(content["items"][0]["publishedAt"], approved["published"])
+        self.assertEqual(content["items"][0]["publishedAt"], approved["publishedAt"])
+
+    def test_run_report_validation_and_summary(self):
+        report = {
+            "runId":"r1", "status":"success",
+            "collection":{"fetched":1,"newCandidates":1,"duplicates":0,"lowRelevance":0,"stale":0,"failedSources":0,"platforms":{}},
+            "aiReview":{"requested":0,"approved":0,"needsHumanReview":0,"rejected":0,"failed":0},
+            "publication":{"eligible":0,"actualAdded":0,"mode":"manual-gate"}, "sources":[]
+        }
+        self.assertIn("运行汇总", report_run.markdown(report))
 
 
 if __name__ == "__main__":

@@ -1,128 +1,252 @@
-"""Collect official RSS/Atom metadata into a review queue; no automatic publication.
+"""Collect official public sources into a review queue; never auto-publish."""
+from __future__ import annotations
 
-Run `python3 collect_feeds.py`. Optional `--ai` with DEEPSEEK_API_KEY for original
-Chinese summaries based only on feed excerpts, never third-party full articles.
-"""
 import argparse
-import datetime as dt
-import hashlib
-import html
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
 import re
-import urllib.request
-from urllib.parse import urlsplit
-import xml.etree.ElementTree as ET
+import time
+
 from deepseek_client import generate_json
+from source_adapters import (
+    SourceFetchError,
+    content_fingerprint,
+    fetch_source,
+    normalize_url,
+    parse_datetime,
+    parse_feed,
+)
 
 BASE = Path(__file__).resolve().parent
-ATOM = "{http://www.w3.org/2005/Atom}"
 BUSINESS_WORDS = (
-    "advertis", "marketing", "ads ", "ad campaign", "campaign", "conversion", "commerce",
-    "customer", "creative", "lead gen", "business", "merchant", "shopping", "attribution",
-    "投放", "广告", "获客", "转化", "营销", "素材", "商家", "电商", "线索", "千川", "聚光"
+    "advertis", "marketing", " ads", "ad campaign", "campaign", "conversion", "commerce",
+    "customer", "creative", "lead gen", "merchant", "shopping", "attribution", "roi",
+    "投放", "广告", "获客", "转化", "营销", "素材", "创意", "商家", "电商", "线索",
+    "千川", "聚光", "商业化", "归因", "流量", "智投", "推广", "大促", "留资", "私信", "dmp",
+)
+PRIORITY_WORDS = (
+    "规则", "政策", "公告", "更新", "上线", "产品手册", "审核", "案例", "优化",
+    "成本", "出价", "定向", "效果", "线索", "转化", "归因", "roi", "aigc",
 )
 AI_WORDS = ("ai", "agent", "copilot", "automation", "模型", "智能", "自动化")
 
 
 def relevance(entry):
-    """Conservative metadata triage; DeepSeek audits actual source later."""
-    text = " ".join([entry.get("title", ""), entry.get("excerpt", "")]).lower()
+    """Conservative metadata triage; official origin alone is not relevance."""
+    title = entry.get("title", "").lower()
+    text = " ".join([title, entry.get("excerpt", "").lower()])
+    title_business = sum(token in title for token in BUSINESS_WORDS)
     business_hits = sum(token in text for token in BUSINESS_WORDS)
-    ai_hits = sum(token in text for token in AI_WORDS)
-    return min(100, business_hits * 22 + min(ai_hits, 2) * 10)
+    title_priority = sum(token in title for token in PRIORITY_WORDS)
+    # Navigation categories alone must not turn a generic help document into news.
+    if not title_business and not (title_priority and business_hits):
+        return 0
+    priority_hits = sum(token in text for token in PRIORITY_WORDS)
+    ai_hits = min(sum(token in text for token in AI_WORDS), 2)
+    contextual_hits = max(0, business_hits - title_business)
+    return min(100, title_business * 20 + min(contextual_hits, 2) * 6 + priority_hits * 12 + ai_hits * 8)
 
 
 def likely_relevant(entry):
     return relevance(entry) >= 22
 
-def clean(s):
-    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", s or ""))).strip()
-
-def value(node, tag):
-    child = node.find(tag)
-    return "" if child is None else "".join(child.itertext()).strip()
-
-def parse_feed(xml_bytes, source):
-    root = ET.fromstring(xml_bytes)
-    items = root.findall(".//item") or root.findall(f".//{ATOM}entry")
-    found = []
-    for node in items:
-        atom = node.tag.endswith("entry")
-        title = clean(value(node, f"{ATOM}title" if atom else "title"))
-        if atom:
-            link = next((e.attrib.get("href", "") for e in node.findall(f"{ATOM}link") if e.attrib.get("rel", "alternate") == "alternate"), "")
-            summary = value(node, f"{ATOM}summary") or value(node, f"{ATOM}content")
-            pub = value(node, f"{ATOM}published") or value(node, f"{ATOM}updated")
-        else:
-            link, summary, pub = value(node, "link"), value(node, "description"), value(node, "pubDate")
-        if not title or not link.startswith("https://"):
-            continue
-        ident = hashlib.sha256(link.split("#")[0].rstrip("/").encode()).hexdigest()[:16]
-        found.append({"id": ident, "title": title, "url": link, "source": source["name"], "category": source["category"], "excerpt": clean(summary)[:1000], "published": pub, "reviewStatus": "pending"})
-    return found
 
 def draft(entry, token):
     return generate_json(
-        "根据提供的标题和资料摘录生成原创中文编辑稿，不得编造数据，不得声称阅读了更多材料，不得逐段翻译或复制第三方全文。返回字段 title、summary、intro、sections；sections 最多3项，各含 title 和 paragraphs 字符串数组。",
-        {"title": entry["title"], "excerpt": entry["excerpt"], "source": entry["source"]},
+        (
+            "根据提供的官方标题和资料摘录生成原创中文编辑稿。不得编造数据、效果或案例，"
+            "不得声称阅读了未提供的材料，不得逐段翻译或复制原文。重点解释其对广告投放、"
+            "企业获客或增长的实际影响。返回字段 title、summary、intro、sections；sections "
+            "最多3项，各含 title 和 paragraphs 字符串数组。"
+        ),
+        {"title": entry["title"], "excerpt": entry["excerpt"], "source": entry["source"], "url": entry["url"]},
         token=token,
     )
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--ai", action="store_true")
-    ap.add_argument("--limit", type=int, default=8)
-    opt = ap.parse_args()
-    token = os.getenv("DEEPSEEK_API_KEY", "")
-    if opt.ai and not token:
-        ap.error("--ai requires DEEPSEEK_API_KEY")
-    path = BASE / "review_queue.json"
-    old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"candidates": []}
+
+def _all_sources(registry):
+    sources = []
+    for source in registry.get("feeds", []):
+        sources.append({"type": source.get("type", "rss"), **source})
+    sources.extend(registry.get("automatic_sources", []))
+    sources.extend(registry.get("watch_pages", []))
+    return sources
+
+
+def _is_stale(entry, max_age_days, now):
+    published = parse_datetime(entry.get("publishedAt"))
+    return bool(published and published <= now and (now - published).days > max_age_days)
+
+
+def _platform_totals(results):
+    totals = {}
+    for row in results:
+        platform = row.get("platform") or "未分类"
+        target = totals.setdefault(
+            platform,
+            {"fetched": 0, "newCandidates": 0, "duplicates": 0, "lowRelevance": 0, "stale": 0, "failures": 0},
+        )
+        for key in target:
+            if key == "failures":
+                target[key] += int(row.get("status") == "failed")
+            else:
+                target[key] += int(row.get(key, 0))
+    return totals
+
+
+def collect(options):
+    started = datetime.now(timezone.utc)
+    queue_path = BASE / "review_queue.json"
+    old = json.loads(queue_path.read_text(encoding="utf-8")) if queue_path.exists() else {"candidates": []}
     previous_candidates = old.get("candidates", [])
-    queue = {e["id"]: e for e in previous_candidates}
+    queue = {entry["id"]: entry for entry in previous_candidates}
+    known_urls = set()
+    known_fingerprints = set()
+    for entry in previous_candidates:
+        try:
+            known_urls.add(normalize_url(entry.get("url", "")))
+        except ValueError:
+            pass
+        known_fingerprints.add(content_fingerprint(entry))
+
     registry = json.loads((BASE / "feed_sources.json").read_text(encoding="utf-8"))
+    token = os.getenv("DEEPSEEK_API_KEY", "")
+    if options.ai and not token:
+        raise ValueError("--ai requires DEEPSEEK_API_KEY")
+    selected = {value.lower() for value in options.source}
     outcomes = []
-    for source in registry["feeds"]:
+
+    for source in _all_sources(registry):
         if not source.get("enabled", True):
             continue
-        report = {"source":source["name"], "platform":source.get("platform", ""),"status":"failed", "fetched":0,"new":0,"filtered":0}
+        if selected and source.get("name", "").lower() not in selected and source.get("platform", "").lower() not in selected:
+            continue
+        report = {
+            "source": source["name"],
+            "platform": source.get("platform", ""),
+            "method": source.get("type", "rss"),
+            "status": "manual" if source.get("type") == "manual_link" else "failed",
+            "httpStatus": None,
+            "fetched": 0,
+            "newCandidates": 0,
+            "duplicates": 0,
+            "lowRelevance": 0,
+            "stale": 0,
+            "successRate": 0.0,
+        }
+        if source.get("type") == "manual_link":
+            report["reason"] = source.get("note", "manual submission only")
+            outcomes.append(report)
+            continue
         try:
-            if urlsplit(source["url"]).scheme != "https":
-                raise ValueError("feed must use HTTPS")
-            req = urllib.request.Request(source["url"], headers={"User-Agent": "AIBEEP editorial RSS reader"})
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                entries = parse_feed(resp.read(2_000_000), source)[:opt.limit]
+            entries, http_status = fetch_source(source, options.limit)
+            report["httpStatus"] = http_status
             report["fetched"] = len(entries)
             for entry in entries:
-                if entry["id"] in queue:
+                entry["relevanceScore"] = relevance(entry)
+                if _is_stale(entry, options.max_age_days, started):
+                    report["stale"] += 1
                     continue
-                entry["relevanceHint"] = relevance(entry)
-                entry["platform"] = source.get("platform", "")
-                entry["region"] = source.get("region", "")
+                fingerprint = content_fingerprint(entry)
+                if entry["id"] in queue or entry["url"] in known_urls or fingerprint in known_fingerprints:
+                    report["duplicates"] += 1
+                    continue
                 if not likely_relevant(entry):
-                    report["filtered"] += 1
+                    report["lowRelevance"] += 1
                     continue
-                if opt.ai:
+                if options.ai:
                     try:
                         entry["editorial"] = draft(entry, token)
                     except Exception as exc:
-                        entry["draftError"] = str(exc)[:200]
+                        entry["draftError"] = f"{type(exc).__name__}: {str(exc)[:160]}"
                 queue[entry["id"]] = entry
-                report["new"] += 1
+                known_urls.add(entry["url"])
+                known_fingerprints.add(fingerprint)
+                report["newCandidates"] += 1
             report["status"] = "ok"
-            print(f"{source['name']}: {len(entries)} fetched")
+            report["successRate"] = 1.0
         except Exception as exc:
-            report["error"] = f"{type(exc).__name__}: {str(exc)[:160]}"
-            print(f"{source['name']}: unavailable ({type(exc).__name__}: {exc})")
+            report["httpStatus"] = getattr(exc, "http_status", None)
+            report["error"] = f"{type(exc).__name__}: {str(exc)[:200]}"
         outcomes.append(report)
+        print(
+            f"{report['source']}: {report['status']} http={report['httpStatus']} "
+            f"fetched={report['fetched']} new={report['newCandidates']} "
+            f"duplicate={report['duplicates']} filtered={report['lowRelevance']} stale={report['stale']}"
+        )
+        if options.delay:
+            time.sleep(options.delay)
+
     candidates = list(queue.values())
-    # A successful poll with no new candidate must not create a meaningless bot commit.
+    completed = datetime.now(timezone.utc)
+    failures = [row for row in outcomes if row["status"] == "failed"]
+    summary = {
+        "fetched": sum(row["fetched"] for row in outcomes),
+        "newCandidates": sum(row["newCandidates"] for row in outcomes),
+        "duplicates": sum(row["duplicates"] for row in outcomes),
+        "lowRelevance": sum(row["lowRelevance"] for row in outcomes),
+        "stale": sum(row["stale"] for row in outcomes),
+        "failedSources": len(failures),
+    }
+    run_report = {
+        "schemaVersion": "1.0",
+        "runId": started.strftime("%Y%m%dT%H%M%SZ"),
+        "startedAt": started.isoformat(),
+        "completedAt": completed.isoformat(),
+        "status": "partial" if failures else "success",
+        "collection": {**summary, "platforms": _platform_totals(outcomes)},
+        "aiReview": {"requested": 0, "approved": 0, "needsHumanReview": 0, "rejected": 0, "failed": 0},
+        "publication": {"eligible": 0, "actualAdded": 0, "mode": "manual-gate"},
+        "sources": outcomes,
+        "failures": [
+            {"source": row["source"], "httpStatus": row.get("httpStatus"), "error": row.get("error", "unknown")}
+            for row in failures
+        ],
+    }
+
     if candidates != previous_candidates:
-        path.write_text(json.dumps({"updatedAt": dt.datetime.now(dt.timezone.utc).isoformat(), "candidates": candidates}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (BASE / "source_status.json").write_text(json.dumps({"checkedAt":dt.datetime.now(dt.timezone.utc).isoformat(),"results":outcomes,"watchCount":len(registry.get("watch_pages", []))},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print(f"Queued {len(queue)} candidates for editorial review")
+        queue_path.write_text(
+            json.dumps({"updatedAt": completed.isoformat(), "candidates": candidates}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    (BASE / "source_status.json").write_text(
+        json.dumps(
+            {
+                "checkedAt": completed.isoformat(),
+                "summary": summary,
+                "results": outcomes,
+                "manualCount": sum(row["status"] == "manual" for row in outcomes),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (BASE / "run_report.json").write_text(json.dumps(run_report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print("COLLECTION_SUMMARY " + json.dumps(summary, ensure_ascii=False, sort_keys=True))
+    print(f"Queued {len(queue)} candidates for editorial review; publication remains a separate gate")
+    return run_report
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ai", action="store_true", help="draft only; independent review remains separate")
+    parser.add_argument("--limit", type=int, default=8, help="maximum relevant candidates considered per source")
+    parser.add_argument("--max-age-days", type=int, default=180)
+    parser.add_argument("--delay", type=float, default=0.75, help="polite delay between automatic sources")
+    parser.add_argument("--source", action="append", default=[], help="limit collection to exact source or platform name")
+    options = parser.parse_args()
+    options.limit = max(1, min(options.limit, 30))
+    options.max_age_days = max(1, options.max_age_days)
+    options.delay = max(0, min(options.delay, 5))
+    try:
+        collect(options)
+    except ValueError as exc:
+        parser.error(str(exc))
+
 
 if __name__ == "__main__":
     main()

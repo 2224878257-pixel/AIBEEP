@@ -5,6 +5,12 @@ on:
     # UTC; approximately every six hours (GitHub schedules can be delayed).
     - cron: '17 2,8,14,20 * * *'
   workflow_dispatch:
+    inputs:
+      publish_approved:
+        description: 'Publish only entries that already contain explicit humanApproval metadata'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -35,20 +41,38 @@ jobs:
       - name: Offline regression tests
         run: python -m unittest test_pipeline.py -v
       - name: Fetch official feeds
-        run: python collect_feeds.py --limit 8
+        run: python collect_feeds.py --limit 8 --max-age-days 180 --delay 1
       - name: Generate and independently audit up to three articles
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_MODEL: deepseek-flash
           DEEPSEEK_REVIEW_MODEL: deepseek-flash
         run: python ai_review.py --limit 3
-      - name: Publish approved articles to static JSON
+      - name: Preview human-approved articles (no publication)
+        run: python publish_reviewed.py
+      - name: Apply explicit human publication approvals
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_approved == true
         run: python publish_reviewed.py --apply
+      - name: Print and upload machine-readable run report
+        if: always()
+        run: |
+          test -s run_report.json
+          python report_run.py
+      - name: Preserve run report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aibeep-run-report-${{ github.run_id }}
+          path: |
+            run_report.json
+            source_status.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Commit content and queue only
         run: |
           git config user.name 'aibeep-bot'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add review_queue.json dist/content.json dist/articles.json
+          git add review_queue.json source_status.json run_report.json dist/content.json dist/articles.json
           if git diff --cached --quiet; then
             echo 'No new approved content or queue changes.'
           else

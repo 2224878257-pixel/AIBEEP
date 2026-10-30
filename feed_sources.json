@@ -1,18 +1,62 @@
 {
+  "schemaVersion": "2.0",
   "feeds": [
-    {"name":"Google Ads & Commerce","url":"https://blog.google/products/ads-commerce/rss/","category":"广告平台","region":"global","platform":"Google Ads","enabled":true},
-    {"name":"Meta Newsroom","url":"https://about.fb.com/news/feed/","category":"广告平台","region":"global","platform":"Meta Ads","enabled":true},
-    {"name":"GitHub Blog AI","url":"https://github.blog/ai-and-ml/feed/","category":"AI营销","region":"global","platform":"AI 工具","enabled":true}
+    {"name":"Google Ads & Commerce","url":"https://blog.google/products/ads-commerce/rss/","type":"rss","category":"广告平台","region":"global","platform":"Google Ads","enabled":true},
+    {"name":"Meta Newsroom","url":"https://about.fb.com/news/feed/","type":"rss","category":"广告平台","region":"global","platform":"Meta Ads","enabled":true},
+    {"name":"GitHub Blog AI","url":"https://github.blog/ai-and-ml/feed/","type":"rss","category":"AI营销","region":"global","platform":"AI 工具","enabled":true}
+  ],
+  "automatic_sources": [
+    {
+      "name":"腾讯广告官方资讯",
+      "url":"https://e.qq.com/portal/information/new_search",
+      "publicPage":"https://e.qq.com/latestnews/",
+      "type":"official_api",
+      "adapter":"tencent_latestnews",
+      "category":"广告平台",
+      "region":"cn",
+      "platform":"腾讯广告",
+      "allowed_domains":["e.qq.com"],
+      "referer":"https://e.qq.com/latestnews/",
+      "enabled":true,
+      "verifiedAt":"2026-10-29",
+      "note":"腾讯广告官网资讯页当前使用的公开 JSON 接口；无需登录，但接口结构可能变化。"
+    },
+    {
+      "name":"巨量学官方更新",
+      "url":"https://school.oceanengine.com/",
+      "type":"public_webpage",
+      "category":"广告平台",
+      "region":"cn",
+      "platform":"巨量引擎",
+      "allowed_domains":["school.oceanengine.com"],
+      "item_path_prefixes":["/live/","/premium/course/"],
+      "enabled":true,
+      "verifiedAt":"2026-10-29",
+      "note":"公开页面服务端输出课程和直播链接；robots.txt 明确 Allow: /，仅低频读取列表元数据。"
+    },
+    {
+      "name":"小红书聚光帮助中心",
+      "url":"https://ad.xiaohongshu.com/api/light/help/doc/space/nav",
+      "publicPage":"https://ad.xiaohongshu.com/next_help/home",
+      "type":"official_api",
+      "adapter":"xiaohongshu_help",
+      "category":"广告平台",
+      "region":"cn",
+      "platform":"小红书聚光/千帆",
+      "allowed_domains":["ad.xiaohongshu.com"],
+      "referer":"https://ad.xiaohongshu.com/next_help/home",
+      "enabled":true,
+      "verifiedAt":"2026-10-29",
+      "note":"聚光帮助中心官方前端使用的无需登录公开 JSON 接口；抓取标题、更新时间和官方文档链接。"
+    }
   ],
   "watch_pages": [
-    {"name":"腾讯广告官方","url":"https://e.qq.com/","region":"cn","platform":"腾讯广告","status":"manual-watch","note":"暂未核验稳定官方 RSS/API，禁止将页面全文抓取直接发布"},
-    {"name":"巨量引擎 / 巨量学","url":"https://school.oceanengine.com/","region":"cn","platform":"巨量引擎","status":"manual-watch"},
-    {"name":"快手磁力引擎","url":"https://www.e.kuaishou.com/","region":"cn","platform":"快手磁力","status":"manual-watch"},
-    {"name":"小红书商业化","url":"https://ad.xiaohongshu.com/","region":"cn","platform":"小红书聚光","status":"manual-watch"},
-    {"name":"百度营销","url":"https://e.baidu.com/","region":"cn","platform":"百度营销","status":"manual-watch"},
-    {"name":"TikTok for Business Blog","url":"https://ads.tiktok.com/business/en/blog/","region":"global","platform":"TikTok Ads","status":"manual-watch"},
-    {"name":"TikTok Business API","url":"https://business-api.tiktok.com/portal/blog","region":"global","platform":"TikTok Ads","status":"manual-watch"},
-    {"name":"Google Ads Developer Blog","url":"https://ads-developers.googleblog.com/","region":"global","platform":"Google Ads","status":"manual-watch"},
-    {"name":"Meta for Business","url":"https://www.facebook.com/business/news","region":"global","platform":"Meta Ads","status":"manual-watch"}
+    {"name":"微信广告 / 本地推 / 视频号广告","url":"https://ad.weixin.qq.com/","type":"manual_link","region":"cn","platform":"微信广告","status":"manual-watch","note":"P1：尚未核验稳定且无需登录的列表接口，保留人工提交链接。"},
+    {"name":"快手磁力引擎","url":"https://www.e.kuaishou.com/","type":"manual_link","region":"cn","platform":"快手磁力","status":"manual-watch","note":"P1：尚未核验稳定官方 RSS/API，禁止绕过登录或访问控制。"},
+    {"name":"百度营销","url":"https://e.baidu.com/","type":"manual_link","region":"cn","platform":"百度营销","status":"manual-watch","note":"P1：尚未核验稳定官方 RSS/API，保留人工提交链接。"},
+    {"name":"TikTok for Business Blog","url":"https://ads.tiktok.com/business/en/blog/","type":"manual_link","region":"global","platform":"TikTok Ads","status":"manual-watch"},
+    {"name":"TikTok Business API","url":"https://business-api.tiktok.com/portal/blog","type":"manual_link","region":"global","platform":"TikTok Ads","status":"manual-watch"},
+    {"name":"Google Ads Developer Blog","url":"https://ads-developers.googleblog.com/","type":"manual_link","region":"global","platform":"Google Ads","status":"manual-watch"},
+    {"name":"Meta for Business","url":"https://www.facebook.com/business/news","type":"manual_link","region":"global","platform":"Meta Ads","status":"manual-watch"}
   ]
 }

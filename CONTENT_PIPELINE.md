@@ -4,12 +4,13 @@
 
 ## 当前可运行
 
-1. `python3 collect_feeds.py` 从 `feed_sources.json` 的官方 RSS / Atom 信源抓取元数据并按链接去重，生成 `review_queue.json`。信源地址是候选配置，需要逐一检查可用性。
+1. `python3 collect_feeds.py` 从 `feed_sources.json` 的官方 RSS / Atom、官方前端公开接口和公开网页抓取元数据，按规范化 URL 与内容指纹去重，生成 `review_queue.json`、`source_status.json` 和 `run_report.json`。
 2. 如配置自己的 `DEEPSEEK_API_KEY`，可运行 `python3 collect_feeds.py --ai`，调用 DeepSeek 根据 RSS 标题及摘录生成中文编辑草稿。当前 AI 只处理摘要，不获取或重刊原文全文。
-3. 设置 `DEEPSEEK_API_KEY` 后运行 `python3 ai_review.py --limit 5`：程序仅从可信官方域名抓取公开网页证据、用 DeepSeek 生成原创中文稿、再次独立对照源文审核。相关性至少 80、事实忠实度至少 95、两条以上支持证据且没有任何风险标记时自动标为 `approved`。否则为 `needs_review` 或 `rejected`，不入站。**这不是外部独立事实核查，也不能完全消除模型误判。**
+3. 设置 `DEEPSEEK_API_KEY` 后运行 `python3 ai_review.py --limit 5`：程序仅从可信官方域名抓取公开证据、用 DeepSeek 生成原创中文稿、再次独立对照源文审核。相关性至少 80、事实忠实度至少 95、两条以上支持证据、没有重复或风险标记时，AI 审核可标为 `approved`，但发布状态只进入 `pending_human`。否则为 `needs_review` 或 `rejected`，不入站。**这不是外部独立事实核查，也不能完全消除模型误判。**
 4. 少量 `needs_review` 内容可人工核对并修改，或直接跳过。
-5. `python3 publish_reviewed.py` 先预检；通过后 `python3 publish_reviewed.py --apply` 将已审核且结构完整的稿件写入 `dist/content.json` 和 `dist/articles.json`，不会重复导入已存在的 ID 或来源链接。
-6. 将变更部署至 AIBEEP 私有站点。当前 AI 审核程序需要服务端环境和自己的 API 密钥，尚未设为无人值守的云端任务。
+5. 人工核对来源、摘要和证据后，将 `publicationStatus` 设为 `approved`，并填写 `humanApproval.approvedBy` 与 `humanApproval.approvedAt`。
+6. `python3 publish_reviewed.py` 先预检；通过后 `python3 publish_reviewed.py --apply` 才可把同时通过 AI 与人工门禁、结构完整的稿件写入 `dist/content.json` 和 `dist/articles.json`，不会重复导入已存在的 ID 或来源链接。
+7. GitHub Actions 定时任务执行采集与 AI 审核，但默认只做发布预检；公开数据写入必须由人工手动触发发布输入。
 
 ## 后续需要的云端能力
 

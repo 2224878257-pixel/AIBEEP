@@ -2,4 +2,3 @@
 data/
 __pycache__/
 *.sqlite3*
-source_status.json
