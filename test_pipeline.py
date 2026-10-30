@@ -160,10 +160,11 @@ class PipelineTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as tmp:
                 backend.DB_PATH = Path(tmp) / "test.sqlite3"
                 backend.initialize()
-                self.assertEqual(backend.seed_existing(), 9)
+                expected = len(json.loads((backend.ROOT / "dist" / "content.json").read_text(encoding="utf-8"))["items"])
+                self.assertEqual(backend.seed_existing(), expected)
                 self.assertEqual(backend.seed_existing(), 0)
-                self.assertEqual(len(backend.get_content()["items"]), 9)
-                self.assertEqual(len(backend.get_bodies()["articles"]), 9)
+                self.assertEqual(len(backend.get_content()["items"]), expected)
+                self.assertEqual(len(backend.get_bodies()["articles"]), expected)
                 catalog = json.loads((backend.ROOT / "feed_sources.json").read_text(encoding="utf-8"))
                 self.assertEqual(len(catalog["feeds"]), 3)
                 self.assertEqual(len(catalog["automatic_sources"]), 4)
