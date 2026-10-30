@@ -539,12 +539,13 @@ const LAO_QUOTES=[
   {t:'投放的护城河是素材供给', q:'智能投放把出价和定向越来越黑盒化，剩下的差异化只有一个：素材。谁能持续产出高质量素材，谁的转化成本就更低。这就是我建议每个增长团队都把内容产能当作核心资产的原因。'},
 ];
 
+let RAW = RAW_FALLBACK;
 const state={ view:'featured', cat:'all', plat:'all', ind:'all', time:'all', q:'',
   saved:new Set(RAW.filter(i=>i.st).map(i=>i.id)), read:new Set(), onlyUnread:false };
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-(function(){const d=new Date();$('#todayDate').textContent=`${d.getMonth()+1}月${d.getDate()}日 周${['日','一','二','三','四','五','六'][d.getDay()]}`;$('#todayCount').textContent=RAW.filter(i=>i.t==='today').length;})();
+function renderHeader(){const d=new Date();$('#todayDate').textContent=`${d.getMonth()+1}月${d.getDate()}日 周${['日','一','二','三','四','五','六'][d.getDay()]}`;$('#todayCount').textContent=RAW.filter(i=>i.t==='today').length;}
 
 /* ===== 左侧功能导航 ===== */
 function renderNav(){
@@ -865,18 +866,19 @@ $('#unreadToggle').onclick=()=>{state.onlyUnread=!state.onlyUnread;renderFeed();
 function renderFocus(){
   const focus=RAW.filter(i=>i.focus).sort((a,b)=>a.id-b.id).slice(0,3);
   const [m,s1,s2]=focus;
+  if(!m){$('#focusList').innerHTML='<div class="empty">暂无重点资讯</div>';return;}
   const main=`<div class="fmain" data-fid="${m.id}">
     <div class="fmain-no">NO.01 <span class="fmain-tag">置顶</span></div>
     <h3>${esc(m.title)}</h3>
     <p>${esc(m.desc)}</p>
     <div class="fmain-foot"><span class="fmain-src">${esc(m.src)}</span><span class="fmain-time">${esc(m.time)}</span></div>
   </div>`;
-  const mini=(i,idx)=>`<div class="fmini" data-fid="${i.id}">
+  const mini=(i,idx)=>i?`<div class="fmini" data-fid="${i.id}">
     <div class="fmini-no">NO.0${idx+2} <span class="fmini-heat">${i.heat}</span></div>
     <h4>${esc(i.title)}</h4>
     <p>${esc(i.desc)}</p>
     <div class="fmini-foot"><span>${esc(i.src)}</span><span>${esc(i.time)}</span></div>
-  </div>`;
+  </div>`:'';
   $('#focusList').innerHTML=`<div class="fmag">${main}<div class="fmag-side">${mini(s1,0)}${mini(s2,1)}</div></div>`;
   document.querySelectorAll('#focusList [data-fid]').forEach(f=>f.onclick=()=>openCard(+f.dataset.fid));
 }
@@ -887,7 +889,7 @@ function renderHot(){
   document.querySelectorAll('#hotList li').forEach(li=>li.onclick=()=>openCard(+li.dataset.fid));
 }
 /* ===== 数据速览 ===== */
-(function(){
+function renderStats(){
   $('#st1').textContent=RAW.filter(i=>i.t==='today').length;
   const plat=new Set(PLAT_IDS);$('#st2').textContent=new Set(RAW.map(i=>i.ch).filter(c=>plat.has(c))).size;
   const ind=new Set(IND_IDS);$('#st3').textContent=new Set(RAW.map(i=>i.ch).filter(c=>ind.has(c))).size;
@@ -899,7 +901,7 @@ function renderHot(){
       tooltip:{trigger:'axis',confine:true,formatter:p=>p[0].name+'：热度 '+p[0].value},
       series:[{type:'line',data:TREND.map(d=>d[1]),smooth:true,symbol:'circle',symbolSize:6,lineStyle:{width:2,color:'#FF8200'},itemStyle:{color:'#FF8200'},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(255,130,0,.18)'},{offset:1,color:'rgba(255,130,0,.02)'}]}}}]});
     window.addEventListener('resize',()=>chart.resize());}
-})();
+}
 /* ===== 搜索 / CTA ===== */
 $('#q').addEventListener('input',e=>{state.q=e.target.value.trim();renderFeed();});
 $('#menuBtn').onclick=()=>{$('#railNav').parentElement.classList.toggle('open');};
@@ -928,16 +930,18 @@ function openFeedback(){
 }
 function resetAll(){state.view='all';state.cat='all';state.time='all';state.q='';state.onlyUnread=false;$('#q').value='';document.querySelectorAll('#catRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#timeFilters .chip').forEach((c,i)=>c.classList.toggle('on',i===0));renderNav();renderFeed();}
 
-let RAW = RAW_FALLBACK;
 async function init(){
   try{
-    const r = await fetch('data.json');
-    if(r.ok){
-      const j = await r.json();
-      if(Array.isArray(j) && j.length) RAW = j;
-    }
-  }catch(e){/* file:// 或无 data.json 时用内置数据 */}
-  renderNav(); renderFeed(); renderFocus(); renderHot();
+    const dataUrl = new URL('data.json', document.baseURI);
+    dataUrl.searchParams.set('t', Date.now());
+    const r = await fetch(dataUrl, {cache:'no-store'});
+    if(!r.ok) throw new Error(`data.json HTTP ${r.status}`);
+    const j = await r.json();
+    if(!Array.isArray(j)) throw new Error('data.json 必须是 JSON 数组');
+    if(j.length) RAW = j;
+  }catch(e){console.warn('AIBEEP：资讯加载失败，使用内置示例数据。', e);}
+  state.saved = new Set(RAW.filter(i=>i.st).map(i=>i.id));
+  renderHeader(); renderStats(); renderNav(); renderFeed(); renderFocus(); renderHot();
 }
 init();
 </script>
