@@ -19,7 +19,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 
 ATOM = "{http://www.w3.org/2005/Atom}"
-USER_AGENT = "AIBEEP/16.1 official-source monitor (+https://github.com/2224878257-pixel/AIBEEP)"
+USER_AGENT = "AIBEEP/16.2 public-source monitor (+https://github.com/2224878257-pixel/AIBEEP)"
 TRACKING_KEYS = {"from", "source", "spm", "timestamp", "visitor_source"}
 
 
@@ -79,6 +79,7 @@ def request_bytes(source, *, data=None, method="GET", content_type=None, max_byt
         headers["Referer"] = source["referer"]
     timeout = max(3, min(int(source.get("timeout", 18)), 30))
     retries = max(0, min(int(source.get("retries", 2)), 2))
+    retry_delay = max(1.0, min(float(source.get("retry_delay", 1.5)), 10.0))
     last_error = None
     for attempt in range(retries + 1):
         try:
@@ -99,7 +100,7 @@ def request_bytes(source, *, data=None, method="GET", content_type=None, max_byt
         except (URLError, TimeoutError, OSError) as exc:
             last_error = SourceFetchError(f"{type(exc).__name__}: {str(exc)[:160]}")
         if attempt < retries:
-            time.sleep(1.5 * (attempt + 1))
+            time.sleep(retry_delay * (attempt + 1))
     raise last_error or SourceFetchError("request failed")
 
 
@@ -291,6 +292,79 @@ def fetch_public_webpage(source, limit):
     return entries[: limit * 3], status
 
 
+def _discovery_platform(source, hostname):
+    hostname = (hostname or "").lower()
+    for domain, platform in (source.get("domain_platforms") or {}).items():
+        domain = domain.lower()
+        if hostname == domain or hostname.endswith(f".{domain}"):
+            return platform
+    return source.get("platform", "行业搜索")
+
+
+def fetch_gdelt_doc(source, limit):
+    """Discover recent coverage through GDELT's public DOC API.
+
+    Discovery results are not trusted evidence. Results from explicitly configured
+    official domains may enter the normal review queue; every other result remains
+    withheld until a human or a future verifier links it to primary evidence.
+    """
+    query = clean_text(source.get("query", ""))
+    if len(query) < 8:
+        raise ValueError("news_search query is missing or too short")
+    maximum = min(max(int(source.get("max_records", limit * 3)), 1), 75)
+    params = urlencode({
+        "query": query,
+        "mode": "artlist",
+        "maxrecords": maximum,
+        "timespan": source.get("timespan", "2d"),
+        "sort": "datedesc",
+        "format": "json",
+    })
+    request_source = {
+        **source,
+        "url": f"{source['url']}?{params}",
+        "retries": 1,
+        "retry_delay": 6,
+        "timeout": 25,
+    }
+    payload, status, _, _ = request_bytes(request_source, max_bytes=3_000_000)
+    data = json.loads(payload)
+    rows = data.get("articles") or []
+    if not isinstance(rows, list):
+        raise SourceFetchError("unexpected GDELT response", http_status=status)
+    official_domains = {domain.lower() for domain in source.get("official_domains", [])}
+    entries = []
+    for row in rows:
+        title, url = row.get("title"), row.get("url")
+        if not isinstance(title, str) or not isinstance(url, str):
+            continue
+        try:
+            hostname = (urlsplit(normalize_url(url)).hostname or "").lower()
+            entry_source = {**source, "platform": _discovery_platform(source, hostname)}
+            is_official = any(hostname == domain or hostname.endswith(f".{domain}") for domain in official_domains)
+            entry_source["reviewStatus"] = "pending" if is_official else "needs_source_verification"
+            seen = row.get("seendate") or ""
+            if re.fullmatch(r"\d{8}T\d{6}Z", seen):
+                seen = datetime.strptime(seen, "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc).isoformat()
+            entry = _base_entry(
+                entry_source,
+                title,
+                url,
+                seen,
+                f"{row.get('domain', '')} {row.get('language', '')} {row.get('sourcecountry', '')}",
+            )
+        except ValueError:
+            continue
+        entry["publicationStatus"] = "withheld"
+        entry["discovery"] = {
+            "provider": "GDELT DOC 2.0",
+            "verifiedPrimarySource": is_official,
+            "sourceDomain": hostname,
+        }
+        entries.append(entry)
+    return entries[:maximum], status
+
+
 def fetch_source(source, limit):
     kind = source.get("type", "rss")
     if kind in ("rss", "atom"):
@@ -304,6 +378,10 @@ def fetch_source(source, limit):
         raise ValueError(f"unknown official_api adapter: {adapter}")
     if kind == "public_webpage":
         return fetch_public_webpage(source, limit)
+    if kind == "news_search":
+        if source.get("adapter") == "gdelt_doc":
+            return fetch_gdelt_doc(source, limit)
+        raise ValueError(f"unknown news_search adapter: {source.get('adapter')}")
     if kind == "manual_link":
         return [], None
     raise ValueError(f"unsupported source type: {kind}")
