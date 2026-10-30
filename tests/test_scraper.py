@@ -9,6 +9,15 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_tencent_detail_extracts_rich_text(self):
+        response = Mock()
+        response.json.return_value = {'code': 0, 'data': {'title': '腾讯广告更新', 'created_at': '2026-10-30 08:00:00', 'content': json.dumps({'content': [{'type': 'rich_text', 'content': '<p>' + '广告正文内容' * 60 + '</p>'}]})}}
+        source = {'adapter': 'tencent', 'ch': 'tx', 'hosts': ['e.qq.com'], 'pattern': '/latestnews/detail'}
+        with patch.object(s, 'request', return_value=response):
+            row = s.Collector().article('https://e.qq.com/latestnews/detail?pid=42', source)
+        self.assertIn('广告正文', row['body'])
+        self.assertEqual(row['published_at'], '2026-10-30T08:00:00+08:00')
+
     def test_canonical_and_official_domain(self):
         self.assertEqual(s.canonical('https://e.qq.com/latestnews/detail?utm_source=x&pid=42#top'), 'https://e.qq.com/latestnews/detail?pid=42')
         source = {'hosts': ['e.qq.com'], 'pattern': '/latestnews/detail'}

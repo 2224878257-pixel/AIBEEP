@@ -126,6 +126,21 @@ class Collector:
     def article(self, url, source):
         if not allowed(url, source):
             raise ValueError('Not an official article URL')
+        if source.get('adapter') == 'tencent':
+            pid = dict(parse_qsl(urlsplit(url).query)).get('pid', '')
+            result = request('https://e.qq.com/portal/case_center/posts', params={'post_id': pid}).json()
+            data = result.get('data') or {}
+            if result.get('code') != 0:
+                raise ValueError('Tencent detail unavailable')
+            content = data.get('content') or ''
+            if content.startswith('{'):
+                blocks = json.loads(content)
+                content = '\n'.join(r['content'] for r in walk(blocks) if r.get('type') == 'rich_text' and isinstance(r.get('content'), str))
+            text = BeautifulSoup(content, 'html.parser').get_text('\n', strip=True)
+            published = date_value(self.metadata.get(canonical(url)) or data.get('created_at'))
+            if len(text) < 180 or not published or not data.get('title'):
+                raise ValueError('Incomplete Tencent article')
+            return {'url': canonical(url), 'title': data['title'], 'body': text[:16000], 'published_at': published.isoformat()}
         html = self.html(url, source)
         extracted = bare_extraction(html, url=url, with_metadata=True)
         doc = extracted.as_dict() if extracted else None

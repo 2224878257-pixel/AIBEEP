@@ -32,7 +32,7 @@ jobs:
           DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || 'deepseek-flash' }}
         run: |
           python -m playwright install --with-deps chromium
-          python scraper.py --browser
+          python scraper.py --browser --limit 3
       - name: Upload collection report
         if: always() && github.event_name != 'push'
         uses: actions/upload-artifact@v4
