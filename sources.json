@@ -2,7 +2,7 @@
   {"ch":"dj","name":"巨量引擎","url":"https://www.oceanengine.com/news","pattern":"/news/.+","hosts":["www.oceanengine.com"]},
   {"ch":"dj","name":"巨量学","url":"https://school.oceanengine.com/","pattern":"/(live|premium/course)/[0-9]+","hosts":["school.oceanengine.com"]},
   {"ch":"tx","name":"腾讯广告","url":"https://e.qq.com/latestnews/","pattern":"/latestnews/detail","hosts":["e.qq.com"],"adapter":"tencent"},
-  {"ch":"ks","name":"快手磁力引擎","url":"https://www.e.kuaishou.com/","pattern":"/(news|article|detail|notice|case)/.+","hosts":["www.e.kuaishou.com","e.kuaishou.com"]},
+  {"ch":"ks","name":"快手磁力引擎","url":"https://e.kuaishou.com/","pattern":"/(news|article|detail|notice|case)/.+","hosts":["e.kuaishou.com","e.kuaishou.cn"]},
   {"ch":"xhs","name":"小红书聚光","url":"https://ad.xiaohongshu.com/next_help/home","pattern":"/next_help/docs/","hosts":["ad.xiaohongshu.com"],"adapter":"xiaohongshu"},
   {"ch":"hw","name":"Meta for Business","url":"https://www.facebook.com/business/news","pattern":"/business/news/.+","hosts":["www.facebook.com","www.meta.com"]}
 ]
