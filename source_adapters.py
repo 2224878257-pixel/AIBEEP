@@ -116,7 +116,7 @@ def _base_entry(source, title, url, published_at="", excerpt=""):
         "collectedAt": datetime.now(timezone.utc).isoformat(),
         "excerpt": clean_text(excerpt)[:1000],
         "relevanceScore": 0,
-        "reviewStatus": "pending",
+        "reviewStatus": source.get("reviewStatus", "pending"),
         "category": source.get("category", "行业动态"),
     }
 

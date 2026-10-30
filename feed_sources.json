@@ -30,9 +30,11 @@
       "platform":"巨量引擎",
       "allowed_domains":["school.oceanengine.com"],
       "item_path_prefixes":["/live/","/premium/course/"],
+      "reviewStatus":"needs_manual_source",
+      "evidenceAccess":"login_required",
       "enabled":true,
       "verifiedAt":"2026-10-29",
-      "note":"公开页面服务端输出课程和直播链接；robots.txt 明确 Allow: /，仅低频读取列表元数据。"
+      "note":"公开首页可低频读取课程/直播元数据，但详情请求当前返回未登录 JSON；仅进入人工证据队列，不调用 AI，不绕过登录。"
     },
     {
       "name":"小红书聚光帮助中心",

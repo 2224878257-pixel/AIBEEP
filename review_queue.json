@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-30T02:26:41.578034+00:00",
+  "updatedAt": "2026-10-30T02:29:50.751553+00:00",
   "candidates": [
     {
       "id": "70900e9483bbbec4",
@@ -664,7 +664,7 @@
       "collectedAt": "2026-10-29T09:38:04.793030+00:00",
       "excerpt": "未开始·【巨量学公开课】电商团队AI工作流搭建与提效2026-10-27 06:00",
       "relevanceScore": 26,
-      "reviewStatus": "needs_review",
+      "reviewStatus": "needs_manual_source",
       "category": "广告平台",
       "publicationStatus": "withheld",
       "audit": {
@@ -672,6 +672,10 @@
         "version": "AI-review-v1",
         "decision": "needs_review",
         "reason": "processing error: ValueError: source is not HTML"
+      },
+      "sourceAccess": {
+        "status": "login_required",
+        "reason": "公开首页可低频读取课程/直播元数据，但详情请求当前返回未登录 JSON；仅进入人工证据队列，不调用 AI，不绕过登录。"
       }
     },
     {
@@ -685,8 +689,13 @@
       "collectedAt": "2026-10-29T09:38:04.792983+00:00",
       "excerpt": "未开始·【巨量学公开课】巨量云图AiMars助力营销决策2026-10-22 06:00",
       "relevanceScore": 26,
-      "reviewStatus": "pending",
-      "category": "广告平台"
+      "reviewStatus": "needs_manual_source",
+      "category": "广告平台",
+      "publicationStatus": "withheld",
+      "sourceAccess": {
+        "status": "login_required",
+        "reason": "公开首页可低频读取课程/直播元数据，但详情请求当前返回未登录 JSON；仅进入人工证据队列，不调用 AI，不绕过登录。"
+      }
     },
     {
       "id": "e3fdd538997a533d",
@@ -699,8 +708,13 @@
       "collectedAt": "2026-10-29T09:38:04.793053+00:00",
       "excerpt": "用 AiMars 解锁品牌营销新可能",
       "relevanceScore": 26,
-      "reviewStatus": "pending",
-      "category": "广告平台"
+      "reviewStatus": "needs_manual_source",
+      "category": "广告平台",
+      "publicationStatus": "withheld",
+      "sourceAccess": {
+        "status": "login_required",
+        "reason": "公开首页可低频读取课程/直播元数据，但详情请求当前返回未登录 JSON；仅进入人工证据队列，不调用 AI，不绕过登录。"
+      }
     },
     {
       "id": "922aaf080b19d1aa",
@@ -713,8 +727,13 @@
       "collectedAt": "2026-10-29T09:38:04.793093+00:00",
       "excerpt": "AI内容生产与电商工作提效",
       "relevanceScore": 26,
-      "reviewStatus": "pending",
-      "category": "广告平台"
+      "reviewStatus": "needs_manual_source",
+      "category": "广告平台",
+      "publicationStatus": "withheld",
+      "sourceAccess": {
+        "status": "login_required",
+        "reason": "公开首页可低频读取课程/直播元数据，但详情请求当前返回未登录 JSON；仅进入人工证据队列，不调用 AI，不绕过登录。"
+      }
     },
     {
       "id": "bac81c64117779d9",

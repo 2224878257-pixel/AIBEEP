@@ -55,11 +55,12 @@ class PipelineTests(unittest.TestCase):
         with patch.object(source_adapters, "request_bytes", return_value=(xhs_data, 200, "https://ad.xiaohongshu.com/api", "application/json")):
             items, _ = source_adapters.fetch_xiaohongshu_help({"name":"小红书","url":"https://ad.xiaohongshu.com/api","platform":"小红书聚光","region":"cn"}, 3)
         self.assertEqual(items[0]["url"], "https://ad.xiaohongshu.com/next_help/docs/" + "a" * 32)
-        webpage_source = {"name":"巨量学","url":"https://school.oceanengine.com/","platform":"巨量引擎","region":"cn","allowed_domains":["school.oceanengine.com"],"item_path_prefixes":["/live/"]}
+        webpage_source = {"name":"巨量学","url":"https://school.oceanengine.com/","platform":"巨量引擎","region":"cn","allowed_domains":["school.oceanengine.com"],"item_path_prefixes":["/live/"],"reviewStatus":"needs_manual_source"}
         with patch.object(source_adapters, "request_bytes", return_value=(page, 200, "https://school.oceanengine.com/", "text/html")):
             items, _ = source_adapters.fetch_public_webpage(webpage_source, 3)
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0]["publishedAt"], "2026-10-27T06:00:00+08:00")
+        self.assertEqual(items[0]["reviewStatus"], "needs_manual_source")
 
     def test_collection_does_not_rewrite_unchanged_queue(self):
         import collect_feeds
@@ -158,6 +159,8 @@ class PipelineTests(unittest.TestCase):
         ]
         selected = ai_review.select_pending(candidates, 3)
         self.assertEqual([item["id"] for item in selected], ["tencent", "ocean", "xhs-high"])
+        candidates[2]["reviewStatus"] = "needs_manual_source"
+        self.assertNotIn("ocean", [item["id"] for item in ai_review.select_pending(candidates, 4)])
 
     def test_static_publish_requires_two_matching_approvals(self):
         base = {"id": "0123456789abcdef", "url": "https://blog.google/example", "source": "Google", "category": "广告平台", "reviewStatus": "approved",
