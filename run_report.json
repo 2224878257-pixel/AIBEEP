@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
-  "runId": "20261030T031639Z",
-  "startedAt": "2026-10-30T03:16:39.273592+00:00",
-  "completedAt": "2026-10-30T03:17:24.946442+00:00",
+  "runId": "20261030T083457Z",
+  "startedAt": "2026-10-30T08:34:57.310583+00:00",
+  "completedAt": "2026-10-30T08:35:26.627812+00:00",
   "status": "success",
   "collection": {
     "fetched": 81,
@@ -103,16 +103,16 @@
     }
   },
   "aiReview": {
-    "requested": 2,
-    "approved": 2,
-    "needsHumanReview": 0,
+    "requested": 3,
+    "approved": 1,
+    "needsHumanReview": 2,
     "rejected": 0,
-    "failed": 0
+    "failed": 1
   },
   "publication": {
-    "eligible": 2,
-    "actualAdded": 2,
-    "mode": "human-approved-apply"
+    "eligible": 0,
+    "actualAdded": 0,
+    "mode": "manual-gate"
   },
   "sources": [
     {
