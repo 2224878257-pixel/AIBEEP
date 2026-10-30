@@ -1,17 +1,41 @@
 {
   "schemaVersion": "1.0",
-  "runId": "20261030T012412Z",
-  "startedAt": "2026-10-30T01:24:12.182565+00:00",
-  "completedAt": "2026-10-30T01:24:16.627085+00:00",
+  "runId": "20261030T021644Z",
+  "startedAt": "2026-10-30T02:16:44.152937+00:00",
+  "completedAt": "2026-10-30T02:16:57.853773+00:00",
   "status": "success",
   "collection": {
-    "fetched": 57,
-    "newCandidates": 1,
-    "duplicates": 24,
-    "lowRelevance": 32,
+    "fetched": 81,
+    "newCandidates": 0,
+    "duplicates": 37,
+    "lowRelevance": 44,
     "stale": 0,
     "failedSources": 0,
     "platforms": {
+      "Google Ads": {
+        "fetched": 8,
+        "newCandidates": 0,
+        "duplicates": 7,
+        "lowRelevance": 1,
+        "stale": 0,
+        "failures": 0
+      },
+      "Meta Ads": {
+        "fetched": 8,
+        "newCandidates": 0,
+        "duplicates": 3,
+        "lowRelevance": 5,
+        "stale": 0,
+        "failures": 0
+      },
+      "AI 工具": {
+        "fetched": 8,
+        "newCandidates": 0,
+        "duplicates": 2,
+        "lowRelevance": 6,
+        "stale": 0,
+        "failures": 0
+      },
       "腾讯广告": {
         "fetched": 24,
         "newCandidates": 0,
@@ -30,18 +54,50 @@
       },
       "小红书聚光/千帆": {
         "fetched": 24,
-        "newCandidates": 1,
-        "duplicates": 18,
+        "newCandidates": 0,
+        "duplicates": 19,
         "lowRelevance": 5,
+        "stale": 0,
+        "failures": 0
+      },
+      "微信广告": {
+        "fetched": 0,
+        "newCandidates": 0,
+        "duplicates": 0,
+        "lowRelevance": 0,
+        "stale": 0,
+        "failures": 0
+      },
+      "快手磁力": {
+        "fetched": 0,
+        "newCandidates": 0,
+        "duplicates": 0,
+        "lowRelevance": 0,
+        "stale": 0,
+        "failures": 0
+      },
+      "百度营销": {
+        "fetched": 0,
+        "newCandidates": 0,
+        "duplicates": 0,
+        "lowRelevance": 0,
+        "stale": 0,
+        "failures": 0
+      },
+      "TikTok Ads": {
+        "fetched": 0,
+        "newCandidates": 0,
+        "duplicates": 0,
+        "lowRelevance": 0,
         "stale": 0,
         "failures": 0
       }
     }
   },
   "aiReview": {
-    "requested": 0,
+    "requested": 3,
     "approved": 0,
-    "needsHumanReview": 0,
+    "needsHumanReview": 3,
     "rejected": 0,
     "failed": 0
   },
@@ -51,6 +107,45 @@
     "mode": "manual-gate"
   },
   "sources": [
+    {
+      "source": "Google Ads & Commerce",
+      "platform": "Google Ads",
+      "method": "rss",
+      "status": "ok",
+      "httpStatus": 200,
+      "fetched": 8,
+      "newCandidates": 0,
+      "duplicates": 7,
+      "lowRelevance": 1,
+      "stale": 0,
+      "successRate": 1.0
+    },
+    {
+      "source": "Meta Newsroom",
+      "platform": "Meta Ads",
+      "method": "rss",
+      "status": "ok",
+      "httpStatus": 200,
+      "fetched": 8,
+      "newCandidates": 0,
+      "duplicates": 3,
+      "lowRelevance": 5,
+      "stale": 0,
+      "successRate": 1.0
+    },
+    {
+      "source": "GitHub Blog AI",
+      "platform": "AI 工具",
+      "method": "rss",
+      "status": "ok",
+      "httpStatus": 200,
+      "fetched": 8,
+      "newCandidates": 0,
+      "duplicates": 2,
+      "lowRelevance": 6,
+      "stale": 0,
+      "successRate": 1.0
+    },
     {
       "source": "腾讯广告官方资讯",
       "platform": "腾讯广告",
@@ -84,11 +179,109 @@
       "status": "ok",
       "httpStatus": 200,
       "fetched": 24,
-      "newCandidates": 1,
-      "duplicates": 18,
+      "newCandidates": 0,
+      "duplicates": 19,
       "lowRelevance": 5,
       "stale": 0,
       "successRate": 1.0
+    },
+    {
+      "source": "微信广告 / 本地推 / 视频号广告",
+      "platform": "微信广告",
+      "method": "manual_link",
+      "status": "manual",
+      "httpStatus": null,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
+      "stale": 0,
+      "successRate": 0.0,
+      "reason": "P1：尚未核验稳定且无需登录的列表接口，保留人工提交链接。"
+    },
+    {
+      "source": "快手磁力引擎",
+      "platform": "快手磁力",
+      "method": "manual_link",
+      "status": "manual",
+      "httpStatus": null,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
+      "stale": 0,
+      "successRate": 0.0,
+      "reason": "P1：尚未核验稳定官方 RSS/API，禁止绕过登录或访问控制。"
+    },
+    {
+      "source": "百度营销",
+      "platform": "百度营销",
+      "method": "manual_link",
+      "status": "manual",
+      "httpStatus": null,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
+      "stale": 0,
+      "successRate": 0.0,
+      "reason": "P1：尚未核验稳定官方 RSS/API，保留人工提交链接。"
+    },
+    {
+      "source": "TikTok for Business Blog",
+      "platform": "TikTok Ads",
+      "method": "manual_link",
+      "status": "manual",
+      "httpStatus": null,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
+      "stale": 0,
+      "successRate": 0.0,
+      "reason": "manual submission only"
+    },
+    {
+      "source": "TikTok Business API",
+      "platform": "TikTok Ads",
+      "method": "manual_link",
+      "status": "manual",
+      "httpStatus": null,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
+      "stale": 0,
+      "successRate": 0.0,
+      "reason": "manual submission only"
+    },
+    {
+      "source": "Google Ads Developer Blog",
+      "platform": "Google Ads",
+      "method": "manual_link",
+      "status": "manual",
+      "httpStatus": null,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
+      "stale": 0,
+      "successRate": 0.0,
+      "reason": "manual submission only"
+    },
+    {
+      "source": "Meta for Business",
+      "platform": "Meta Ads",
+      "method": "manual_link",
+      "status": "manual",
+      "httpStatus": null,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
+      "stale": 0,
+      "successRate": 0.0,
+      "reason": "manual submission only"
     }
   ],
   "failures": []
