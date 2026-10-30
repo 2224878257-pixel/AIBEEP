@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
-  "runId": "20261030T030555Z",
-  "startedAt": "2026-10-30T03:05:55.158284+00:00",
-  "completedAt": "2026-10-30T03:06:08.695845+00:00",
+  "runId": "20261030T031639Z",
+  "startedAt": "2026-10-30T03:16:39.273592+00:00",
+  "completedAt": "2026-10-30T03:17:24.946442+00:00",
   "status": "success",
   "collection": {
     "fetched": 81,
@@ -60,6 +60,14 @@
         "stale": 0,
         "failures": 0
       },
+      "行业搜索": {
+        "fetched": 0,
+        "newCandidates": 0,
+        "duplicates": 0,
+        "lowRelevance": 0,
+        "stale": 0,
+        "failures": 0
+      },
       "微信广告": {
         "fetched": 0,
         "newCandidates": 0,
@@ -96,14 +104,14 @@
   },
   "aiReview": {
     "requested": 2,
-    "approved": 0,
-    "needsHumanReview": 2,
+    "approved": 2,
+    "needsHumanReview": 0,
     "rejected": 0,
     "failed": 0
   },
   "publication": {
-    "eligible": 0,
-    "actualAdded": 0,
+    "eligible": 2,
+    "actualAdded": 2,
     "mode": "human-approved-apply"
   },
   "sources": [
@@ -183,6 +191,19 @@
       "newCandidates": 0,
       "duplicates": 19,
       "lowRelevance": 5,
+      "stale": 0,
+      "successRate": 1.0
+    },
+    {
+      "source": "GDELT 广告行业发现",
+      "platform": "行业搜索",
+      "method": "news_search",
+      "status": "ok",
+      "httpStatus": 200,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
       "stale": 0,
       "successRate": 1.0
     },

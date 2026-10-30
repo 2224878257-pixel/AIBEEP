@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-30T03:06:08.695845+00:00",
+  "checkedAt": "2026-10-30T03:17:24.946442+00:00",
   "summary": {
     "fetched": 81,
     "newCandidates": 0,
@@ -85,6 +85,19 @@
       "newCandidates": 0,
       "duplicates": 19,
       "lowRelevance": 5,
+      "stale": 0,
+      "successRate": 1.0
+    },
+    {
+      "source": "GDELT 广告行业发现",
+      "platform": "行业搜索",
+      "method": "news_search",
+      "status": "ok",
+      "httpStatus": 200,
+      "fetched": 0,
+      "newCandidates": 0,
+      "duplicates": 0,
+      "lowRelevance": 0,
       "stale": 0,
       "successRate": 1.0
     },
