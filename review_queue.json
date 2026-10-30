@@ -1030,8 +1030,8 @@
       "collectedAt": "2026-10-30T01:24:15.624675+00:00",
       "excerpt": "新手必看 / 行业专区（成长品牌） / 六、「出行旅游」赛道营销指南合集",
       "relevanceScore": 86,
-      "reviewStatus": "needs_review",
-      "publicationStatus": "withheld",
+      "reviewStatus": "pending_reaudit",
+      "publicationStatus": "pending_ai",
       "humanApproval": {
         "approvedBy": "2224878257-pixel",
         "approvedAt": "2026-10-30T11:18:00+08:00",
@@ -1109,8 +1109,8 @@
       "collectedAt": "2026-10-30T02:26:34.635296+00:00",
       "excerpt": "资讯",
       "relevanceScore": 40,
-      "reviewStatus": "needs_review",
-      "publicationStatus": "withheld",
+      "reviewStatus": "pending_reaudit",
+      "publicationStatus": "pending_ai",
       "humanApproval": {
         "approvedBy": "2224878257-pixel",
         "approvedAt": "2026-10-30T11:18:00+08:00",
