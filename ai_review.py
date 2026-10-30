@@ -19,6 +19,10 @@ from deepseek_client import generate_json
 from publish_reviewed import check_article
 
 ROOT = Path(__file__).resolve().parent
+PRIORITY_PLATFORM_ROUNDS = (
+    ("腾讯广告", "巨量引擎", "小红书聚光/千帆"),
+    ("微信广告", "快手磁力", "百度营销"),
+)
 ALLOWED_DOMAINS = {
     "blog.google", "business.google.com", "developers.google.com", "about.fb.com", "github.blog",
     "openai.com", "ads.tiktok.com", "e.qq.com", "school.oceanengine.com", "ad.xiaohongshu.com",
@@ -193,14 +197,42 @@ def decision(item, review):
     return "approved", "meets strict auto-approval threshold"
 
 
+def select_pending(candidates, limit):
+    """Prefer one high-value item per domestic platform before global backlog."""
+    pending = [item for item in candidates if item.get("reviewStatus") == "pending"]
+    indexed = {id(item): index for index, item in enumerate(candidates)}
+
+    def value(item):
+        score = item.get("relevanceScore", item.get("relevanceHint", 0))
+        try:
+            score = float(score)
+        except (TypeError, ValueError):
+            score = 0
+        return (-score, indexed[id(item)])
+
+    buckets = {}
+    for item in pending:
+        buckets.setdefault(item.get("platform", ""), []).append(item)
+    for bucket in buckets.values():
+        bucket.sort(key=value)
+
+    ordered = []
+    reserved = {platform for tier in PRIORITY_PLATFORM_ROUNDS for platform in tier}
+    for tier in PRIORITY_PLATFORM_ROUNDS:
+        while any(buckets.get(platform) for platform in tier):
+            for platform in tier:
+                if buckets.get(platform):
+                    ordered.append(buckets[platform].pop(0))
+
+    remainder = [item for item in pending if item.get("platform", "") not in reserved]
+    remainder.sort(key=value)
+    ordered.extend(remainder)
+    return ordered[:max(0, limit)]
+
+
 def run(queue, token, limit):
     processed = 0
-    for item in queue["candidates"]:
-        if item.get("reviewStatus") not in ("pending", "needs_review") or processed >= limit:
-            continue
-        # Do not retry a held item automatically; it may require human correction.
-        if item.get("reviewStatus") == "needs_review":
-            continue
+    for item in select_pending(queue["candidates"], limit):
         processed += 1
         log = {"auditedAt": datetime.now(timezone.utc).isoformat(), "version": "AI-review-v1"}
         try:
@@ -247,7 +279,7 @@ def main():
     if not path.exists():
         parser.error("Run collect_feeds.py first")
     queue = json.loads(path.read_text(encoding="utf-8"))
-    pending_before = [item["id"] for item in queue.get("candidates", []) if item.get("reviewStatus") == "pending"][:args.limit]
+    pending_before = [item["id"] for item in select_pending(queue.get("candidates", []), args.limit)]
     count = run(queue, token, args.limit)
     path.write_text(json.dumps(queue, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     report_path = ROOT / "run_report.json"
