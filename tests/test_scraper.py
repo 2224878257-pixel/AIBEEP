@@ -1,0 +1,56 @@
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch, Mock
+from datetime import datetime
+
+import scraper as s
+
+
+class ScraperTests(unittest.TestCase):
+    def test_canonical_and_official_domain(self):
+        self.assertEqual(s.canonical('https://e.qq.com/latestnews/detail?utm_source=x&pid=42#top'), 'https://e.qq.com/latestnews/detail?pid=42')
+        source = {'hosts': ['e.qq.com'], 'pattern': '/latestnews/detail'}
+        self.assertFalse(s.allowed('https://e.qq.com.evil.org/latestnews/detail', source))
+
+    def test_reject_bad_ai(self):
+        response = Mock()
+        response.json.return_value = {'choices': [{'finish_reason': 'stop', 'message': {'content': '{"cat":"made-up"}'}}]}
+        with patch.object(s, 'request', return_value=response), self.assertRaises(ValueError):
+            s.enrich({'body': 'public text'}, 'test-key')
+
+    def test_missing_key_preserves_data(self):
+        with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': ''}), self.assertRaises(ValueError):
+            s.run(Mock(check_sources=False), Mock())
+
+    def test_failure_preserves_snapshot_and_reports(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
+            old = '[{"url":"https://e.qq.com/latestnews/detail?pid=1"}]'
+            (Path(d) / 'data.json').write_text(old)
+            (Path(d) / 'sources.json').write_text('[{"name":"test"}]')
+            collector = Mock()
+            collector.discover.side_effect = ValueError('unavailable')
+            with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}):
+                self.assertEqual(s.run(Mock(check_sources=False, limit=1), collector), 1)
+            self.assertEqual((Path(d) / 'data.json').read_text(), old)
+
+    def test_recent_article_publishes_schema(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
+            (Path(d) / 'data.json').write_text('[]')
+            (Path(d) / 'sources.json').write_text('[{"name":"test","ch":"tx"}]')
+            article = {'url': 'https://e.qq.com/latestnews/detail?pid=2', 'title': 'test', 'body': '正文', 'published_at': datetime.now(s.TZ).isoformat()}
+            collector = Mock()
+            collector.discover.return_value = [article['url']]
+            collector.article.return_value = article
+            ai = dict(title='标题', desc='摘要', content='正文', reason='理由', cat='data', tag='ad', score=80)
+            with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}), patch.object(s, 'enrich', return_value=ai):
+                s.run(Mock(check_sources=False, limit=1), collector)
+            row = json.loads((Path(d) / 'data.json').read_text(encoding='utf-8'))[0]
+            self.assertEqual(row['t'], 'today')
+            self.assertEqual(row['orig'], '')
+            self.assertIsInstance(row['id'], int)
+
+
+if __name__ == '__main__':
+    unittest.main()
