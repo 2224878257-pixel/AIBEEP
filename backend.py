@@ -159,7 +159,19 @@ class Handler(SimpleHTTPRequestHandler):
             return self.json_response(200, get_bodies())
         if route.path == "/api/sources":
             catalog = json.loads((ROOT / "feed_sources.json").read_text(encoding="utf-8"))
-            return self.json_response(200, {"feeds": [{"name": f["name"], "platform": f.get("platform"), "region": f.get("region"), "status": "rss"} for f in catalog["feeds"]], "watchPages": [{"name": w["name"], "platform": w.get("platform"), "region": w.get("region"), "status": "pending-integration"} for w in catalog.get("watch_pages", [])]})
+            automatic = catalog.get("feeds", []) + catalog.get("automatic_sources", [])
+            return self.json_response(200, {
+                "sources": [{
+                    "name": source["name"], "platform": source.get("platform"),
+                    "region": source.get("region"), "type": source.get("type", "rss"),
+                    "status": "automatic",
+                } for source in automatic],
+                "watchPages": [{
+                    "name": source["name"], "platform": source.get("platform"),
+                    "region": source.get("region"), "type": source.get("type", "manual_link"),
+                    "status": "manual-watch",
+                } for source in catalog.get("watch_pages", [])],
+            })
         if route.path == "/api/admin/jobs":
             if not self.authorized():
                 return self.json_response(401, {"error": "unauthorized"})

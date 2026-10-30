@@ -4,9 +4,9 @@ Usage:
   python3 publish_reviewed.py                  # validate + preview only
   python3 publish_reviewed.py --apply          # update dist/*.json
 
-Reviewers edit review_queue.json: set reviewStatus to "approved" and supply
-editorial {title, summary, intro, sections}. Items without complete editorial
-are never published. This script never invents facts or performs translation.
+AI approval is necessary but not sufficient. Reviewers must also set
+publicationStatus to "approved" and provide humanApproval {approvedBy,
+approvedAt}. Items without two-step approval are never published.
 """
 import argparse
 from datetime import datetime, timezone
@@ -21,7 +21,18 @@ def check_article(record):
     note = record.get("editorial") or {}
     sections = note.get("sections")
     audit = record.get("audit") or {}
-    if not (record.get("reviewStatus") == "approved" and audit.get("decision") == "approved" and isinstance(sections, list) and sections):
+    human = record.get("humanApproval") or {}
+    evidence = audit.get("supported_facts") or []
+    if not (
+        record.get("reviewStatus") == "approved"
+        and audit.get("decision") == "approved"
+        and record.get("publicationStatus") == "approved"
+        and isinstance(human.get("approvedBy"), str) and human["approvedBy"].strip()
+        and isinstance(human.get("approvedAt"), str) and human["approvedAt"].strip()
+        and isinstance(evidence, list) and len(evidence) >= 2
+        and all(isinstance(fact, str) and len(fact.strip()) >= 12 for fact in evidence[:2])
+        and isinstance(sections, list) and sections
+    ):
         return None
     if not all(isinstance(note.get(k), str) and note[k].strip() for k in ("title", "summary", "intro")):
         return None
@@ -55,7 +66,7 @@ def promoted(queue, content, articles):
             "category": record.get("category", "行业动态"),
             "source": record.get("source", "官方资料"), "url": record["url"],
             "summary": note["summary"].strip(),
-            "publishedAt": record.get("published") or None,
+            "publishedAt": record.get("publishedAt") or record.get("published") or None,
             "reviewStatus": "approved",
             "evidence": [fact.strip() for fact in audit.get("supported_facts", [])[:5] if isinstance(fact, str) and fact.strip()],
             "audit": {
@@ -63,6 +74,10 @@ def promoted(queue, content, articles):
                 "auditedAt": audit.get("auditedAt"),
                 "relevance": audit.get("relevance"),
                 "fidelity": audit.get("fidelity"),
+            },
+            "humanApproval": {
+                "approvedBy": (record.get("humanApproval") or {}).get("approvedBy"),
+                "approvedAt": (record.get("humanApproval") or {}).get("approvedAt"),
             },
             "addedAt": datetime.now(timezone.utc).isoformat()
         }
@@ -91,10 +106,20 @@ def main():
     added = promoted(queue, content, articles)
     print(f"Validated {len(added)} newly approved articles: {', '.join(added) or 'none'}")
     if not args.apply:
+        report_path = ROOT / "run_report.json"
+        if report_path.exists():
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            report["publication"] = {"eligible": len(added), "actualAdded": 0, "mode": "manual-gate"}
+            report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print("Dry run only. Use --apply after reviewing sources and Chinese drafts.")
         return
     content_path.write_text(json.dumps(content, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     articles_path.write_text(json.dumps(articles, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    report_path = ROOT / "run_report.json"
+    if report_path.exists():
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["publication"] = {"eligible": len(added), "actualAdded": len(added), "mode": "human-approved-apply"}
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("Updated static content; redeploy the private Site to publish.")
 
 if __name__ == "__main__":

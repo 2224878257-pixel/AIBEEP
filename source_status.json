@@ -1,0 +1,53 @@
+{
+  "checkedAt": "2026-10-30T01:24:16.627085+00:00",
+  "summary": {
+    "fetched": 57,
+    "newCandidates": 1,
+    "duplicates": 24,
+    "lowRelevance": 32,
+    "stale": 0,
+    "failedSources": 0
+  },
+  "results": [
+    {
+      "source": "腾讯广告官方资讯",
+      "platform": "腾讯广告",
+      "method": "official_api",
+      "status": "ok",
+      "httpStatus": 200,
+      "fetched": 24,
+      "newCandidates": 0,
+      "duplicates": 2,
+      "lowRelevance": 22,
+      "stale": 0,
+      "successRate": 1.0
+    },
+    {
+      "source": "巨量学官方更新",
+      "platform": "巨量引擎",
+      "method": "public_webpage",
+      "status": "ok",
+      "httpStatus": 200,
+      "fetched": 9,
+      "newCandidates": 0,
+      "duplicates": 4,
+      "lowRelevance": 5,
+      "stale": 0,
+      "successRate": 1.0
+    },
+    {
+      "source": "小红书聚光帮助中心",
+      "platform": "小红书聚光/千帆",
+      "method": "official_api",
+      "status": "ok",
+      "httpStatus": 200,
+      "fetched": 24,
+      "newCandidates": 1,
+      "duplicates": 18,
+      "lowRelevance": 5,
+      "stale": 0,
+      "successRate": 1.0
+    }
+  ],
+  "manualCount": 0
+}

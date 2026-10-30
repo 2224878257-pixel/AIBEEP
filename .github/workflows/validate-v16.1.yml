@@ -1,0 +1,53 @@
+name: Validate V16.1 collectors
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.py'
+      - '**.json'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aibeep-v16-1-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline regression tests
+        run: python -m unittest test_pipeline.py -v
+      - name: Validate tracked JSON
+        run: |
+          python -m json.tool feed_sources.json >/dev/null
+          python -m json.tool review_queue.json >/dev/null
+          python -m json.tool dist/content.json >/dev/null
+          python -m json.tool dist/articles.json >/dev/null
+      - name: Probe P0 official sources without AI or publication
+        run: >-
+          python collect_feeds.py --limit 3 --max-age-days 180 --delay 1
+          --source '腾讯广告' --source '巨量引擎' --source '小红书聚光/千帆'
+      - name: Print collection evidence
+        if: always()
+        run: |
+          test -s run_report.json
+          python report_run.py
+      - name: Upload collection evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v16-1-source-validation-${{ github.run_id }}
+          path: |
+            run_report.json
+            source_status.json
+          if-no-files-found: error
+          retention-days: 14
