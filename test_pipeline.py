@@ -147,6 +147,18 @@ class PipelineTests(unittest.TestCase):
         finally:
             backend.DB_PATH = prior
 
+    def test_ai_review_prioritizes_one_item_per_p0_platform(self):
+        candidates = [
+            {"id": "global", "platform": "Google Ads", "reviewStatus": "pending", "relevanceHint": 99},
+            {"id": "xhs-low", "platform": "小红书聚光/千帆", "reviewStatus": "pending", "relevanceScore": 40},
+            {"id": "ocean", "platform": "巨量引擎", "reviewStatus": "pending", "relevanceScore": 65},
+            {"id": "tencent", "platform": "腾讯广告", "reviewStatus": "pending", "relevanceScore": 55},
+            {"id": "xhs-high", "platform": "小红书聚光/千帆", "reviewStatus": "pending", "relevanceScore": 88},
+            {"id": "held", "platform": "腾讯广告", "reviewStatus": "needs_review", "relevanceScore": 100},
+        ]
+        selected = ai_review.select_pending(candidates, 3)
+        self.assertEqual([item["id"] for item in selected], ["tencent", "ocean", "xhs-high"])
+
     def test_static_publish_requires_two_matching_approvals(self):
         base = {"id": "0123456789abcdef", "url": "https://blog.google/example", "source": "Google", "category": "广告平台", "reviewStatus": "approved",
                 "editorial": {"title": "广告更新", "summary": "产品更新摘要", "intro": "产品更新简介", "sections": [{"title": "说明", "paragraphs": ["官方描述了更新。"]}]}}
