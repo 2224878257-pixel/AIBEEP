@@ -1,10 +1,10 @@
 {
-  "checkedAt": "2026-10-30T02:16:57.853773+00:00",
+  "checkedAt": "2026-10-30T02:26:41.578034+00:00",
   "summary": {
     "fetched": 81,
-    "newCandidates": 0,
+    "newCandidates": 1,
     "duplicates": 37,
-    "lowRelevance": 44,
+    "lowRelevance": 43,
     "stale": 0,
     "failedSources": 0
   },
@@ -55,9 +55,9 @@
       "status": "ok",
       "httpStatus": 200,
       "fetched": 24,
-      "newCandidates": 0,
+      "newCandidates": 1,
       "duplicates": 2,
-      "lowRelevance": 22,
+      "lowRelevance": 21,
       "stale": 0,
       "successRate": 1.0
     },
