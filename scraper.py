@@ -237,8 +237,17 @@ def run(args, collector):
     old = json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
     if not isinstance(old, list):
         raise ValueError('data.json must contain an array')
-    by_url = {canonical(r['url']): r for r in old}
-    report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'ai_failures': 0}
+    by_url = {}
+    for row in old:
+        # Uploaded demo rows use '#'; they must not prevent a real collection run.
+        if not isinstance(row, dict) or not date_value(row.get('published_at')):
+            continue
+        try:
+            by_url[canonical(row.get('url', ''))] = row
+        except ValueError:
+            continue
+    report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'ai_failures': 0,
+              'ignored_existing': len(old) - len(by_url)}
     for source in json.loads((ROOT / 'sources.json').read_text(encoding='utf-8')):
         status = {'source': source['name'], 'discovered': 0, 'readable': 0, 'added': 0, 'errors': []}
         try:

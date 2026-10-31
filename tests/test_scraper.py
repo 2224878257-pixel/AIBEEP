@@ -9,6 +9,21 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_demo_placeholder_does_not_block_collection(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
+            (Path(d) / 'data.json').write_text('[{"id":1,"url":"#","title":"demo"}]')
+            (Path(d) / 'sources.json').write_text('[{"name":"test","ch":"tx"}]')
+            article = {'url': 'https://e.qq.com/latestnews/detail?pid=2', 'title': 'real', 'body': 'body', 'published_at': datetime.now(s.TZ).isoformat()}
+            collector = Mock()
+            collector.discover.return_value = [article['url']]
+            collector.article.return_value = article
+            ai = dict(title='real', desc='summary', content='body', reason='reason', cat='data', tag='ad', score=80)
+            with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}), patch.object(s, 'enrich', return_value=ai):
+                self.assertEqual(s.run(Mock(check_sources=False, limit=1), collector), 0)
+            rows = json.loads((Path(d) / 'data.json').read_text(encoding='utf-8'))
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]['url'], article['url'])
+
     def test_xiaohongshu_document_is_labelled_as_update(self):
         response = Mock()
         response.json.return_value = {'success': True, 'data': {'result': {'title': '投放规范', 'content': json.dumps({'children': [{'text': '规范正文' * 60}]})}}}
