@@ -1,0 +1,120 @@
+{
+  "runs": [
+    {
+      "completed_at": "2026-10-31T22:52:37.342242+08:00",
+      "status": "partial",
+      "added": 1,
+      "updated": 1,
+      "filtered": 5,
+      "duplicates": 0,
+      "cached": 10,
+      "ai_failures": 0,
+      "ai_retries": 1,
+      "sources_disabled": [
+        "巨量学",
+        "快手磁力引擎",
+        "数英"
+      ],
+      "sources_total": 9,
+      "sources_with_errors": 2,
+      "last_success_at": "2026-10-31T22:52:37.342257+08:00",
+      "date": "2026-10-31",
+      "sources": [
+        {
+          "source": "巨量引擎",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "腾讯广告",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 2,
+          "failures": 1
+        },
+        {
+          "source": "小红书聚光",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 3,
+          "failures": 0
+        },
+        {
+          "source": "Meta for Business",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 2,
+          "failures": 1
+        },
+        {
+          "source": "人人都是产品经理",
+          "added": 0,
+          "updated": 1,
+          "filtered": 2,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "Jon Loomer",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 1,
+          "failures": 0
+        },
+        {
+          "source": "WordStream",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 2,
+          "failures": 0
+        },
+        {
+          "source": "青瓜传媒",
+          "added": 0,
+          "updated": 0,
+          "filtered": 1,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "运营派",
+          "added": 1,
+          "updated": 0,
+          "filtered": 2,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        }
+      ]
+    }
+  ],
+  "days": [
+    {
+      "date": "2026-10-31",
+      "runs": 1,
+      "added": 1,
+      "updated": 1,
+      "filtered": 5,
+      "duplicates": 0,
+      "cached": 10,
+      "failed_runs": 0,
+      "source_failures": 2
+    }
+  ]
+}
