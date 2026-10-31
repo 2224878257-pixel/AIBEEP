@@ -228,6 +228,13 @@ def enrich(article, key):
     if choice.get('finish_reason') != 'stop':
         raise ValueError('Incomplete AI output')
     data = json.loads(choice['message']['content'])
+    # Some models return multiple applicable labels despite the single-label prompt.
+    for field, choices in (('cat', CATS), ('tag', TAGS), ('ch', CHANNELS)):
+        value = data.get(field)
+        if isinstance(value, list):
+            data[field] = next((v for v in value if isinstance(v, str) and v in choices), None)
+        elif not isinstance(value, str):
+            data[field] = None
     if data.get('cat') not in CATS or data.get('tag') not in TAGS:
         raise ValueError('Invalid AI classification')
     for field in ('title', 'desc', 'reason', 'content'):

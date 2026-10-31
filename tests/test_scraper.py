@@ -9,6 +9,15 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_ai_multiple_labels_choose_supported_primary(self):
+        data = dict(title='test', desc='summary', content='body', reason='reason', cat=['case','acq'], tag=['ad'], ch=['hw','general'], score=80, relevant=True)
+        response = Mock()
+        response.json.return_value = {'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(data)}}]}
+        with patch.object(s, 'request', return_value=response):
+            result = s.enrich({'source_kind': 'community'}, 'test')
+        self.assertEqual(result['detected_ch'], 'hw')
+        self.assertEqual(result['cat'], 'case')
+
     def test_feed_filters_topics_and_external_links(self):
         response = Mock()
         response.content = b'<rss><channel><item><title>Meta Ads testing</title><link>https://www.jonloomer.com/testing/</link><pubDate>Sat, 31 Oct 2026 08:00:00 +0000</pubDate></item><item><title>Meta Ads fake</title><link>https://evil.example/testing/</link></item><item><title>Weather today</title><link>https://www.jonloomer.com/weather/</link></item></channel></rss>'
