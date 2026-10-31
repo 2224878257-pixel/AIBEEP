@@ -9,6 +9,29 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_feed_filters_topics_and_external_links(self):
+        response = Mock()
+        response.content = b'<rss><channel><item><title>Meta Ads testing</title><link>https://www.jonloomer.com/testing/</link><pubDate>Sat, 31 Oct 2026 08:00:00 +0000</pubDate></item><item><title>Meta Ads fake</title><link>https://evil.example/testing/</link></item><item><title>Weather today</title><link>https://www.jonloomer.com/weather/</link></item></channel></rss>'
+        source = {'adapter': 'rss', 'url': 'https://www.jonloomer.com/feed/', 'hosts': ['www.jonloomer.com'], 'pattern': '/.+'}
+        with patch.object(s, 'request', return_value=response):
+            collector = s.Collector()
+            self.assertEqual(collector.discover(source, 3), ['https://www.jonloomer.com/testing'])
+            self.assertIsNotNone(s.date_value(collector.metadata['https://www.jonloomer.com/testing']))
+
+    def test_community_relevance_gate(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
+            (Path(d) / 'data.json').write_text('[]')
+            (Path(d) / 'sources.json').write_text('[{"name":"author","ch":"general","kind":"community"}]')
+            article = {'url': 'https://www.jonloomer.com/test', 'title': 'test', 'body': 'body', 'published_at': datetime.now(s.TZ).isoformat()}
+            collector = Mock()
+            collector.discover.return_value = [article['url']]
+            collector.article.return_value = article
+            ai = dict(title='test', desc='summary', content='body', reason='reason', cat='data', tag='ad', score=90, relevant=False, detected_ch='hw')
+            with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}), patch.object(s, 'enrich', return_value=ai):
+                s.run(Mock(check_sources=False, limit=1), collector)
+            self.assertEqual(json.loads((Path(d) / 'data.json').read_text()), [])
+            self.assertEqual(json.loads((Path(d) / 'run_report.json').read_text())['sources'][0]['filtered'], 1)
+
     def test_demo_placeholder_does_not_block_collection(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
             (Path(d) / 'data.json').write_text('[{"id":1,"url":"#","title":"demo"}]')

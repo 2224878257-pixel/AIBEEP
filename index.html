@@ -503,7 +503,7 @@ const NAV = [
 ];
 const PLAT_IDS=['dj','tx','ks','xhs','hw'];
 const IND_IDS=['ec','local','saas','game','edu'];
-const chMeta={all:'全部',dj:'巨量引擎',tx:'腾讯广告',ks:'快手磁力',xhs:'小红书',hw:'海外投放',ec:'电商',local:'本地生活',saas:'企服SaaS',game:'游戏',edu:'教育'};
+const chMeta={all:'全部',dj:'巨量引擎',tx:'腾讯广告',ks:'快手磁力',xhs:'小红书',hw:'海外投放',ec:'电商',local:'本地生活',saas:'企服SaaS',game:'游戏',edu:'教育',general:'投放与增长'};
 const TAG_NAME={ad:'投放',acq:'获客',mkt:'营销',ai:'AI',mix:'综合'};
 const IMG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>';
 
@@ -835,7 +835,7 @@ function bindCards(){
   document.querySelectorAll('.flow-item, .card').forEach(c=>c.onclick=e=>{if(e.target.closest('.star'))return;openCard(c.dataset.id);});
   document.querySelectorAll('.star').forEach(b=>b.onclick=e=>{e.stopPropagation();const id=+b.dataset.save;state.saved.has(id)?state.saved.delete(id):state.saved.add(id);renderNav();renderFeed();});
 }
-function openSource(id){const i=RAW.find(x=>x.id==id);toast(`跳转来源「${i?i.src:''}」—接入抓取后打开原文地址`);}
+function openSource(id){const i=RAW.find(x=>x.id==id);if(i && /^https:\/\//i.test(i.url))window.open(i.url,'_blank','noopener,noreferrer');else toast('这条记录暂无原文链接');}
 function openCard(id){const i=RAW.find(x=>x.id==id);state.read.add(id);renderFeed();renderDrawer(i);$('#drawer').classList.add('open');document.body.style.overflow='hidden';}
 function closeDrawer(){$('#drawer').classList.remove('open');document.body.style.overflow='';}
 function renderDrawer(i){
