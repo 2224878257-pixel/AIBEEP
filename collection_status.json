@@ -1,0 +1,10 @@
+{
+  "completed_at": "2026-10-31T22:12:23.081441+08:00",
+  "status": "partial",
+  "added": 0,
+  "updated": 3,
+  "filtered": 2,
+  "sources_total": 10,
+  "sources_with_errors": 6,
+  "last_success_at": "2026-10-31T22:12:23.081455+08:00"
+}
