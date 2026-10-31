@@ -9,6 +9,27 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_retry_truncated_ai_output_then_succeed(self):
+        data = dict(title='test',desc='summary',content='body',reason='reason',cat='case',tag='ad',ch='hw',score=80,relevant=True)
+        bad, good = Mock(), Mock()
+        bad.json.return_value = {'choices':[{'finish_reason':'length','message':{'content':'{'}}]}
+        good.json.return_value = {'choices':[{'finish_reason':'stop','message':{'content':json.dumps(data)}}]}
+        with patch.object(s,'request',side_effect=[bad,good]) as request, patch.object(s.time,'sleep'):
+            result=s.enrich({},'test')
+        self.assertEqual(result['_attempts'],2)
+        self.assertEqual(request.call_args.kwargs['json']['thinking'],{'type':'disabled'})
+
+    def test_history_accumulates_daily_totals(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s,'ROOT',Path(d)):
+            report={'added':2,'sources':[{'source':'test','errors':[],'filtered':1,'duplicates':3,'cached':4}]}
+            s.collection_status(report)
+            s.collection_status(report)
+            history=json.loads((Path(d)/'collection_history.json').read_text())
+            self.assertEqual(len(history['days']),1)
+            self.assertEqual(history['days'][0]['added'],4)
+            self.assertEqual(history['days'][0]['duplicates'],6)
+            self.assertEqual(history['days'][0]['runs'],2)
+
     def test_practical_gate_rejects_news_and_weak_articles(self):
         base = {'relevant':True,'practical':True,'score':80,'actions':['在相同预算下对比两组素材的获客成本']}
         self.assertTrue(s.community_passes(base))

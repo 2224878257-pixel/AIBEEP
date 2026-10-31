@@ -1,12 +1,14 @@
 [
   {"ch":"dj","name":"巨量引擎","url":"https://www.oceanengine.com/news","pattern":"/news/.+","hosts":["www.oceanengine.com"]},
-  {"ch":"dj","name":"巨量学","url":"https://school.oceanengine.com/","pattern":"/(live|premium/course)/[0-9]+","hosts":["school.oceanengine.com"]},
+  {"ch":"dj","name":"巨量学","url":"https://school.oceanengine.com/","pattern":"/(live|premium/course)/[0-9]+","hosts":["school.oceanengine.com"],"enabled":false,"disabled_reason":"详情缺少可靠发布日期，等待可用入口"},
   {"ch":"tx","name":"腾讯广告","url":"https://e.qq.com/latestnews/","pattern":"/latestnews/detail","hosts":["e.qq.com"],"adapter":"tencent"},
-  {"ch":"ks","name":"快手磁力引擎","url":"https://e.kuaishou.com/","pattern":"/(news|article|detail|notice|case)/.+","hosts":["e.kuaishou.com","e.kuaishou.cn"]},
+  {"ch":"ks","name":"快手磁力引擎","url":"https://e.kuaishou.com/","pattern":"/(news|article|detail|notice|case)/.+","hosts":["e.kuaishou.com","e.kuaishou.cn"],"enabled":false,"disabled_reason":"当前页面无法发现公开文章链接"},
   {"ch":"xhs","name":"小红书聚光","url":"https://ad.xiaohongshu.com/next_help/home","pattern":"/next_help/docs/","hosts":["ad.xiaohongshu.com"],"adapter":"xiaohongshu"},
   {"ch":"hw","name":"Meta for Business","url":"https://www.facebook.com/business/news","pattern":"/business/news/.+","hosts":["www.facebook.com","www.meta.com"]},
   {"ch":"general","name":"人人都是产品经理","url":"https://www.woshipm.com/feed","pattern":"/[^/]+/[0-9]+\\.html$","hosts":["www.woshipm.com","woshipm.com"],"adapter":"rss","kind":"community","http_only":true},
-  {"ch":"general","name":"数英","url":"https://www.digitaling.com/","pattern":"/articles/[0-9]+\\.html$","hosts":["www.digitaling.com"],"kind":"community","http_only":true,"date_selector":"span.inline_bk.color_969"},
+  {"ch":"general","name":"数英","url":"https://www.digitaling.com/","pattern":"/articles/[0-9]+\\.html$","hosts":["www.digitaling.com"],"kind":"community","http_only":true,"date_selector":"span.inline_bk.color_969","enabled":false,"disabled_reason":"云端请求持续403，暂缓采集"},
   {"ch":"hw","name":"Jon Loomer","url":"https://www.jonloomer.com/feed/","pattern":"/.+","hosts":["www.jonloomer.com"],"adapter":"rss","kind":"community","http_only":true},
-  {"ch":"hw","name":"WordStream","url":"https://www.wordstream.com/blog/feed","pattern":"/blog/.+","hosts":["www.wordstream.com","wordstream.com"],"adapter":"rss","kind":"community","http_only":true}
+  {"ch":"hw","name":"WordStream","url":"https://www.wordstream.com/blog/feed","pattern":"/blog/.+","hosts":["www.wordstream.com","wordstream.com"],"adapter":"rss","kind":"community","http_only":true},
+  {"ch":"general","name":"青瓜传媒","url":"https://www.opp2.com/feed","pattern":"/[0-9]+\\.html$","hosts":["www.opp2.com"],"adapter":"rss","kind":"community","http_only":true},
+  {"ch":"general","name":"运营派","url":"https://www.yunyingpai.com/feed","pattern":"/[^/]+/[0-9]+\\.html$","hosts":["www.yunyingpai.com"],"adapter":"rss","kind":"community","http_only":true}
 ]

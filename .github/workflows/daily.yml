@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['index.html', 'data.json', 'collection_status.json', 'scraper.py', 'sources.json', 'requirements.txt', '.github/workflows/daily.yml']
+    paths: ['index.html', 'data.json', 'collection_status.json', 'collection_history.json', 'scraper.py', 'sources.json', 'requirements.txt', '.github/workflows/daily.yml']
 permissions:
   contents: write
   pages: write
@@ -50,7 +50,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add collection_status.json
+          git add collection_status.json collection_history.json
           if [ '${{ steps.scrape.outcome }}' = 'success' ]; then git add data.json; else git restore data.json; fi
           if ! git diff --cached --quiet; then
             git commit -m 'content: refresh official growth news'
@@ -62,6 +62,7 @@ jobs:
           mkdir site
           cp index.html data.json site/
           if [ -f collection_status.json ]; then cp collection_status.json site/; fi
+          if [ -f collection_history.json ]; then cp collection_history.json site/; fi
           touch site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

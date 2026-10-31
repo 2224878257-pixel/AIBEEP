@@ -410,6 +410,7 @@
   </div>
 </header>
 <div id="collectionStatus" role="status" style="max-width:1280px;margin:10px auto 0;padding:0 20px;font-size:12px;line-height:1.6;color:var(--ink-3)">正在查询采集状态…</div>
+<details style="max-width:1280px;margin:4px auto 0;padding:0 20px;font-size:12px;color:var(--ink-3)"><summary style="cursor:pointer">最近 3 天采集记录</summary><ul id="collectionHistory" style="line-height:1.8;padding-left:20px"><li>正在读取记录…</li></ul></details>
 
 <div class="shell">
 
@@ -944,6 +945,7 @@ async function init(){
   state.saved = new Set(RAW.filter(i=>i.st).map(i=>i.id));
   renderHeader(); renderStats(); renderNav(); renderFeed(); renderFocus(); renderHot();
   loadCollectionStatus();
+  loadCollectionHistory();
 }
 async function loadCollectionStatus(){
   const el=$('#collectionStatus');
@@ -954,9 +956,26 @@ async function loadCollectionStatus(){
     const label={success:'采集完成',partial:'采集完成 · 部分来源异常',failed:'本轮采集失败 · 保留上次数据'}[status.status];
     const date=new Date(status.completed_at);if(!label || Number.isNaN(date.getTime()))throw new Error('状态格式无效');
     const time=date.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
-    el.textContent=`${label} · ${time}（北京时间） · 本次新增 ${Number(status.added)||0} 条`;
+    const paused=Array.isArray(status.sources_disabled)?status.sources_disabled:[];
+    el.textContent=`${label} · ${time}（北京时间） · 本次新增 ${Number(status.added)||0} 条${paused.length?` · ${paused.length} 个来源暂停`:''}`;
     el.title=`更新 ${Number(status.updated)||0} 条，筛除 ${Number(status.filtered)||0} 条；${Number(status.sources_with_errors)||0}/${Number(status.sources_total)||0} 个来源存在异常`;
+    if(paused.length)el.title+=`；暂停：${paused.join('、')}`;
   }catch(e){el.textContent='暂无可用采集状态';}
+}
+async function loadCollectionHistory(){
+  const list=$('#collectionHistory');
+  try{
+    const url=new URL('collection_history.json',document.baseURI);url.searchParams.set('t',Date.now());
+    const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('无历史');
+    const history=await response.json();if(!Array.isArray(history.days))throw new Error('格式错误');
+    list.replaceChildren();
+    for(const day of history.days.slice(0,3)){
+      const li=document.createElement('li');
+      li.textContent=`${day.date}：运行 ${Number(day.runs)||0} 次 · 新增 ${Number(day.added)||0} · 更新 ${Number(day.updated)||0} · 筛除 ${Number(day.filtered)||0} · 重复 ${Number(day.duplicates)||0} · 失败 ${Number(day.failed_runs)||0} 轮（来源异常 ${Number(day.source_failures)||0} 次）`;
+      list.appendChild(li);
+    }
+    if(history.days.length<3){const li=document.createElement('li');li.textContent=`目前记录 ${history.days.length} 天，后续自动累计，不补造历史。`;list.appendChild(li);}
+  }catch(e){list.textContent='暂无历史记录，下一轮采集后开始累计。';}
 }
 init();
 </script>
