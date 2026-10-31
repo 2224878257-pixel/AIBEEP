@@ -227,6 +227,10 @@ def enrich(article, key):
             result = _enrich_once(article, key)
             result['_attempts'] = attempt + 1
             return result
+        except requests.exceptions.JSONDecodeError:
+            if attempt == 2:
+                raise
+            time.sleep(attempt + 1)
         except requests.RequestException:
             raise  # HTTP retries are bounded by request(); do not retry credentials errors.
         except (ValueError, KeyError, IndexError, TypeError):
@@ -383,7 +387,7 @@ def run(args, collector):
             by_url[canonical(row.get('url', ''))] = row
         except ValueError:
             continue
-    report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'updated': 0, 'ai_failures': 0, 'ai_retries': 0, 'disabled_sources': [],
+    report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'updated': 0, 'ai_failures': 0, 'ai_successes': 0, 'ai_retries': 0, 'disabled_sources': [],
               'ignored_existing': len(old) - len(by_url)}
     fingerprints = {r.get('content_hash') for r in by_url.values() if r.get('content_hash') and
                     (r.get('source_kind') != 'community' or r.get('quality_version') == QUALITY_VERSION)}
@@ -429,6 +433,7 @@ def run(args, collector):
                     if not args.check_sources:
                         try:
                             ai = enrich(article, key)
+                            report['ai_successes'] += 1
                             report['ai_retries'] += max(0, ai.get('_attempts', 1) - 1)
                         except Exception:
                             report['ai_failures'] += 1
@@ -478,7 +483,7 @@ def run(args, collector):
             if changed:
                 atomic_json(path, old)
     atomic_json(ROOT / 'run_report.json', report)
-    failed = not any(s['discovery_ok'] for s in report['sources']) or bool(report['ai_failures'] and not (report['added'] or report['updated']))
+    failed = not any(s['discovery_ok'] for s in report['sources']) or bool(report['ai_failures'] and not report['ai_successes'])
     if not args.check_sources:
         collection_status(report, failed)
     return int(failed)

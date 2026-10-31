@@ -9,6 +9,20 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_one_bad_candidate_does_not_block_valid_filter_results(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s,'ROOT',Path(d)):
+            (Path(d)/'data.json').write_text('[]')
+            (Path(d)/'sources.json').write_text('[{"name":"test","ch":"general","kind":"community"}]')
+            urls=['https://example.com/a','https://example.com/b']
+            collector=Mock()
+            collector.discover.return_value=urls
+            collector.article.side_effect=[{'url':u,'title':'test','body':u,'published_at':datetime.now(s.TZ).isoformat()} for u in urls]
+            with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}), patch.object(s,'enrich',side_effect=[ValueError('bad JSON'),{'relevant':False,'score':50}]):
+                self.assertEqual(s.run(Mock(check_sources=False,limit=3),collector),0)
+            result=json.loads((Path(d)/'collection_status.json').read_text())
+            self.assertEqual(result['status'],'partial')
+            self.assertEqual(result['ai_failures'],1)
+
     def test_cross_site_repost_merges_but_distinct_articles_remain(self):
         a={'title':'生活服务别抢关键词，用场景内容抢需求形成的时间差','desc':'通过场景内容抢需求形成的时间差，提前种草建立信任','source_kind':'community','published_at':'2026-10-31T10:00:00+08:00','src':'A','url':'https://a.example/1'}
         b={**a,'title':'生活服务投放别只抢关键词：用场景内容抢需求形成的时间差','src':'B','url':'https://b.example/1'}
