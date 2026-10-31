@@ -9,6 +9,15 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_cross_site_repost_merges_but_distinct_articles_remain(self):
+        a={'title':'生活服务别抢关键词，用场景内容抢需求形成的时间差','desc':'通过场景内容抢需求形成的时间差，提前种草建立信任','source_kind':'community','published_at':'2026-10-31T10:00:00+08:00','src':'A','url':'https://a.example/1'}
+        b={**a,'title':'生活服务投放别只抢关键词：用场景内容抢需求形成的时间差','src':'B','url':'https://b.example/1'}
+        c={**a,'title':'Google Ads预算与出价设置的六个操作步骤','url':'https://a.example/2'}
+        rows,count=s.deduplicate_rows([a,b,c])
+        self.assertEqual(count,1)
+        self.assertEqual(len(rows),2)
+        self.assertEqual(rows[0]['also_reported_by'][0]['url'],b['url'])
+
     def test_retry_truncated_ai_output_then_succeed(self):
         data = dict(title='test',desc='summary',content='body',reason='reason',cat='case',tag='ad',ch='hw',score=80,relevant=True)
         bad, good = Mock(), Mock()

@@ -9,6 +9,7 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
+from difflib import SequenceMatcher
 from datetime import datetime, timedelta
 from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
 from zoneinfo import ZoneInfo
@@ -275,6 +276,36 @@ def community_passes(ai):
             and isinstance(actions, list) and any(isinstance(a, str) and len(a.strip()) >= 10 for a in actions))
 
 
+def deduplicate_rows(rows):
+    kept, duplicates = [], 0
+    for row in sorted(rows, key=lambda r:r.get('published_at','')):
+        match = None
+        if row.get('source_kind') == 'community':
+            title = re.sub(r'\W+', '', row['title']).lower()
+            desc = re.sub(r'\W+', '', row['desc']).lower()
+            for old in kept:
+                if old.get('source_kind') != 'community':
+                    continue
+                a, b = date_value(row.get('published_at')), date_value(old.get('published_at'))
+                if not a or not b or abs((a-b).total_seconds()) > 3*86400:
+                    continue
+                old_title = re.sub(r'\W+', '', old['title']).lower()
+                old_desc = re.sub(r'\W+', '', old['desc']).lower()
+                if min(len(title),len(old_title)) >= 16 and SequenceMatcher(None,title,old_title).ratio() >= .90 and SequenceMatcher(None,desc,old_desc).ratio() >= .40:
+                    match = old
+                    break
+        if match is None:
+            kept.append(row)
+        else:
+            aliases = match.setdefault('also_reported_by', [])
+            extra = [{'src':row['src'],'url':row['url']}] + row.get('also_reported_by', [])
+            for alias in extra:
+                if alias['url'] not in {r['url'] for r in aliases}:
+                    aliases.append(alias)
+            duplicates += 1
+    return kept, duplicates
+
+
 def collection_status(report, failed=False):
     path = ROOT / 'collection_status.json'
     previous = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
@@ -283,7 +314,7 @@ def collection_status(report, failed=False):
               'status': 'failed' if failed else ('partial' if errors or report.get('disabled_sources') else 'success'),
               'added': report.get('added', 0), 'updated': report.get('updated', 0),
               'filtered': sum(s.get('filtered', 0) for s in report.get('sources', [])),
-              'duplicates': sum(s.get('duplicates', 0) for s in report.get('sources', [])),
+              'duplicates': sum(s.get('duplicates', 0) for s in report.get('sources', [])) + report.get('merged_duplicates', 0),
               'cached': sum(s.get('cached', 0) for s in report.get('sources', [])),
               'ai_failures': report.get('ai_failures', 0), 'ai_retries': report.get('ai_retries', 0),
               'sources_disabled': report.get('disabled_sources', []),
@@ -356,6 +387,7 @@ def run(args, collector):
               'ignored_existing': len(old) - len(by_url)}
     fingerprints = {r.get('content_hash') for r in by_url.values() if r.get('content_hash') and
                     (r.get('source_kind') != 'community' or r.get('quality_version') == QUALITY_VERSION)}
+    known_aliases = {alias['url'] for row in by_url.values() for alias in row.get('also_reported_by', [])}
     for source in json.loads((ROOT / 'sources.json').read_text(encoding='utf-8')):
         if source.get('enabled') is False:
             report['disabled_sources'].append(source['name'])
@@ -372,6 +404,9 @@ def run(args, collector):
             if not urls and source.get('adapter') != 'rss':
                 status['errors'].append('No article links; list may require login or adapter update')
             for url in urls:
+                if canonical(url) in known_aliases:
+                    status['cached'] += 1
+                    continue
                 if canonical(url) in by_url:
                     updated = date_value(collector.metadata.get(canonical(url))) if source.get('adapter') == 'xiaohongshu' else None
                     cached = date_value(by_url[canonical(url)].get('published_at'))
@@ -403,7 +438,10 @@ def run(args, collector):
                             by_url.pop(article['url'], None)
                             continue
                         existing = article['url'] in by_url
+                        aliases = by_url.get(article['url'], {}).get('also_reported_by', [])
                         by_url[article['url']] = publish_row(article, ai, source)
+                        if aliases:
+                            by_url[article['url']]['also_reported_by'] = aliases
                         by_url[article['url']]['content_hash'] = fingerprint
                         fingerprints.add(fingerprint)
                         status['updated' if existing else 'added'] += 1
@@ -423,6 +461,7 @@ def run(args, collector):
                 row.update(t='today' if published.date() == now.date() else 'week',
                            time=published.strftime('%H:%M') if published.date() == now.date() else published.strftime('%m/%d'))
                 rows.append(row)
+        rows, report['merged_duplicates'] = deduplicate_rows(rows)
         # Total failure must not erase the last working snapshot.
         if any(s['readable'] for s in report['sources']):
             atomic_json(path, sorted(rows, key=lambda r: r['published_at'], reverse=True)[:200])
