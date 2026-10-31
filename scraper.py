@@ -258,6 +258,8 @@ def atomic_json(path, value):
 def publish_row(article, ai, source):
     ai = dict(ai)
     channel = ai.pop('detected_ch', source['ch']) if source.get('kind') == 'community' else source['ch']
+    if source.get('kind') == 'community' and source['ch'] != 'general':
+        channel = source['ch']  # A specialist's declared platform outranks ambiguous model labels.
     ai.pop('relevant', None)
     ai.pop('detected_ch', None)
     if source.get('adapter') == 'xiaohongshu' and not ai['title'].startswith('帮助文档更新：'):

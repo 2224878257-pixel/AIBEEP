@@ -9,6 +9,12 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_specialist_platform_outranks_model_label(self):
+        row = s.publish_row({'url':'https://www.wordstream.com/blog/test','body':'text','published_at':'2026-10-31'},
+                            {'detected_ch':'dj','relevant':True,'title':'Google Ads'},
+                            {'ch':'hw','kind':'community','name':'WordStream'})
+        self.assertEqual(row['ch'], 'hw')
+
     def test_ai_multiple_labels_choose_supported_primary(self):
         data = dict(title='test', desc='summary', content='body', reason='reason', cat=['case','acq'], tag=['ad'], ch=['hw','general'], score=80, relevant=True)
         response = Mock()
