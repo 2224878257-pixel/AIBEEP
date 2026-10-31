@@ -30,9 +30,10 @@ SESSION.headers['User-Agent'] = 'AIBEEP/1.0 (+https://github.com/2224878257-pixe
 
 def request(url, **kwargs):
     method = kwargs.pop('method', 'POST' if 'json' in kwargs else 'GET')
+    timeout = kwargs.pop('timeout', 20)
     for attempt in range(3):
         try:
-            response = SESSION.request(method, url, timeout=60, **kwargs)
+            response = SESSION.request(method, url, timeout=timeout, **kwargs)
             response.raise_for_status()
             return response
         except requests.RequestException as exc:
@@ -234,7 +235,7 @@ def enrich(article, key):
 
 
 def _enrich_once(article, key):
-    result = request('https://api.deepseek.com/chat/completions', headers={'Authorization': f'Bearer {key}'}, json={
+    result = request('https://api.deepseek.com/chat/completions', timeout=60, headers={'Authorization': f'Bearer {key}'}, json={
         'model': os.getenv('DEEPSEEK_MODEL', 'deepseek-flash'),
         'response_format': {'type': 'json_object'}, 'max_tokens': 4000,
         'thinking': {'type': 'disabled'},
