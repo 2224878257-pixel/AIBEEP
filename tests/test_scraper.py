@@ -9,6 +9,24 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_practical_gate_rejects_news_and_weak_articles(self):
+        base = {'relevant':True,'practical':True,'score':80,'actions':['在相同预算下对比两组素材的获客成本']}
+        self.assertTrue(s.community_passes(base))
+        self.assertFalse(s.community_passes({**base,'practical':False}))
+        self.assertFalse(s.community_passes({**base,'score':74}))
+        self.assertFalse(s.community_passes({**base,'actions':[]}))
+
+    def test_public_status_preserves_last_success_on_failure(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
+            s.collection_status({'sources':[{'errors':['timeout']}],'added':2,'updated':1})
+            good = json.loads((Path(d)/'collection_status.json').read_text())
+            self.assertEqual(good['status'], 'partial')
+            self.assertEqual(good['added'], 2)
+            s.collection_status({}, failed=True)
+            bad = json.loads((Path(d)/'collection_status.json').read_text())
+            self.assertEqual(bad['status'], 'failed')
+            self.assertEqual(bad['last_success_at'], good['last_success_at'])
+
     def test_specialist_platform_outranks_model_label(self):
         row = s.publish_row({'url':'https://www.wordstream.com/blog/test','body':'text','published_at':'2026-10-31'},
                             {'detected_ch':'dj','relevant':True,'title':'Google Ads'},

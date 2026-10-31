@@ -409,6 +409,7 @@
     </div>
   </div>
 </header>
+<div id="collectionStatus" role="status" style="max-width:1280px;margin:10px auto 0;padding:0 20px;font-size:12px;line-height:1.6;color:var(--ink-3)">正在查询采集状态…</div>
 
 <div class="shell">
 
@@ -942,6 +943,20 @@ async function init(){
   }catch(e){console.warn('AIBEEP：资讯加载失败，使用内置示例数据。', e);}
   state.saved = new Set(RAW.filter(i=>i.st).map(i=>i.id));
   renderHeader(); renderStats(); renderNav(); renderFeed(); renderFocus(); renderHot();
+  loadCollectionStatus();
+}
+async function loadCollectionStatus(){
+  const el=$('#collectionStatus');
+  try{
+    const url=new URL('collection_status.json',document.baseURI);url.searchParams.set('t',Date.now());
+    const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('状态不可用');
+    const status=await response.json();
+    const label={success:'采集完成',partial:'采集完成 · 部分来源异常',failed:'本轮采集失败 · 保留上次数据'}[status.status];
+    const date=new Date(status.completed_at);if(!label || Number.isNaN(date.getTime()))throw new Error('状态格式无效');
+    const time=date.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
+    el.textContent=`${label} · ${time}（北京时间） · 本次新增 ${Number(status.added)||0} 条`;
+    el.title=`更新 ${Number(status.updated)||0} 条，筛除 ${Number(status.filtered)||0} 条；${Number(status.sources_with_errors)||0}/${Number(status.sources_total)||0} 个来源存在异常`;
+  }catch(e){el.textContent='暂无可用采集状态';}
 }
 init();
 </script>
