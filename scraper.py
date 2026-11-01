@@ -110,6 +110,25 @@ class Collector:
         return response.text
 
     def discover(self, source, limit):
+        if source.get('adapter') == 'wordpress_search':
+            groups = []
+            for term in source['search_terms']:
+                rows = request(source['url'], params={'search': term, 'per_page': 10,
+                                                     'orderby': 'date', 'order': 'desc'}).json()
+                if not isinstance(rows, list):
+                    raise ValueError('WordPress search schema changed')
+                urls = []
+                for row in rows:
+                    url = row.get('link', '')
+                    if not allowed(url, source):
+                        continue
+                    url = canonical(url)
+                    self.metadata[url] = row.get('date_gmt', '') + '+00:00' if row.get('date_gmt') else row.get('date')
+                    urls.append(url)
+                groups.append(urls)
+            # Rotate between platform searches so one prolific platform cannot fill the queue.
+            return list(dict.fromkeys(url for batch in zip(*[g + [None] * (10 - len(g)) for g in groups])
+                                      for url in batch if url))[:limit]
         if source.get('adapter') == 'rss':
             root = ET.fromstring(request(source['url']).content)
             urls = []
@@ -439,6 +458,7 @@ def run(args, collector):
             report['disabled_sources'].append(source['name'])
             continue
         status = {'source': source['name'], 'discovered': 0, 'readable': 0, 'added': 0, 'updated': 0, 'filtered': 0, 'duplicates': 0, 'cached': 0, 'rejected_cached': 0, 'evaluated': 0, 'attempted': 0, 'discovery_ok': False, 'errors': []}
+        source_limit = min(args.limit, source.get('limit', args.limit))
         try:
             urls = collector.discover(source, min(args.limit * 5, 30))
             status['discovery_ok'] = True
@@ -450,6 +470,10 @@ def run(args, collector):
             if not urls and source.get('adapter') != 'rss':
                 status['errors'].append('No article links; list may require login or adapter update')
             for url in urls:
+                known_date = date_value(collector.metadata.get(canonical(url))) if isinstance(getattr(collector, 'metadata', None), dict) else None
+                if known_date and not now - timedelta(days=7) <= known_date <= now:
+                    status['out_of_window'] = status.get('out_of_window', 0) + 1
+                    continue
                 if canonical(url) in screening and source.get('kind') == 'community':
                     status['rejected_cached'] += 1
                     continue
@@ -464,7 +488,7 @@ def run(args, collector):
                         status['cached'] += 1
                         continue
                 try:
-                    if status['evaluated'] >= args.limit or status['attempted'] >= args.limit * 3:
+                    if status['evaluated'] >= source_limit or status['attempted'] >= source_limit * 3:
                         break
                     status['attempted'] += 1
                     article = collector.article(url, source)

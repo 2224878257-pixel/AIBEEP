@@ -8,6 +8,33 @@ from datetime import datetime
 import scraper as s
 
 
+class PlatformDiscoveryTests(unittest.TestCase):
+    def test_search_interleaves_platforms_and_preserves_dates(self):
+        collector = s.Collector()
+        source = dict(url='https://example.com/api', hosts=['example.com'],
+                      pattern='/[0-9]+', adapter='wordpress_search', search_terms=['抖音', '快手'])
+        def response(url, **kwargs):
+            ids = [1, 2] if kwargs['params']['search'] == '抖音' else [3]
+            result = Mock()
+            result.json.return_value = [dict(link=f'https://example.com/{i}', date_gmt='2026-11-01T00:00:00') for i in ids]
+            return result
+        with patch.object(s, 'request', side_effect=response):
+            self.assertEqual(collector.discover(source, 3), ['https://example.com/1', 'https://example.com/3', 'https://example.com/2'])
+        self.assertEqual(s.date_value(collector.metadata['https://example.com/3']).hour, 8)
+
+    def test_old_rss_candidates_do_not_consume_read_budget(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
+            (Path(d) / 'data.json').write_text('[]')
+            (Path(d) / 'sources.json').write_text('[{"name":"test","ch":"hw"}]')
+            collector = s.Collector()
+            collector.metadata = {'https://example.com/old': '2020-01-01T00:00:00Z'}
+            collector.discover = Mock(return_value=list(collector.metadata))
+            collector.article = Mock()
+            with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}):
+                s.run(Mock(check_sources=False, limit=1), collector)
+            collector.article.assert_not_called()
+
+
 class ScraperTests(unittest.TestCase):
     def test_tmall_is_not_tencent_and_themes_are_independent(self):
         row=s.classify_row({'title':'天猫母婴双11观察','ch':'tx','cat':'case','src':'运营派 · 作者经验','source_kind':'community'})
