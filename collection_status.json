@@ -1,19 +1,19 @@
 {
-  "completed_at": "2026-11-01T21:59:29.363194+08:00",
+  "completed_at": "2026-11-01T23:05:25.262123+08:00",
   "status": "partial",
-  "added": 15,
-  "updated": 4,
-  "filtered": 1,
+  "added": 4,
+  "updated": 0,
+  "filtered": 0,
   "duplicates": 0,
-  "cached": 7,
+  "cached": 25,
   "ai_failures": 0,
-  "ai_retries": 4,
+  "ai_retries": 0,
   "sources_disabled": [
     "巨量学",
     "快手磁力引擎",
     "数英"
   ],
-  "sources_total": 9,
+  "sources_total": 10,
   "sources_with_errors": 2,
-  "last_success_at": "2026-11-01T21:59:29.363216+08:00"
+  "last_success_at": "2026-11-01T23:05:25.262144+08:00"
 }

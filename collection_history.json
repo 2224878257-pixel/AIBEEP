@@ -514,19 +514,131 @@
           "failures": 0
         }
       ]
+    },
+    {
+      "completed_at": "2026-11-01T23:05:25.262123+08:00",
+      "status": "partial",
+      "added": 4,
+      "updated": 0,
+      "filtered": 0,
+      "duplicates": 0,
+      "cached": 25,
+      "ai_failures": 0,
+      "ai_retries": 0,
+      "sources_disabled": [
+        "巨量学",
+        "快手磁力引擎",
+        "数英"
+      ],
+      "sources_total": 10,
+      "sources_with_errors": 2,
+      "last_success_at": "2026-11-01T23:05:25.262144+08:00",
+      "date": "2026-11-01",
+      "sources": [
+        {
+          "source": "巨量引擎",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "腾讯广告",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 2,
+          "failures": 5
+        },
+        {
+          "source": "小红书聚光",
+          "added": 2,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 9,
+          "failures": 0
+        },
+        {
+          "source": "Meta for Business",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 12
+        },
+        {
+          "source": "人人都是产品经理",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 3,
+          "failures": 0
+        },
+        {
+          "source": "Jon Loomer",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 1,
+          "failures": 0
+        },
+        {
+          "source": "WordStream",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 2,
+          "failures": 0
+        },
+        {
+          "source": "青瓜传媒",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 1,
+          "failures": 0
+        },
+        {
+          "source": "运营派",
+          "added": 1,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 6,
+          "failures": 0
+        },
+        {
+          "source": "青瓜传媒平台专题",
+          "added": 1,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 1,
+          "failures": 0
+        }
+      ]
     }
   ],
   "days": [
     {
       "date": "2026-11-01",
-      "runs": 2,
-      "added": 15,
+      "runs": 3,
+      "added": 19,
       "updated": 4,
       "filtered": 7,
       "duplicates": 0,
-      "cached": 18,
+      "cached": 43,
       "failed_runs": 0,
-      "source_failures": 4
+      "source_failures": 6
     },
     {
       "date": "2026-10-31",
