@@ -466,15 +466,15 @@
     </section>
     <section class="cta">
       <h5>把资讯变成增长动作</h5>
-      <p>订阅每日邮件简报，或预约一次投放/获客诊断。</p>
-      <button class="btn" id="ctaBtn">订阅日报</button>
+      <p>邮件订阅暂未开放，当前可在站内阅读和收藏资讯。</p>
+      <button class="btn" id="ctaBtn" disabled style="opacity:.55;cursor:not-allowed">订阅暂未开放</button>
     </section>
   </aside>
 </div>
 
 <footer>
   <span>© 2026 <b>AIBEEP</b> · 增长资讯站</span>
-  <span>当前为示例骨架：站内阅读 / 来源跳转 / 图片 / 中英对照已就绪，真实抓取与翻译待接入</span>
+  <span>公开来源采集 · AI 辅助整理 · 收藏与已读保存在当前浏览器</span>
 </footer>
 
 <div class="drawer" id="drawer" role="dialog" aria-modal="true">
@@ -500,12 +500,14 @@ const NAV = [
   {group:'更多', items:[
     {id:'about',     name:'关于',     ico:'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21v-1a8 8 0 0116 0v1'},
     {id:'changelog', name:'更新日志', ico:'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2'},
-    {id:'feedback',  name:'反馈',     ico:'M21 11.5a8.5 8.5 0 01-8.5 8.5c-1.5 0-3-.4-4.2-1L3 20l1.2-5.3A8.5 8.5 0 1121 11.5z'},
+    {id:'feedback',  name:'反馈（暂未开放）',     ico:'M21 11.5a8.5 8.5 0 01-8.5 8.5c-1.5 0-3-.4-4.2-1L3 20l1.2-5.3A8.5 8.5 0 1121 11.5z'},
   ]},
 ];
 const PLAT_IDS=['dj','tx','ks','xhs','hw'];
 const IND_IDS=['ec','local','saas','game','edu'];
 const chMeta={all:'全部',dj:'巨量引擎',tx:'腾讯广告',ks:'快手磁力',xhs:'小红书',hw:'海外投放',ec:'电商',local:'本地生活',saas:'企服SaaS',game:'游戏',edu:'教育',general:'投放与增长'};
+const plats=[['all','全部'],...PLAT_IDS.map(id=>[id,chMeta[id]]),['general',chMeta.general]];
+const inds=[['all','全部'],...IND_IDS.map(id=>[id,chMeta[id]])];
 const TAG_NAME={ad:'投放',acq:'获客',mkt:'营销',ai:'AI',mix:'综合'};
 const IMG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>';
 
@@ -543,7 +545,28 @@ const LAO_QUOTES=[
 
 let RAW = RAW_FALLBACK;
 const state={ hotRange:'week', view:'featured', cat:'all', plat:'all', ind:'all', time:'all', q:'',
-  saved:new Set(RAW.filter(i=>i.st).map(i=>i.id)), read:new Set(), onlyUnread:false };
+  saved:new Set(), read:new Set(), onlyUnread:false };
+const READING_KEY='aibeep.reading.v1';
+function restoreReadingState(){
+  try{
+    const raw=localStorage.getItem(READING_KEY);
+    if(raw===null){state.saved=new Set(RAW.filter(i=>i.st).map(i=>i.id));return;}
+    const stored=JSON.parse(raw);
+    const ids=value=>new Set((Array.isArray(value)?value:[]).filter(x=>Number.isSafeInteger(x)&&x>0));
+    state.saved=ids(stored?.saved);state.read=ids(stored?.read);
+  }catch(e){state.saved=new Set();state.read=new Set();}
+}
+let storageWarningShown=false;
+function persistReadingState(){
+  try{localStorage.setItem(READING_KEY,JSON.stringify({saved:[...state.saved],read:[...state.read]}));}
+  catch(e){if(!storageWarningShown){storageWarningShown=true;toast('当前浏览器无法保存阅读状态，本次操作仍有效。');}}
+}
+function toggleSaved(id){id=Number(id);state.saved.has(id)?state.saved.delete(id):state.saved.add(id);persistReadingState();}
+function articleDate(i,withTime=false){
+  const date=new Date(i.published_at);
+  if(Number.isNaN(date.getTime()))return '日期未提供';
+  return date.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',...(withTime?{hour:'2-digit',minute:'2-digit',hour12:false}:{})});
+}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -555,7 +578,7 @@ function renderNav(){
     ${g.items.map(i=>`<button class="nav-item ${state.view===i.id?'active':''}" data-v="${i.id}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="${i.ico}"/></svg>
       <span>${i.name}</span>
-      ${i.id==='fav'?`<span class="n">${state.saved.size}</span>`:''}
+      ${i.id==='fav'?`<span class="n">${RAW.filter(x=>state.saved.has(x.id)).length}</span>`:''}
       ${i.id==='all'?`<span class="n">${RAW.length}</span>`:''}
     </button>`).join('')}</div>`).join('');
   document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>{
@@ -815,11 +838,10 @@ function renderAbout(){
     </div>
     <div class="about-cta">
       <h4>想每天收到一份增长简报？</h4>
-      <p>订阅每日邮件，或预约一次投放/获客诊断。</p>
-      <button class="btn-orange" id="aboutCta">订阅日报</button>
+      <p>邮件订阅暂未开放，当前可直接在站内阅读资讯。</p>
+      <button class="btn-orange" id="aboutCta" disabled style="opacity:.55;cursor:not-allowed">订阅暂未开放</button>
     </div>
   </div>`;
-  $('#aboutCta').onclick=()=>toast('订阅功能待接入——骨架演示');
 }
 function cardHTML(i){
   const on=state.saved.has(i.id), read=state.read.has(i.id);
@@ -827,7 +849,7 @@ function cardHTML(i){
     <div class="time">${esc(i.time)}</div>
     <div class="body">
       <div class="head">
-        <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${chMeta[i.ch]}</span>${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${i.t==='today'?'2026/10/30':esc(i.time)}</span></span>
+        <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${chMeta[i.ch]}</span>${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${esc(articleDate(i))}</span></span>
       </div>
       <h3>${esc(i.title)}</h3>
       <p class="desc">${esc(i.desc)}</p>
@@ -839,10 +861,10 @@ function cardHTML(i){
 }
 function bindCards(){
   document.querySelectorAll('.flow-item, .card').forEach(c=>c.onclick=e=>{if(e.target.closest('.star'))return;openCard(c.dataset.id);});
-  document.querySelectorAll('.star').forEach(b=>b.onclick=e=>{e.stopPropagation();const id=+b.dataset.save;state.saved.has(id)?state.saved.delete(id):state.saved.add(id);renderNav();renderFeed();});
+  document.querySelectorAll('.star').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleSaved(b.dataset.save);renderNav();renderFeed();});
 }
 function openSource(id){const i=RAW.find(x=>x.id==id);if(i && /^https:\/\//i.test(i.url))window.open(i.url,'_blank','noopener,noreferrer');else toast('这条记录暂无原文链接');}
-function openCard(id){id=Number(id);const i=RAW.find(x=>x.id==id);state.read.add(id);renderFeed();renderDrawer(i);$('#drawer').classList.add('open');document.body.style.overflow='hidden';}
+function openCard(id){id=Number(id);const i=RAW.find(x=>x.id==id);state.read.add(id);persistReadingState();renderFeed();renderDrawer(i);$('#drawer').classList.add('open');document.body.style.overflow='hidden';}
 function closeDrawer(){$('#drawer').classList.remove('open');document.body.style.overflow='';}
 function renderDrawer(i){
   const on=state.saved.has(i.id);
@@ -851,7 +873,7 @@ function renderDrawer(i){
     <button class="close" onclick="closeDrawer()" aria-label="关闭"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="tags"><span class="tag ch">${chMeta[i.ch]}</span><span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
     <h2>${esc(i.title)}</h2>
-    <div class="dmeta"><span>${esc(i.time)}</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">AI 评分 <b>${i.score}</b></span></div>
+    <div class="dmeta"><span>${i.url?.includes('/next_help/docs/')?'更新于':'发布于'} ${esc(articleDate(i,true))}（北京时间）</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">AI 评分 <b>${i.score}</b></span></div>
     <div class="reason">${esc(i.reason)}</div>
     <div class="img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg><span>配图 · 抓取后显示</span></div>
     <div class="body">${esc(i.content).split('\n').map(p=>`<p>${p}</p>`).join('')}${enBlock}</div>
@@ -862,7 +884,7 @@ function renderDrawer(i){
     </div>`;
   document.querySelector('#drawerPanel .src-link').onclick=e=>{e.preventDefault();openSource(i.id);};
   document.getElementById('fullLink').onclick=()=>{document.getElementById('drawerPanel').classList.toggle('full');};
-  document.querySelector('#drawerPanel .star').onclick=e=>{e.stopPropagation();state.saved.has(i.id)?state.saved.delete(i.id):state.saved.add(i.id);renderNav();renderDrawer(i);};
+  document.querySelector('#drawerPanel .star').onclick=e=>{e.stopPropagation();toggleSaved(i.id);renderNav();renderFeed();renderDrawer(i);};
   document.addEventListener('keydown',function escK(e){if(e.key==='Escape'){closeDrawer();document.removeEventListener('keydown',escK);}});
 }
 function updateUnread(){$('#unreadCount').textContent=RAW.filter(x=>!state.read.has(x.id)).length;$('#unreadToggle').classList.toggle('on',state.onlyUnread);}
@@ -912,27 +934,10 @@ function renderStats(){
 $('#q').addEventListener('input',e=>{state.q=e.target.value.trim();renderFeed();});
 $('#menuBtn').onclick=()=>{$('#railNav').parentElement.classList.toggle('open');};
 document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>{$('#railNav').parentElement.classList.remove('open');});
-$('#ctaBtn').onclick=()=>toast('订阅功能待接入——骨架演示');
 let toastTimer;
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2600);}
 function openFeedback(){
-  const ov=document.createElement('div');ov.className='ov';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px';
-  ov.innerHTML=`<div style="background:#fff;border-radius:12px;width:100%;max-width:420px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.12)">
-    <h3 style="margin:0 0 4px;font-size:16px">反馈给侯同学</h3>
-    <p style="margin:0 0 16px;font-size:12.5px;color:var(--ink-3)">发现错误、想补充信息、或有建议，写在这里。</p>
-    <textarea id="fbText" rows="4" placeholder="你想说的…" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px;resize:vertical;outline:none;box-sizing:border-box;font-family:inherit"></textarea>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
-      <button id="fbCancel" style="padding:8px 16px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:13.5px">取消</button>
-      <button id="fbSend" style="padding:8px 16px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer;font-size:13.5px;font-weight:600">提交反馈</button>
-    </div></div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#fbCancel').onclick=()=>ov.remove();
-  ov.onclick=e=>{if(e.target===ov)ov.remove();};
-  ov.querySelector('#fbSend').onclick=()=>{
-    const v=ov.querySelector('#fbText').value.trim();
-    if(!v){toast('写点内容再提交');return;}
-    ov.remove();toast('反馈已收到，感谢！');
-  };
+  toast('反馈功能暂未开放，当前不接收或保存反馈。');
 }
 function resetAll(){state.view='all';state.cat='all';state.time='all';state.q='';state.onlyUnread=false;$('#q').value='';document.querySelectorAll('#catRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#timeFilters .chip').forEach((c,i)=>c.classList.toggle('on',i===0));renderNav();renderFeed();}
 
@@ -946,7 +951,7 @@ async function init(){
     if(!Array.isArray(j)) throw new Error('data.json 必须是 JSON 数组');
     if(j.length) RAW = j;
   }catch(e){console.warn('AIBEEP：资讯加载失败，使用内置示例数据。', e);}
-  state.saved = new Set(RAW.filter(i=>i.st).map(i=>i.id));
+  restoreReadingState();
   renderHeader(); renderStats(); renderNav(); renderFeed(); renderFocus(); renderHot();
   loadCollectionStatus();
   loadCollectionHistory();
