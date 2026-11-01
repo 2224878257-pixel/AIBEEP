@@ -434,6 +434,9 @@
       <button class="chip" data-cat="acq">获客趋势</button>
     </div>
 
+    <div class="chiprow" id="contentTypeRow" aria-label="内容类型">
+      <span class="lab">内容类型</span><button class="chip on" data-kind="all">全部类型</button><button class="chip" data-kind="official">官方动态</button><button class="chip" data-kind="experience">作者经验</button><button class="chip" data-kind="analysis">行业分析</button>
+    </div>
     <div class="bar" id="bar">
       <h2 id="feedTitle">全部动态</h2>
       <span class="cnt" id="feedCount">0</span>
@@ -503,9 +506,12 @@ const NAV = [
     {id:'feedback',  name:'反馈（暂未开放）',     ico:'M21 11.5a8.5 8.5 0 01-8.5 8.5c-1.5 0-3-.4-4.2-1L3 20l1.2-5.3A8.5 8.5 0 1121 11.5z'},
   ]},
 ];
-const PLAT_IDS=['dj','tx','ks','xhs','hw'];
+const PLAT_IDS=['dj','tx','wx','ks','xhs','tmall','hw'];
 const IND_IDS=['ec','local','saas','game','edu'];
-const chMeta={all:'全部',dj:'巨量引擎',tx:'腾讯广告',ks:'快手磁力',xhs:'小红书',hw:'海外投放',ec:'电商',local:'本地生活',saas:'企服SaaS',game:'游戏',edu:'教育',general:'投放与增长'};
+const chMeta={all:'全部',dj:'巨量引擎/抖音',tx:'腾讯广告',wx:'微信/视频号',ks:'快手磁力',xhs:'小红书',tmall:'淘宝/天猫',multi:'多平台',hw:'海外投放',ec:'电商',local:'本地生活',saas:'企服SaaS',game:'游戏',edu:'教育',general:'投放与增长'};
+const CONTENT_TYPES={official:'官方动态',experience:'作者经验',analysis:'行业分析'};
+function contentType(i){return i.content_type||(i.source_kind==='community'?'experience':'official');}
+function contentBadge(i){return `<span class="tag">${CONTENT_TYPES[contentType(i)]||'作者分享'}</span>`;}
 const plats=[['all','全部'],...PLAT_IDS.map(id=>[id,chMeta[id]]),['general',chMeta.general]];
 const inds=[['all','全部'],...IND_IDS.map(id=>[id,chMeta[id]])];
 const TAG_NAME={ad:'投放',acq:'获客',mkt:'营销',ai:'AI',mix:'综合'};
@@ -544,7 +550,7 @@ const LAO_QUOTES=[
 ];
 
 let RAW = RAW_FALLBACK;
-const state={ hotRange:'week', view:'featured', cat:'all', plat:'all', ind:'all', time:'all', q:'',
+const state={ kind:'all', hotRange:'week', view:'featured', cat:'all', plat:'all', ind:'all', time:'all', q:'',
   saved:new Set(), read:new Set(), onlyUnread:false };
 const READING_KEY='aibeep.reading.v1';
 function restoreReadingState(){
@@ -584,7 +590,7 @@ function renderNav(){
   document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>{
     const v=b.dataset.v;
     if(v==='feedback'){openFeedback();return;}
-    if(['all','featured','hot','daily','fav','about','topics','changelog'].includes(v)){ state.view=v; renderNav(); renderFeed(); }
+    if(['all','featured','hot','daily','fav','about','topics','changelog'].includes(v)){ if(v!=='all'){state.plat='all';state.ind='all';} state.view=v; renderNav(); renderFeed(); }
     else toast(`${b.textContent.trim()} · 即将上线（骨架演示）`);
   });
 }
@@ -602,6 +608,11 @@ document.querySelectorAll('#timeFilters .chip').forEach(c=>c.onclick=()=>{
 });
 
 /* ===== 过滤 ===== */
+document.querySelectorAll('#contentTypeRow .chip').forEach(b=>b.onclick=()=>{
+  state.kind=b.dataset.kind;
+  document.querySelectorAll('#contentTypeRow .chip').forEach(x=>x.classList.toggle('on',x===b));
+  renderFeed();
+});
 function filtered(){
   let list=RAW.slice();
   // 视图
@@ -611,8 +622,9 @@ function filtered(){
   // 栏目分类
   if(state.cat!=='all') list=list.filter(i=>i.cat===state.cat);
   // 平台/行业（全部动态页）
-  if(state.plat!=='all') list=list.filter(i=>i.ch===state.plat);
-  if(state.ind!=='all') list=list.filter(i=>i.ch===state.ind);
+  if(state.kind!=='all') list=list.filter(i=>contentType(i)===state.kind);
+  if(state.plat!=='all') list=list.filter(i=>i.ch===state.plat||(i.platforms||[]).includes(state.plat));
+  if(state.ind!=='all') list=list.filter(i=>(i.industries||[]).includes(state.ind)||i.ch===state.ind);
   // 时间
   if(state.time==='today') list=list.filter(i=>i.t==='today');
   if(state.time==='week') list=list.filter(i=>i.t==='week'||i.t==='today');
@@ -628,6 +640,7 @@ function updateChrome(){
   const v=state.view;
   $('#heroSection').style.display='none';
   $('#catRow').style.display=(v==='all')?'':'none';
+  $('#contentTypeRow').style.display=['featured','all','hot','fav','daily'].includes(v)?'':'none';
   // 标题栏 bar：首页精选显示
   $('#bar').style.display=(v==='featured')?'':'none';
   // 时间筛选：首页精选显示
@@ -685,7 +698,7 @@ function richCardHTML(i){
     <div class="flow-head">
       <span class="flow-time">${esc(i.time)}</span>
       <span class="flow-dot">·</span>
-      <span class="tag ch">${chMeta[i.ch]}</span><span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span>
+      <span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}<span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span>
       ${i.orig?'<span class="tag ai">译</span>':''}
       <span class="flow-score">AI ${i.score}</span>
     </div>
@@ -716,7 +729,7 @@ function renderHotBoard(list){
       return `<div class="hb-row" data-id="${i.id}">
         <span class="hb-rank r${rank}">${rank}</span>
         <div class="hb-body"><p class="hb-title">${esc(i.title)}</p>
-        <span class="hb-meta"><span class="tag ch">${chMeta[i.ch]}</span><span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span> · ${esc(i.src)}</span></div>
+        <span class="hb-meta"><span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}<span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span> · ${esc(i.src)}</span></div>
         <div class="hb-right"><span class="hb-heat">AI ${i.score} 分</span></div>
       </div>`;
     }).join('')+`</div></div>`;
@@ -727,7 +740,8 @@ function renderHotBoard(list){
 }
 /* AI日报页：报纸式每日汇总 */
 function renderDaily(){
-  const today=RAW.filter(i=>i.t==='today');
+  const today=filtered().filter(i=>i.t==='today');
+  $('#feedCount').textContent=today.length;$('#feedTitle').textContent='AI日报';updateUnread();
   const groups=[['ad','广告投放'],['acq','企业获客'],['mkt','营销方法'],['ai','AI+增长']];
   const d=new Date();
   $('#feed').innerHTML=`<div class="daily">
@@ -849,7 +863,7 @@ function cardHTML(i){
     <div class="time">${esc(i.time)}</div>
     <div class="body">
       <div class="head">
-        <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${chMeta[i.ch]}</span>${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${esc(articleDate(i))}</span></span>
+        <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${esc(articleDate(i))}</span></span>
       </div>
       <h3>${esc(i.title)}</h3>
       <p class="desc">${esc(i.desc)}</p>
@@ -871,7 +885,7 @@ function renderDrawer(i){
   const enBlock=i.orig?`<div class="en"><div class="enlab">原文（EN，已自动翻译为中文）</div><p>${esc(i.orig)}</p></div>`:'';
   $('#drawerPanel').innerHTML=`
     <button class="close" onclick="closeDrawer()" aria-label="关闭"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="tags"><span class="tag ch">${chMeta[i.ch]}</span><span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
+    <div class="tags"><span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}<span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
     <h2>${esc(i.title)}</h2>
     <div class="dmeta"><span>${i.url?.includes('/next_help/docs/')?'更新于':'发布于'} ${esc(articleDate(i,true))}（北京时间）</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">AI 评分 <b>${i.score}</b></span></div>
     <div class="reason">${esc(i.reason)}</div>
@@ -920,7 +934,7 @@ function renderHot(){
 function renderStats(){
   $('#st1').textContent=RAW.filter(i=>i.t==='today').length;
   const plat=new Set(PLAT_IDS);$('#st2').textContent=new Set(RAW.map(i=>i.ch).filter(c=>plat.has(c))).size;
-  const ind=new Set(IND_IDS);$('#st3').textContent=new Set(RAW.map(i=>i.ch).filter(c=>ind.has(c))).size;
+  const ind=new Set(IND_IDS);$('#st3').textContent=new Set(RAW.flatMap(i=>i.industries||[i.ch]).filter(c=>ind.has(c))).size;
   $('#st4').textContent=RAW.filter(i=>i.focus).length;
   if(window.echarts){const chart=echarts.init($('#trend'));
     chart.setOption({grid:{left:6,right:10,top:14,bottom:4,containLabel:true},
@@ -939,7 +953,7 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show'
 function openFeedback(){
   toast('反馈功能暂未开放，当前不接收或保存反馈。');
 }
-function resetAll(){state.view='all';state.cat='all';state.time='all';state.q='';state.onlyUnread=false;$('#q').value='';document.querySelectorAll('#catRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#timeFilters .chip').forEach((c,i)=>c.classList.toggle('on',i===0));renderNav();renderFeed();}
+function resetAll(){state.view='all';state.kind='all';state.plat='all';state.ind='all';state.cat='all';state.time='all';state.q='';state.onlyUnread=false;$('#q').value='';document.querySelectorAll('#contentTypeRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#catRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#timeFilters .chip').forEach((c,i)=>c.classList.toggle('on',i===0));renderNav();renderFeed();}
 
 async function init(){
   try{

@@ -9,6 +9,19 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_tmall_is_not_tencent_and_themes_are_independent(self):
+        row=s.classify_row({'title':'天猫母婴双11观察','ch':'tx','cat':'case','src':'运营派 · 作者经验','source_kind':'community'})
+        self.assertEqual(row['ch'],'tmall')
+        self.assertEqual(row['cat'],'case')
+        self.assertEqual(row['content_type'],'analysis')
+        self.assertEqual(row['src'],'运营派')
+        multi=s.classify_row({'title':'抖音、视频号新规则','source_kind':'community'})
+        self.assertEqual(multi['ch'],'multi')
+        self.assertEqual(multi['platforms'],['dj','wx'])
+        generic=s.classify_row({'title':'潜客跟进七步法','ch':'hw','cat':'acq','source_kind':'community'})
+        self.assertEqual(generic['ch'],'general')
+        self.assertEqual(generic['content_type'],'experience')
+
     def test_body_sketch_dedupes_rewritten_titles(self):
         text='投放优化案例需要分别衡量素材点击率、实际转化成本和后续成交情况。' * 30
         a=dict(title='第一版标题：一次完整的广告素材优化复盘',desc='首个摘要',source_kind='community',published_at='2026-11-01',url='https://a.example/1',src='A',body_sketch=s.body_sketch(text))
