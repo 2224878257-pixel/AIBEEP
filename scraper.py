@@ -379,6 +379,10 @@ def run(args, collector):
     if not isinstance(old, list):
         raise ValueError('data.json must contain an array')
     by_url = {}
+    screening_path = ROOT / 'screening_cache.json'
+    screening = json.loads(screening_path.read_text(encoding='utf-8')) if screening_path.exists() else {}
+    screening = {u:r for u,r in screening.items() if r.get('quality_version') == QUALITY_VERSION
+                 and date_value(r.get('checked_at')) and now - date_value(r['checked_at']) < timedelta(hours=72)}
     for row in old:
         # Uploaded demo rows use '#'; they must not prevent a real collection run.
         if not isinstance(row, dict) or not date_value(row.get('published_at')):
@@ -396,18 +400,21 @@ def run(args, collector):
         if source.get('enabled') is False:
             report['disabled_sources'].append(source['name'])
             continue
-        status = {'source': source['name'], 'discovered': 0, 'readable': 0, 'added': 0, 'updated': 0, 'filtered': 0, 'duplicates': 0, 'cached': 0, 'discovery_ok': False, 'errors': []}
+        status = {'source': source['name'], 'discovered': 0, 'readable': 0, 'added': 0, 'updated': 0, 'filtered': 0, 'duplicates': 0, 'cached': 0, 'rejected_cached': 0, 'evaluated': 0, 'attempted': 0, 'discovery_ok': False, 'errors': []}
         try:
-            urls = collector.discover(source, args.limit)
+            urls = collector.discover(source, min(args.limit * 5, 30))
             status['discovery_ok'] = True
             if source.get('kind') == 'community':
                 pending = [url for url, row in by_url.items() if row.get('source_kind') == 'community'
                            and row.get('quality_version') != QUALITY_VERSION and allowed(url, source)]
-                urls = list(dict.fromkeys(urls + pending))[:args.limit + 10]
+                urls = list(dict.fromkeys(urls + pending))[:min(args.limit * 5, 30) + 10]
             status['discovered'] = len(urls)
             if not urls and source.get('adapter') != 'rss':
                 status['errors'].append('No article links; list may require login or adapter update')
             for url in urls:
+                if canonical(url) in screening and source.get('kind') == 'community':
+                    status['rejected_cached'] += 1
+                    continue
                 if canonical(url) in known_aliases:
                     status['cached'] += 1
                     continue
@@ -419,6 +426,9 @@ def run(args, collector):
                         status['cached'] += 1
                         continue
                 try:
+                    if status['evaluated'] >= args.limit or status['attempted'] >= args.limit * 3:
+                        break
+                    status['attempted'] += 1
                     article = collector.article(url, source)
                     article['source_kind'] = source.get('kind', 'official')
                     article['author'] = collector.authors.get(canonical(url), '') if isinstance(getattr(collector, 'authors', None), dict) else ''
@@ -431,6 +441,7 @@ def run(args, collector):
                     if not now - timedelta(days=7) <= published <= now:
                         continue
                     if not args.check_sources:
+                        status['evaluated'] += 1
                         try:
                             ai = enrich(article, key)
                             report['ai_successes'] += 1
@@ -440,6 +451,7 @@ def run(args, collector):
                             raise
                         if source.get('kind') == 'community' and not community_passes(ai):
                             status['filtered'] += 1
+                            screening[article['url']] = {'checked_at':now.isoformat(),'quality_version':QUALITY_VERSION}
                             by_url.pop(article['url'], None)
                             continue
                         existing = article['url'] in by_url
@@ -483,6 +495,8 @@ def run(args, collector):
             if changed:
                 atomic_json(path, old)
     atomic_json(ROOT / 'run_report.json', report)
+    if not args.check_sources:
+        atomic_json(screening_path, dict(list(screening.items())[-1000:]))
     failed = not any(s['discovery_ok'] for s in report['sources']) or bool(report['ai_failures'] and not report['ai_successes'])
     if not args.check_sources:
         collection_status(report, failed)

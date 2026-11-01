@@ -50,6 +50,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add collection_status.json collection_history.json
+          if [ -f screening_cache.json ]; then git add screening_cache.json; fi
           if [ '${{ steps.scrape.outcome }}' = 'success' ]; then git add data.json; else git restore data.json; fi
           if ! git diff --cached --quiet; then
             git commit -m 'content: refresh official growth news'

@@ -9,6 +9,38 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_cached_front_items_do_not_consume_new_article_budget(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s,'ROOT',Path(d)):
+            stamp=datetime.now(s.TZ).isoformat()
+            urls=[f'https://example.com/{i}' for i in range(4)]
+            old=[dict(url=u,title=u,desc='description',published_at=stamp) for u in urls[:3]]
+            (Path(d)/'data.json').write_text(json.dumps(old))
+            (Path(d)/'sources.json').write_text('[{"name":"test","ch":"tx"}]')
+            collector=Mock()
+            collector.discover.return_value=urls
+            collector.article.return_value=dict(url=urls[3],title='new',body='text',published_at=stamp)
+            ai=dict(title='new',desc='summary',content='body',reason='reason',cat='data',tag='ad',score=80)
+            with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}),patch.object(s,'enrich',return_value=ai) as enrich:
+                s.run(Mock(check_sources=False,limit=1),collector)
+            collector.discover.assert_called_once_with({'name':'test','ch':'tx'},5)
+            self.assertEqual(enrich.call_count,1)
+            self.assertEqual(len(json.loads((Path(d)/'data.json').read_text())),4)
+
+    def test_recent_rejections_skipped_without_ai_cost(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s,'ROOT',Path(d)):
+            stamp=datetime.now(s.TZ).isoformat()
+            (Path(d)/'data.json').write_text('[]')
+            (Path(d)/'sources.json').write_text('[{"name":"test","ch":"general","kind":"community"}]')
+            url='https://example.com/rejected'
+            (Path(d)/'screening_cache.json').write_text(json.dumps({url:{'checked_at':stamp,'quality_version':s.QUALITY_VERSION}}))
+            collector=Mock()
+            collector.discover.return_value=[url]
+            with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}),patch.object(s,'enrich') as enrich:
+                s.run(Mock(check_sources=False,limit=1),collector)
+            enrich.assert_not_called()
+            collector.article.assert_not_called()
+            self.assertEqual(json.loads((Path(d)/'run_report.json').read_text())['sources'][0]['rejected_cached'],1)
+
     def test_one_bad_candidate_does_not_block_valid_filter_results(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s,'ROOT',Path(d)):
             (Path(d)/'data.json').write_text('[]')
