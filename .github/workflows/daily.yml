@@ -35,7 +35,7 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || 'deepseek-flash' }}
         run: |
-          python scraper.py --limit 3
+          python scraper.py --limit 6
       - name: Upload collection report
         if: always() && github.event_name != 'push'
         uses: actions/upload-artifact@v4

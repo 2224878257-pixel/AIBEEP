@@ -85,12 +85,12 @@ class ScraperTests(unittest.TestCase):
             self.assertEqual(history['days'][0]['duplicates'],6)
             self.assertEqual(history['days'][0]['runs'],2)
 
-    def test_practical_gate_rejects_news_and_weak_articles(self):
+    def test_expanded_gate_accepts_relevant_analysis(self):
         base = {'relevant':True,'practical':True,'score':80,'actions':['在相同预算下对比两组素材的获客成本']}
         self.assertTrue(s.community_passes(base))
-        self.assertFalse(s.community_passes({**base,'practical':False}))
-        self.assertFalse(s.community_passes({**base,'score':74}))
-        self.assertFalse(s.community_passes({**base,'actions':[]}))
+        self.assertTrue(s.community_passes({**base,'practical':False,'actions':[],'score':60}))
+        self.assertFalse(s.community_passes({**base,'score':59}))
+        self.assertFalse(s.community_passes({**base,'relevant':False}))
 
     def test_public_status_preserves_last_success_on_failure(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
