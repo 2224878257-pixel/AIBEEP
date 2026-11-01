@@ -9,6 +9,16 @@ import scraper as s
 
 
 class ScraperTests(unittest.TestCase):
+    def test_body_sketch_dedupes_rewritten_titles(self):
+        text='投放优化案例需要分别衡量素材点击率、实际转化成本和后续成交情况。' * 30
+        a=dict(title='第一版标题：一次完整的广告素材优化复盘',desc='首个摘要',source_kind='community',published_at='2026-11-01',url='https://a.example/1',src='A',body_sketch=s.body_sketch(text))
+        b={**a,'title':'标题完全改写：提升转化的实战方法','desc':'不同摘要','url':'https://b.example/1'}
+        # Diverse text gives enough shingles for reliable content comparison.
+        a['body_sketch']=s.body_sketch(''.join(str(i)+text for i in range(100)))
+        b['body_sketch']=a['body_sketch'][:]
+        rows,count=s.deduplicate_rows([a,b])
+        self.assertEqual((len(rows),count),(1,1))
+
     def test_cached_front_items_do_not_consume_new_article_budget(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s,'ROOT',Path(d)):
             stamp=datetime.now(s.TZ).isoformat()

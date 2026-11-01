@@ -278,6 +278,11 @@ def community_passes(ai):
     return ai.get('relevant') is True and ai['score'] >= 60
 
 
+def body_sketch(text):
+    text = re.sub(r'\W+', '', text).lower()
+    return sorted({hashlib.sha256(text[i:i+7].encode()).hexdigest()[:16] for i in range(max(0,len(text)-6))})[:128]
+
+
 def deduplicate_rows(rows):
     kept, duplicates = [], 0
     for row in sorted(rows, key=lambda r:r.get('published_at','')):
@@ -289,11 +294,15 @@ def deduplicate_rows(rows):
                 if old.get('source_kind') != 'community':
                     continue
                 a, b = date_value(row.get('published_at')), date_value(old.get('published_at'))
-                if not a or not b or abs((a-b).total_seconds()) > 3*86400:
+                if not a or not b or abs((a-b).total_seconds()) > 7*86400:
                     continue
                 old_title = re.sub(r'\W+', '', old['title']).lower()
                 old_desc = re.sub(r'\W+', '', old['desc']).lower()
-                if min(len(title),len(old_title)) >= 16 and SequenceMatcher(None,title,old_title).ratio() >= .90 and SequenceMatcher(None,desc,old_desc).ratio() >= .40:
+                x,y=set(row.get('body_sketch',[])),set(old.get('body_sketch',[]))
+                same_body = min(len(x),len(y)) >= 32 and len(x & y)/min(len(x),len(y)) >= .70
+                same_title = title == old_title and len(title) >= 12
+                similar = min(len(title),len(old_title)) >= 16 and SequenceMatcher(None,title,old_title).ratio() >= .90 and SequenceMatcher(None,desc,old_desc).ratio() >= .40
+                if same_body or same_title or similar:
                     match = old
                     break
         if match is None:
@@ -458,6 +467,7 @@ def run(args, collector):
                         if aliases:
                             by_url[article['url']]['also_reported_by'] = aliases
                         by_url[article['url']]['content_hash'] = fingerprint
+                        by_url[article['url']]['body_sketch'] = body_sketch(article['body'])
                         fingerprints.add(fingerprint)
                         status['updated' if existing else 'added'] += 1
                 except Exception as exc:
