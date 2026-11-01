@@ -175,7 +175,7 @@ class ScraperTests(unittest.TestCase):
         collector.metadata[url] = 1793318400000
         with patch.object(s, 'request', return_value=response):
             row = collector.article(url, source)
-        self.assertTrue(row['title'].startswith('帮助文档更新：'))
+        self.assertEqual(row['title'], '投放规范')
         self.assertGreater(len(row['body']), 180)
 
     def test_tencent_detail_extracts_rich_text(self):

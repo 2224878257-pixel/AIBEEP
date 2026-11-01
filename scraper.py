@@ -162,7 +162,7 @@ class Collector:
             published = date_value(self.metadata.get(canonical(url)))
             if len(text) < 180 or not published or not data.get('title'):
                 raise ValueError('Incomplete Xiaohongshu document')
-            return {'url': canonical(url), 'title': '帮助文档更新：' + data['title'], 'body': text[:16000], 'published_at': published.isoformat()}
+            return {'url': canonical(url), 'title': data['title'], 'body': text[:16000], 'published_at': published.isoformat()}
         if source.get('adapter') == 'tencent':
             pid = dict(parse_qsl(urlsplit(url).query)).get('pid', '')
             result = request('https://e.qq.com/portal/case_center/posts', params={'post_id': pid}).json()
@@ -215,8 +215,6 @@ class Collector:
         title = doc.get('title') or (soup.h1.get_text(strip=True) if soup.h1 else '')
         if not title:
             raise ValueError('Missing title')
-        if source.get('adapter') == 'xiaohongshu':
-            title = '帮助文档更新：' + title
         self.authors[canonical(url)] = self.authors.get(canonical(url)) or doc.get('author') or ''
         return {'url': canonical(url), 'title': title, 'body': doc['text'][:16000], 'published_at': published.isoformat()}
 
@@ -367,8 +365,7 @@ def publish_row(article, ai, source):
     ai.pop('practical', None)
     ai.pop('actions', None)
     ai.pop('_attempts', None)
-    if source.get('adapter') == 'xiaohongshu' and not ai['title'].startswith('帮助文档更新：'):
-        ai = {**ai, 'title': '帮助文档更新：' + ai['title']}
+    ai['title'] = re.sub(r'^(?:(?:帮助文档(?:更新)?|文档更新)[：:\s]+)+', '', ai['title']).strip()
     return {**ai, 'id': int(hashlib.sha256(article['url'].encode()).hexdigest()[:12], 16),
             'ch': channel, 't': 'week', 'src': source['name'] + (' · 作者经验' if source.get('kind') == 'community' else ''), 'url': article['url'],
             'time': '', 'heat': 0, 'focus': 0, 'st': False, 'co': 1,
