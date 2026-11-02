@@ -989,19 +989,149 @@
           "failures": 0
         }
       ]
+    },
+    {
+      "completed_at": "2026-11-02T22:15:13.714009+08:00",
+      "status": "partial",
+      "added": 6,
+      "updated": 0,
+      "filtered": 3,
+      "duplicates": 0,
+      "cached": 17,
+      "ai_failures": 0,
+      "ai_retries": 1,
+      "sources_disabled": [
+        "巨量学",
+        "快手磁力引擎",
+        "数英"
+      ],
+      "sources_total": 12,
+      "sources_with_errors": 2,
+      "last_success_at": "2026-11-02T22:15:13.714024+08:00",
+      "date": "2026-11-02",
+      "sources": [
+        {
+          "source": "巨量引擎",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "腾讯广告",
+          "added": 6,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 2,
+          "failures": 2
+        },
+        {
+          "source": "小红书聚光",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 6,
+          "failures": 0
+        },
+        {
+          "source": "Meta for Business",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 2,
+          "failures": 6
+        },
+        {
+          "source": "人人都是产品经理",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "Jon Loomer",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "WordStream",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "青瓜传媒",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "运营派",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 5,
+          "failures": 0
+        },
+        {
+          "source": "青瓜传媒平台专题",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 1,
+          "failures": 0
+        },
+        {
+          "source": "Meta官方新闻室",
+          "added": 0,
+          "updated": 0,
+          "filtered": 3,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "运营派平台专题",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 1,
+          "failures": 0
+        }
+      ]
     }
   ],
   "days": [
     {
       "date": "2026-11-02",
-      "runs": 3,
-      "added": 12,
+      "runs": 4,
+      "added": 18,
       "updated": 0,
-      "filtered": 7,
+      "filtered": 10,
       "duplicates": 2,
-      "cached": 75,
+      "cached": 92,
       "failed_runs": 0,
-      "source_failures": 7
+      "source_failures": 9
     },
     {
       "date": "2026-11-01",
