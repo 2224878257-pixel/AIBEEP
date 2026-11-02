@@ -10,9 +10,10 @@ from urllib.parse import urljoin, urlsplit
 
 from PIL import Image, ImageOps
 import pytesseract
+import zxingcpp
 from bs4 import BeautifulSoup
 
-MEDIA_VERSION = 1
+MEDIA_VERSION = 2
 MAX_IMAGES = 6
 Image.MAX_IMAGE_PIXELS = 24_000_000
 
@@ -48,7 +49,8 @@ def image_candidates(scope, page_url):
         url = urljoin(page_url, raw)
         if urlsplit(url).scheme != 'https' or not urlsplit(url).hostname:
             continue
-        if re.search(r'avatar|logo|qrcode|qr-code|emoji|icon|loading|spacer', url, re.I):
+        label = ' '.join([url, img.get('alt',''), img.get('title','')])
+        if re.search(r'avatar|logo|qr.?code|二维码|扫码|加微信|加好友|emoji|icon|loading|spacer', label, re.I):
             continue
         if any(img.get(k, '').isdigit() and int(img[k]) < 100 for k in ('width', 'height')):
             continue
@@ -115,11 +117,27 @@ def recognize(image):
     return ' '.join(lines)[:12000], round(sum(all_conf)/len(all_conf), 1) if all_conf else 0
 
 
+def contains_qr(image):
+    """Inspect pixels, including QR codes hidden behind opaque CDN filenames."""
+    def detect(part):
+        return bool(zxingcpp.read_barcodes(part, formats=zxingcpp.BarcodeFormat.QRCode,
+                                          try_rotate=True, try_downscale=True, return_errors=True))
+    if detect(image):
+        return True
+    if image.height > 2200:
+        for y in range(0, image.height, 1600):
+            if detect(image.crop((0,y,image.width,min(y+2200,image.height)))):
+                return True
+    return False
+
+
 def prepare_media(article, root, session):
     images, extracted, issues = [], [], []
     for candidate in article.get('image_candidates', [])[:MAX_IMAGES]:
         try:
             image = download_image(candidate['source_url'], session)
+            if contains_qr(image):
+                continue  # Exclude the entire QR-bearing image before saving or OCR.
             buffer = io.BytesIO()
             image.save(buffer, 'WEBP', quality=92, method=4)
             blob = buffer.getvalue()
@@ -142,9 +160,37 @@ def prepare_media(article, root, session):
         except Exception:
             issues.append('image_download_failed')
     ocr_text = '\n'.join(extracted)[:20000]
-    return {'images': images, 'cover': images[0]['src'] if images else '', 'ocr_text': ocr_text,
+    return {'images': images, 'cover': '', 'ocr_text': ocr_text,
             'ocr_used': bool(ocr_text), 'media_version': MEDIA_VERSION if not issues else 0,
             'media_issues': sorted(set(issues))}
+
+
+def filter_existing_media(root, rows):
+    """Remove QR-bearing images from existing article references; keep other images."""
+    rejected = set()
+    checked = set()
+    directory = (Path(root)/'assets'/'images').resolve()
+    for row in rows:
+        kept = []
+        for item in row.get('images', []):
+            src = item.get('src', '')
+            if not re.fullmatch(r'assets/images/[a-f0-9]{32}\.webp',src):
+                continue
+            path = (Path(root)/src).resolve()
+            if path.parent != directory or not path.is_file():
+                continue
+            if src not in checked:
+                with Image.open(path) as image:
+                    if contains_qr(image.convert('RGB')):
+                        rejected.add(src)
+                checked.add(src)
+            if src not in rejected:
+                kept.append(item)
+        row['images'] = kept
+        row['cover'] = ''
+        if row.get('media_version') in (1,MEDIA_VERSION) and not row.get('media_issues'):
+            row['media_version'] = MEDIA_VERSION
+    return rejected
 
 
 def prune_unreferenced(root, rows):

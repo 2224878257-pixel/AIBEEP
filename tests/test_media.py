@@ -8,9 +8,34 @@ from bs4 import BeautifulSoup
 from PIL import Image
 import media
 import scraper
+import zxingcpp
 
 
 class MediaTests(unittest.TestCase):
+    def qr_image(self):
+        qr=zxingcpp.create_barcode('fixture-only',zxingcpp.BarcodeFormat.QRCode).to_image(scale=8)
+        return Image.frombytes('L',(qr.shape[1],qr.shape[0]),bytes(qr))
+
+    def test_qr_pixels_are_detected_even_in_long_poster(self):
+        qr=self.qr_image()
+        self.assertTrue(media.contains_qr(qr))
+        poster=Image.new('RGB',(600,4000),'white');poster.paste(qr,(120,3200))
+        self.assertTrue(media.contains_qr(poster))
+        self.assertFalse(media.contains_qr(Image.new('RGB',(600,800),'white')))
+
+    def test_qr_is_not_saved_or_ocr_processed(self):
+        article={'image_candidates':[{'source_url':'https://img.example/random-name.png'}],'needs_ocr':True}
+        with tempfile.TemporaryDirectory() as root, patch.object(media,'download_image',return_value=self.qr_image()), patch.object(media,'recognize') as ocr:
+            result=media.prepare_media(article,root,Mock())
+            self.assertEqual(result['images'],[])
+            self.assertEqual(result['cover'],'')
+            self.assertFalse(list(Path(root).rglob('*.webp')))
+            ocr.assert_not_called()
+
+    def test_qr_caption_skipped_before_download(self):
+        soup=BeautifulSoup('<img src="https://img.example/opaque.png" alt="扫码加好友"><img src="https://img.example/chart.png" alt="投放流程图">','html.parser')
+        self.assertEqual(len(media.image_candidates(soup,'https://example.com/')),1)
+
     def test_ocr_numeric_claim_cannot_be_published_as_verified_summary(self):
         response=Mock()
         response.json.return_value={'choices':[{'finish_reason':'stop','message':{'content':'{"relevant":true,"ch":"tx","cat":"platform","tag":"ad","title":"榜单","desc":"增长300%","reason":"推荐参考","content":"内容要点","score":80}'}}]}
