@@ -495,6 +495,8 @@ const NAV = [
   {group:'内容', items:[
     {id:'featured', name:'精选',     ico:'M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6L3.2 9.4l6.1-.9L12 3z'},
     {id:'all',      name:'全部动态', ico:'M4 6h16M4 12h16M4 18h10'},
+    {id:'archive', name:'历史归档', ico:'M4 4h16v5H4zM6 9v11h12V9M10 13h4'},
+    {id:'library', name:'干货库', ico:'M4 4h6l2 2 2-2h6v16h-6l-2 2-2-2H4z'},
     {id:'hot',      name:'推荐榜',   ico:'M12 2c1 4-4 5-4 9a4 4 0 008 0c0-1-.5-2-1-3 1 1 3 2 3 5a6 6 0 11-12 0c0-5 4-7 6-11z'},
     {id:'daily',    name:'增长日报', ico:'M4 5h16v14H4zM8 3v4M16 3v4M4 10h16'},
     {id:'topics',   name:'主题',     ico:'M4 6h16M4 12h10M4 18h7'},
@@ -550,6 +552,11 @@ const LAO_QUOTES=[
 ];
 
 let RAW = RAW_FALLBACK;
+let ARCHIVE = [];
+let archiveError = '';
+function labelDate(i){const stamp=Date.parse(i.published_at);if(!stamp)return i;const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});return {...i,t:Date.now()-stamp>7*86400000?'archive':new Date(stamp).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})===today?'today':'week'};}
+function allArticles(){return [...new Map([...ARCHIVE,...RAW].map(i=>[i.url||i.id,i])).values()].sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0));}
+function isEvergreen(i){return i.content_type==='experience'||i.cat==='case'||i.practical===true||(/教程|指南|方法|技巧|实操|复盘|步骤|手册|误区|SOP/i.test(i.title));}
 const state={ kind:'all', hotRange:'week', view:'featured', cat:'all', plat:'all', ind:'all', time:'all', q:'',
   saved:new Set(), read:new Set(), onlyUnread:false };
 const READING_KEY='aibeep.reading.v1';
@@ -584,13 +591,14 @@ function renderNav(){
     ${g.items.map(i=>`<button class="nav-item ${state.view===i.id?'active':''}" data-v="${i.id}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="${i.ico}"/></svg>
       <span>${i.name}</span>
-      ${i.id==='fav'?`<span class="n">${RAW.filter(x=>state.saved.has(x.id)).length}</span>`:''}
+      ${i.id==='fav'?`<span class="n">${allArticles().filter(x=>state.saved.has(x.id)).length}</span>`:''}
       ${i.id==='all'?`<span class="n">${RAW.length}</span>`:''}
     </button>`).join('')}</div>`).join('');
   document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>{
     const v=b.dataset.v;
+    $('#railNav').classList.remove('open');
     if(v==='feedback'){openFeedback();return;}
-    if(['all','featured','hot','daily','fav','about','topics','changelog'].includes(v)){ if(v!=='all'){state.plat='all';state.ind='all';} state.view=v; renderNav(); renderFeed(); }
+    if(['archive','library','all','featured','hot','daily','fav','about','topics','changelog'].includes(v)){ if(v!=='all'){state.plat='all';state.ind='all';} state.time='all';state.view=v; renderNav(); renderFeed(); }
     else toast(`${b.textContent.trim()} · 即将上线（骨架演示）`);
   });
 }
@@ -614,7 +622,8 @@ document.querySelectorAll('#contentTypeRow .chip').forEach(b=>b.onclick=()=>{
   renderFeed();
 });
 function filtered(){
-  let list=RAW.slice();
+  let list=['archive','library','fav'].includes(state.view)?allArticles():RAW.slice();
+  if(state.view==='library') list=list.filter(isEvergreen);
   // 视图
   if(state.view==='fav') list=list.filter(i=>state.saved.has(i.id));
   else if(state.view==='daily') list=list.filter(i=>i.t==='today');
@@ -629,18 +638,18 @@ function filtered(){
   if(state.time==='today') list=list.filter(i=>i.t==='today');
   if(state.time==='week') list=list.filter(i=>i.t==='week'||i.t==='today');
   // 搜索
-  if(state.q){const k=state.q.toLowerCase();list=list.filter(i=>i.title.toLowerCase().includes(k)||i.desc.toLowerCase().includes(k)||i.src.toLowerCase().includes(k));}
+  if(state.q){const k=state.q.toLowerCase();list=list.filter(i=>[i.title,i.desc,i.src,...(['archive','library'].includes(state.view)?[i.content]:[])].some(v=>String(v||'').toLowerCase().includes(k)));}
   if(state.onlyUnread) list=list.filter(i=>!state.read.has(i.id));
   return list;
 }
 
 /* ===== 信息流 ===== */
-const VIEW_TITLE={all:'全部动态',featured:'精选',hot:'推荐榜',daily:'AI日报',fav:'我的收藏',about:'关于 AIBEEP',topics:'主题',changelog:'更新日志'};
+const VIEW_TITLE={archive:'历史归档',library:'干货库',all:'全部动态',featured:'精选',hot:'推荐榜',daily:'AI日报',fav:'我的收藏',about:'关于 AIBEEP',topics:'主题',changelog:'更新日志'};
 function updateChrome(){
   const v=state.view;
   $('#heroSection').style.display='none';
-  $('#catRow').style.display=(v==='all')?'':'none';
-  $('#contentTypeRow').style.display=['featured','all','hot','fav','daily'].includes(v)?'':'none';
+  $('#catRow').style.display=['all','archive','library'].includes(v)?'':'none';
+  $('#contentTypeRow').style.display=['archive','library','featured','all','hot','fav','daily'].includes(v)?'':'none';
   // 标题栏 bar：首页精选显示
   $('#bar').style.display=(v==='featured')?'':'none';
   // 时间筛选：首页精选显示
@@ -658,23 +667,25 @@ function renderFeed(){
   $('#feedCount').textContent=list.length;
   $('#feedTitle').textContent=VIEW_TITLE[state.view];
   updateUnread();
-  if(!list.length){$('#feed').innerHTML=`<div class="empty">没有匹配的资讯<br><button class="chip" onclick="resetAll()">重置筛选</button></div>`;return;}
+  if(!list.length&&!['archive','library','fav'].includes(state.view)){$('#feed').innerHTML=`<div class="empty">没有匹配的资讯<br><button class="chip" onclick="resetAll()">重置筛选</button></div>`;return;}
   if(state.view==='hot'){
     renderHotBoard(list); return;
   }else if(state.view==='featured'){
     renderFeatured(list); return;
   }else{
-    const today=list.filter(i=>i.t==='today'), week=list.filter(i=>i.t==='week');
+    const today=list.filter(i=>i.t==='today'), week=list.filter(i=>i.t==='week'), past=list.filter(i=>i.t==='archive');
     const d=new Date();const wd=['日','一','二','三','四','五','六'][d.getDay()];
     const cats=[];
     let html=`<div class="crumb">AIBEEP <span>/</span> 广告投放 <span>/</span> 企业获客 <span>/</span> 营销 <span>/</span> AI+增长</div>
-    <div class="page-head"><h1>${VIEW_TITLE[state.view]}</h1><p>保留来源和记录时间，按需检索每一条信息。</p></div>
+    <div class="page-head"><h1>${VIEW_TITLE[state.view]}</h1><p>${state.view==='archive'?'保留已收录的全部历史文章，可按平台、栏目和关键词查找。':state.view==='library'?'教程、方法和案例长期保留；阅读时请留意发布日期与平台规则变化。':'保留来源和记录时间，按需检索每一条信息。'}</p><p id="archiveStatus">${esc(archiveError)}</p></div>
     <div class="chiprow"><span class="lab">平台</span>`+plats.map(p=>`<button class="chip ${state.plat===p[0]?'on':''}" data-plat="${p[0]}">${p[1]}</button>`).join('')+`</div>
     <div class="chiprow"><span class="lab">行业</span>`+inds.map(p=>`<button class="chip ${state.ind===p[0]?'on':''}" data-ind="${p[0]}">${p[1]}</button>`).join('')+`</div>
     <div class="catrow"><div class="mini-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="miniQ" value="${esc(state.q)}" placeholder="搜索标题、来源、摘要..."/></div></div>
     <div class="all-count">所有记录 <b>${list.length}</b> 条</div>`;
     if(today.length) html+=`<div class="ghead"><span class="gt">今天</span><span class="gsub">${d.getMonth()+1}月${d.getDate()}日 · 周${wd} · ${today.length}条</span><span class="gl"></span></div>`+today.map(cardHTML).join('');
     if(week.length) html+=`<div class="ghead"><span class="gt">近7天</span><span class="gsub">${week.length}条</span><span class="gl"></span></div>`+week.map(cardHTML).join('');
+    if(past.length) html+=`<div class="ghead"><span class="gt">更早文章</span><span class="gsub">${past.length}条 · 按发布日期排序</span><span class="gl"></span></div>`+past.map(cardHTML).join('');
+    if(!list.length) html+='<div class="empty">没有匹配的文章，请调整上方筛选条件。</div>';
     $('#feed').innerHTML=html;
   }
   bindCards();
@@ -877,8 +888,8 @@ function bindCards(){
   document.querySelectorAll('.flow-item, .card').forEach(c=>c.onclick=e=>{if(e.target.closest('.star'))return;openCard(c.dataset.id);});
   document.querySelectorAll('.star').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleSaved(b.dataset.save);renderNav();renderFeed();});
 }
-function openSource(id){const i=RAW.find(x=>x.id==id);if(i && /^https:\/\//i.test(i.url))window.open(i.url,'_blank','noopener,noreferrer');else toast('这条记录暂无原文链接');}
-function openCard(id){id=Number(id);const i=RAW.find(x=>x.id==id);state.read.add(id);persistReadingState();renderFeed();renderDrawer(i);$('#drawer').classList.add('open');document.body.style.overflow='hidden';}
+function openSource(id){const i=allArticles().find(x=>x.id==id);if(i && /^https:\/\//i.test(i.url))window.open(i.url,'_blank','noopener,noreferrer');else toast('这条记录暂无原文链接');}
+function openCard(id){id=Number(id);const i=allArticles().find(x=>x.id==id);if(!i)return;state.read.add(id);persistReadingState();renderFeed();renderDrawer(i);$('#drawer').classList.add('open');document.body.style.overflow='hidden';}
 function closeDrawer(){$('#drawer').classList.remove('open');document.body.style.overflow='';}
 function renderDrawer(i){
   const on=state.saved.has(i.id);
@@ -946,8 +957,7 @@ function renderStats(){
 }
 /* ===== 搜索 / CTA ===== */
 $('#q').addEventListener('input',e=>{state.q=e.target.value.trim();renderFeed();});
-$('#menuBtn').onclick=()=>{$('#railNav').parentElement.classList.toggle('open');};
-document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>{$('#railNav').parentElement.classList.remove('open');});
+$('#menuBtn').onclick=()=>{$('#railNav').classList.toggle('open');};
 let toastTimer;
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2600);}
 function openFeedback(){
@@ -965,6 +975,13 @@ async function init(){
     if(!Array.isArray(j)) throw new Error('data.json 必须是 JSON 数组');
     if(j.length) RAW = j;
   }catch(e){console.warn('AIBEEP：资讯加载失败，使用内置示例数据。', e);}
+  try{
+    const url=new URL('archive.json',document.baseURI);url.searchParams.set('t',Date.now());
+    const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('归档不可用');
+    const rows=await response.json();if(!Array.isArray(rows))throw new Error('归档格式无效');
+    ARCHIVE=rows.map(labelDate);
+  }catch(e){archiveError='历史归档暂时加载失败，当前仅显示已加载的近期文章。';}
+  RAW=RAW.map(labelDate).filter(i=>i.t!=='archive');
   restoreReadingState();
   renderHeader(); renderStats(); renderNav(); renderFeed(); renderFocus(); renderHot();
   loadCollectionStatus();

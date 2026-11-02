@@ -3,12 +3,29 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch, Mock
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import scraper as s
 
 
 class PlatformDiscoveryTests(unittest.TestCase):
+    def test_expired_articles_survive_archive_but_leave_recent_feed(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
+            stamp=(datetime.now(s.TZ)-timedelta(days=20)).isoformat()
+            old=dict(id=123,url='https://example.com/old',title='old',desc='old',published_at=stamp)
+            (Path(d)/'data.json').write_text(json.dumps([old]))
+            (Path(d)/'sources.json').write_text('[{"name":"test","ch":"hw"}]')
+            collector=Mock()
+            collector.discover.return_value=[]
+            with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}):
+                s.run(Mock(check_sources=False,limit=1),collector)
+                s.run(Mock(check_sources=False,limit=1),collector)
+            self.assertEqual(json.loads((Path(d)/'data.json').read_text()),[])
+            archive=json.loads((Path(d)/'archive.json').read_text())
+            self.assertEqual(len(archive),1)
+            self.assertEqual(archive[0]['id'],123)
+            self.assertEqual(archive[0]['t'],'archive')
+
     def test_image_only_tencent_article_is_explicitly_unsupported(self):
         response = Mock()
         response.json.return_value = {'code': 0, 'data': {'title': '图片榜单',

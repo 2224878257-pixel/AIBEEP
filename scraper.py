@@ -441,12 +441,16 @@ def run(args, collector):
     old = json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
     if not isinstance(old, list):
         raise ValueError('data.json must contain an array')
+    archive_path = ROOT / 'archive.json'
+    archived = json.loads(archive_path.read_text(encoding='utf-8')) if archive_path.exists() else []
+    if not isinstance(archived, list):
+        raise ValueError('archive.json must contain an array')
     by_url = {}
     screening_path = ROOT / 'screening_cache.json'
     screening = json.loads(screening_path.read_text(encoding='utf-8')) if screening_path.exists() else {}
     screening = {u:r for u,r in screening.items() if r.get('quality_version') == QUALITY_VERSION
                  and date_value(r.get('checked_at')) and now - date_value(r['checked_at']) < timedelta(hours=72)}
-    for row in old:
+    for row in archived + old:
         # Uploaded demo rows use '#'; they must not prevent a real collection run.
         if not isinstance(row, dict) or not date_value(row.get('published_at')):
             continue
@@ -455,7 +459,7 @@ def run(args, collector):
         except ValueError:
             continue
     report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'updated': 0, 'ai_failures': 0, 'ai_successes': 0, 'ai_retries': 0, 'disabled_sources': [],
-              'ignored_existing': len(old) - len(by_url)}
+              'ignored_existing': max(0, len(old) + len(archived) - len(by_url))}
     fingerprints = {r.get('content_hash') for r in by_url.values() if r.get('content_hash') and
                     (r.get('source_kind') != 'community' or r.get('quality_version') == QUALITY_VERSION)}
     known_aliases = {alias['url'] for row in by_url.values() for alias in row.get('also_reported_by', [])}
@@ -545,14 +549,16 @@ def run(args, collector):
         rows = []
         for row in by_url.values():
             published = date_value(row.get('published_at'))
-            if published and now - timedelta(days=7) <= published <= now:
-                row.update(t='today' if published.date() == now.date() else 'week',
+            if published and published <= now:
+                row.update(t='today' if published.date() == now.date() else ('week' if now - published <= timedelta(days=7) else 'archive'),
                            time=published.strftime('%H:%M') if published.date() == now.date() else published.strftime('%m/%d'))
                 rows.append(row)
         rows, report['merged_duplicates'] = deduplicate_rows(rows)
         # Total failure must not erase the last working snapshot.
-        if any(s['readable'] for s in report['sources']):
-            atomic_json(path, sorted(rows, key=lambda r: r['published_at'], reverse=True)[:200])
+        if any(s['readable'] for s in report['sources']) or (rows and any(s['discovery_ok'] for s in report['sources'])):
+            ordered = sorted(rows, key=lambda r: r['published_at'], reverse=True)
+            atomic_json(archive_path, ordered)
+            atomic_json(path, [r for r in ordered if r['t'] != 'archive'][:200])
         elif old:
             # Re-label dated cached entries even during a source outage, without deleting them.
             changed = False
