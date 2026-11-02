@@ -9,6 +9,15 @@ import scraper as s
 
 
 class PlatformDiscoveryTests(unittest.TestCase):
+    def test_image_only_tencent_article_is_explicitly_unsupported(self):
+        response = Mock()
+        response.json.return_value = {'code': 0, 'data': {'title': '图片榜单',
+            'content': '<p><img src="https://example.com/chart.jpg"></p>', 'created_at': '2026-11-01'}}
+        with patch.object(s, 'request', return_value=response):
+            with self.assertRaises(s.UnsupportedArticle):
+                s.Collector().article('https://e.qq.com/latestnews/detail?pid=1',
+                    {'adapter': 'tencent', 'hosts': ['e.qq.com'], 'pattern': '/latestnews/detail'})
+
     def test_search_interleaves_platforms_and_preserves_dates(self):
         collector = s.Collector()
         source = dict(url='https://example.com/api', hosts=['example.com'],

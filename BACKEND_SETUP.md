@@ -87,3 +87,5 @@ $env:DEEPSEEK_API_KEY = "你的密钥"
 接口参考：[DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/)。
 
 平台覆盖：青瓜传媒平台专题通过公开 WordPress 搜索接口轮询抖音、腾讯广告、快手、视频号和千川，并交错排列候选文章；它们是作者内容，并非官方公告。每轮小红书帮助文档最多评估 2 条，其它来源仍使用命令行额度。RSS/API 已知超过 7 天的文章提前跳过，不消耗正文读取额度。平台没有近期合格文章时如实留空。
+
+Meta 官方新闻室 RSS 作为独立补充来源，使用 RSS 发布日期；该综合新闻源须通过相关性及 60 分筛选，泛新闻不会因官方身份直接入库。腾讯纯图片文章单独计入 run_report.json 的 unsupported_images，不作为接口错误；当前没有 OCR，因此不发布图片中的未提取事实。

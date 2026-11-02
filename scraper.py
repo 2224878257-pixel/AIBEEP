@@ -29,6 +29,10 @@ SESSION = requests.Session()
 SESSION.headers['User-Agent'] = 'AIBEEP/1.0 (+https://github.com/2224878257-pixel/AIBEEP)'
 
 
+class UnsupportedArticle(ValueError):
+    """A public article whose information is embedded in images, without OCR."""
+
+
 def request(url, **kwargs):
     method = kwargs.pop('method', 'POST' if 'json' in kwargs else 'GET')
     timeout = kwargs.pop('timeout', 20)
@@ -193,6 +197,8 @@ class Collector:
                 blocks = json.loads(content)
                 content = '\n'.join(r['content'] for r in walk(blocks) if r.get('type') == 'rich_text' and isinstance(r.get('content'), str))
             text = BeautifulSoup(content, 'html.parser').get_text('\n', strip=True)
+            if len(text) < 180 and BeautifulSoup(content, 'html.parser').select('img'):
+                raise UnsupportedArticle('Image-based Tencent article; OCR not configured')
             published = date_value(self.metadata.get(canonical(url)) or data.get('created_at'))
             if len(text) < 180 or not published or not data.get('title'):
                 raise ValueError('Incomplete Tencent article')
@@ -511,7 +517,7 @@ def run(args, collector):
                         except Exception:
                             report['ai_failures'] += 1
                             raise
-                        if source.get('kind') == 'community' and not community_passes(ai):
+                        if (source.get('kind') == 'community' or source.get('require_relevance')) and not community_passes(ai):
                             status['filtered'] += 1
                             screening[article['url']] = {'checked_at':now.isoformat(),'quality_version':QUALITY_VERSION}
                             by_url.pop(article['url'], None)
@@ -525,6 +531,8 @@ def run(args, collector):
                         by_url[article['url']]['body_sketch'] = body_sketch(article['body'])
                         fingerprints.add(fingerprint)
                         status['updated' if existing else 'added'] += 1
+                except UnsupportedArticle:
+                    status['unsupported_images'] = status.get('unsupported_images', 0) + 1
                 except Exception as exc:
                     status['errors'].append({'url': url, 'error': type(exc).__name__ + ': ' + safe_error(exc)})
         except Exception as exc:
