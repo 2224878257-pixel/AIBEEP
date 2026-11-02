@@ -694,10 +694,23 @@ function renderFeed(){
   const mq=$('#miniQ'); if(mq) mq.oninput=e=>{state.q=e.target.value.trim();renderFeed();document.getElementById('miniQ').focus();document.getElementById('miniQ').setSelectionRange(document.getElementById('miniQ').value.length,document.getElementById('miniQ').value.length);};
 }
 /* 精选页：时间线信息流（首页样式） */
+function diversifyPlatforms(items){
+  const pending=items.slice(), output=[];
+  while(pending.length){
+    const last=output.at(-1)?.ch;
+    const repeated=output.length>1 && last===output.at(-2).ch;
+    const counts=new Map();pending.forEach(i=>counts.set(i.ch,(counts.get(i.ch)||0)+1));
+    let choice=-1;
+    pending.forEach((i,index)=>{if(repeated&&i.ch===last)return;if(choice<0||counts.get(i.ch)>counts.get(pending[choice].ch))choice=index;});
+    output.push(pending.splice(choice<0?0:choice,1)[0]);
+  }
+  return output;
+}
 function renderFeatured(list){
-  const today=list.filter(i=>i.t==='today'), week=list.filter(i=>i.t==='week');
+  const today=diversifyPlatforms(list.filter(i=>i.t==='today')), week=diversifyPlatforms(list.filter(i=>i.t==='week'));
   const d=new Date();const wd=['日','一','二','三','四','五','六'][d.getDay()];
   let html='';
+  html+='<p class="crumb">同一时段内优先交错展示不同平台；完整时间顺序请查看全部动态。</p>';
   if(today.length) html+=`<div class="ghead"><span class="gt">今天</span><span class="gsub">${d.getMonth()+1}月${d.getDate()}日 · 周${wd} · ${today.length}条</span><span class="gl"></span></div>`+today.map(richCardHTML).join('');
   if(week.length) html+=`<div class="ghead"><span class="gt">近7天</span><span class="gsub">${week.length}条</span><span class="gl"></span></div>`+week.map(richCardHTML).join('');
   $('#feed').innerHTML=html;

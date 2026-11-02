@@ -9,6 +9,40 @@ import scraper as s
 
 
 class PlatformDiscoveryTests(unittest.TestCase):
+    def test_yunyingpai_publication_field_survives_malformed_jsonld(self):
+        html='<html><h1>快手投放案例</h1><script type="application/ld+json">{"images":["image",],"pubDate":"2026-10-30T10:10:48"}</script><article>'+('真实投放经验与方法。'*100)+'</article></html>'
+        collector=s.Collector()
+        source={'ch':'general','hosts':['www.yunyingpai.com'],'pattern':'/news/'}
+        with patch.object(collector,'html',return_value=html):
+            result=collector.article('https://www.yunyingpai.com/news/1.html',source)
+        self.assertEqual(result['published_at'],'2026-10-30T10:10:48+08:00')
+
+    def test_tencent_webview_follows_only_public_wechat_body(self):
+        response=Mock()
+        response.json.return_value={'code':0,'data':{'title':'腾讯投放指南','created_at':'2026-11-02',
+            'content':json.dumps({'content':[{'type':'webview','url':'https://mp.weixin.qq.com/s/test'}]})}}
+        linked=Mock(url='https://mp.weixin.qq.com/s/test')
+        linked.content=('<div id="js_content">'+('具体投放方法。'*60)+'</div>').encode()
+        source={'adapter':'tencent','hosts':['e.qq.com'],'pattern':'/latestnews/detail'}
+        with patch.object(s,'request',side_effect=[response,linked]) as request:
+            result=s.Collector().article('https://e.qq.com/latestnews/detail?pid=1',source)
+        self.assertIn('具体投放方法',result['body'])
+        self.assertEqual(result['published_at'],'2026-11-02T00:00:00+08:00')
+        response.json.return_value['data']['content']=json.dumps({'content':[{'type':'webview','url':'https://private.example/s/test'}]})
+        with patch.object(s,'request',return_value=response) as request:
+            with self.assertRaises(ValueError):
+                s.Collector().article('https://e.qq.com/latestnews/detail?pid=1',source)
+            self.assertEqual(request.call_count,1)
+
+    def test_site_search_keeps_platform_searches_interleaved(self):
+        source={'adapter':'site_search','url':'https://example.com/','hosts':['example.com'],
+                'pattern':'/news/','search_terms':['快手','千川']}
+        def response(url,**kwargs):
+            ids=[1,2] if kwargs['params']['s']=='快手' else [3]
+            return Mock(content=''.join(f'<h2><a href="/news/{i}">文章</a></h2>' for i in ids).encode())
+        with patch.object(s,'request',side_effect=response):
+            self.assertEqual(s.Collector().discover(source,3),['https://example.com/news/1','https://example.com/news/3','https://example.com/news/2'])
+
     def test_expired_articles_survive_archive_but_leave_recent_feed(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
             stamp=(datetime.now(s.TZ)-timedelta(days=20)).isoformat()

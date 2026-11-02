@@ -114,6 +114,15 @@ class Collector:
         return response.text
 
     def discover(self, source, limit):
+        if source.get('adapter') == 'site_search':
+            groups = []
+            for term in source['search_terms']:
+                soup = BeautifulSoup(request(source['url'], params={'s': term}).content, 'html.parser')
+                groups.append(list(dict.fromkeys(canonical(urljoin(source['url'], a['href']))
+                    for a in soup.select('h2 a[href],h3 a[href]')
+                    if allowed(urljoin(source['url'], a['href']), source)))[:10])
+            return list(dict.fromkeys(url for batch in zip(*[g + [None] * (10-len(g)) for g in groups])
+                                      for url in batch if url))[:limit]
         if source.get('adapter') == 'wordpress_search':
             groups = []
             for term in source['search_terms']:
@@ -193,9 +202,22 @@ class Collector:
             if result.get('code') != 0:
                 raise ValueError('Tencent detail unavailable')
             content = data.get('content') or ''
+            linked = None
             if content.startswith('{'):
                 blocks = json.loads(content)
+                linked = next((r.get('url') for r in walk(blocks) if r.get('type') == 'webview' and r.get('url')), None)
                 content = '\n'.join(r['content'] for r in walk(blocks) if r.get('type') == 'rich_text' and isinstance(r.get('content'), str))
+            if not content.strip() and linked:
+                # Follow only public WeChat article links explicitly supplied by Tencent's API.
+                if urlsplit(linked).scheme != 'https' or urlsplit(linked).hostname != 'mp.weixin.qq.com' or not urlsplit(linked).path.startswith('/s'):
+                    raise ValueError('Unsupported Tencent external article host')
+                response = request(linked)
+                if urlsplit(response.url).hostname != 'mp.weixin.qq.com':
+                    raise ValueError('Unexpected Tencent article redirect')
+                body = BeautifulSoup(response.content, 'html.parser').select_one('#js_content')
+                if body is None:
+                    raise ValueError('Tencent linked article not publicly readable')
+                content = str(body)
             text = BeautifulSoup(content, 'html.parser').get_text('\n', strip=True)
             if len(text) < 180 and BeautifulSoup(content, 'html.parser').select('img'):
                 raise UnsupportedArticle('Image-based Tencent article; OCR not configured')
@@ -217,9 +239,13 @@ class Collector:
             dates.append(meta.get('content') or meta.get('datetime'))
         for script in soup.select('script[type="application/ld+json"]'):
             try:
-                dates.extend(r.get('datePublished') for r in walk(json.loads(script.string or '')) if r.get('datePublished'))
+                dates.extend(r.get('datePublished') or r.get('pubDate') for r in walk(json.loads(script.string or ''))
+                             if r.get('datePublished') or r.get('pubDate'))
             except ValueError:
-                pass
+                # Yunyingpai's published JSON-LD has trailing commas in its images array.
+                # Read only its explicit ISO publication field, never body/comment dates.
+                if urlsplit(url).hostname == 'www.yunyingpai.com':
+                    dates.extend(re.findall(r'"pubDate"\s*:\s*"(20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})"', script.string or ''))
         # A labelled publication date is accepted; arbitrary dates in the body are not.
         labelled = re.search(r'(?:发布时间|发布日期|发布于)\s*[:：]?\s*(20\d{2}[-/]\d{1,2}[-/]\d{1,2})', soup.get_text(' ', strip=True))
         if labelled:
