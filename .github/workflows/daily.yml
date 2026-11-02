@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['index.html', 'data.json', 'archive.json', 'collection_status.json', 'collection_history.json', 'scraper.py', 'sources.json', 'requirements.txt', '.github/workflows/daily.yml']
+    paths: ['index.html', 'data.json', 'archive.json', 'assets/**', 'media.py', 'collection_status.json', 'collection_history.json', 'scraper.py', 'sources.json', 'requirements.txt', '.github/workflows/daily.yml']
 permissions:
   contents: write
   pages: write
@@ -26,6 +26,9 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: pip install -r requirements.txt
+      - name: Install Chinese and English OCR
+        if: github.event_name != 'push'
+        run: sudo apt-get update -qq && sudo apt-get install -y tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-eng
       - run: python -m unittest discover -s tests -v
       - name: Collect public sources
         id: scrape
@@ -51,7 +54,10 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add collection_status.json collection_history.json
           if [ -f screening_cache.json ]; then git add screening_cache.json; fi
-          if [ '${{ steps.scrape.outcome }}' = 'success' ]; then git add data.json archive.json; else git restore data.json archive.json; fi
+          if [ '${{ steps.scrape.outcome }}' = 'success' ]; then
+            git add data.json archive.json
+            if [ -d assets/images ]; then git add assets/images; fi
+          else git restore data.json archive.json; fi
           if ! git diff --cached --quiet; then
             git commit -m 'content: refresh official growth news'
             git pull --rebase origin main
@@ -61,6 +67,7 @@ jobs:
         run: |
           mkdir site
           cp index.html data.json archive.json site/
+          if [ -d assets ]; then cp -R assets site/; fi
           if [ -f collection_status.json ]; then cp collection_status.json site/; fi
           if [ -f collection_history.json ]; then cp collection_history.json site/; fi
           touch site/.nojekyll

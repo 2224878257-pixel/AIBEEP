@@ -376,6 +376,9 @@
   .drawer .img img{width:100%;height:100%;object-fit:cover;display:block}
   .drawer .img svg{width:20px;height:20px;stroke-width:1.4}
   .drawer .body p{font-size:14.5px;line-height:1.9;color:var(--ink);margin-bottom:16px}
+  .article-images{margin:24px 0}.article-images figure{margin:18px 0}.article-images img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .article-images img[hidden]{display:none}.article-images figcaption,.image-error,.ocr-note{font-size:12px;line-height:1.8;color:var(--ink-3);margin-top:6px}.article-images a{color:var(--accent)}
+  .ocr-note{padding:12px;border:1px solid var(--line);border-radius:8px}.ocr-note p{white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto}.flow-cover{width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:10px 0}
   .drawer .en{border-left:2px solid var(--ink-3);padding:6px 0 6px 13px;margin:16px 0;background:var(--card);border-radius:4px}
   .drawer .en .enlab{font-size:10px;color:var(--ink-3);letter-spacing:1.5px;margin-bottom:7px;font-weight:700}
   .drawer .en p{font-size:12.5px;color:var(--ink-2);line-height:1.8;margin-bottom:0;font-style:italic}
@@ -727,6 +730,7 @@ function richCardHTML(i){
       <span class="flow-score">AI ${i.score}</span>
     </div>
     <h3>${esc(i.title)}</h3>
+    ${safeImageSrc(i.cover)?`<img class="flow-cover" src="${esc(safeImageSrc(i.cover))}" alt="${esc(i.title)}配图" loading="lazy" decoding="async" onerror="this.hidden=true">`:''}
     <p class="flow-desc">${esc(i.desc)}</p>
     <div class="flow-foot">
       <span class="flow-src">${esc(i.src)}</span>
@@ -904,6 +908,13 @@ function bindCards(){
 function openSource(id){const i=allArticles().find(x=>x.id==id);if(i && /^https:\/\//i.test(i.url))window.open(i.url,'_blank','noopener,noreferrer');else toast('这条记录暂无原文链接');}
 function openCard(id){id=Number(id);const i=allArticles().find(x=>x.id==id);if(!i)return;state.read.add(id);persistReadingState();renderFeed();renderDrawer(i);$('#drawer').classList.add('open');document.body.style.overflow='hidden';}
 function closeDrawer(){$('#drawer').classList.remove('open');document.body.style.overflow='';}
+function safeImageSrc(src){return typeof src==='string'&&/^assets\/images\/[a-f0-9]{32}\.webp$/.test(src)?new URL(src,document.baseURI).href:'';}
+function safeSourceLink(url){try{const u=new URL(url);return u.protocol==='https:'?u.href:'';}catch{return '';}}
+function articleImages(i){
+  const images=(Array.isArray(i.images)?i.images:[]).filter(x=>safeImageSrc(x.src)).slice(0,6);
+  if(!images.length)return '';
+  return `<section class="article-images" aria-label="文章配图"><h3>原文配图</h3><p class="ocr-note">配图按原文顺序展示，点击可查看大图；图片来源：${esc(i.src)}。${i.media_issues?.length?'部分配图未能采集，请结合原文查看。':''}</p>${images.map((x,n)=>`<figure><a href="${esc(safeImageSrc(x.src))}" target="_blank" rel="noopener noreferrer"><img src="${esc(safeImageSrc(x.src))}" alt="${esc(x.alt||'原文配图 '+(n+1))}" loading="lazy" decoding="async"></a><p class="image-error" hidden>图片暂时加载失败，请通过下方来源链接查看。</p><figcaption>图 ${n+1} · ${esc(x.alt||i.src)} ${safeSourceLink(x.source_url)?`<a class="image-source" href="${esc(safeSourceLink(x.source_url))}" target="_blank" rel="noopener noreferrer">查看原图来源 ↗</a>`:''}</figcaption></figure>`).join('')}</section>`;
+}
 function renderDrawer(i){
   const on=state.saved.has(i.id);
   const enBlock=i.orig?`<div class="en"><div class="enlab">原文（EN，已自动翻译为中文）</div><p>${esc(i.orig)}</p></div>`:'';
@@ -913,14 +924,17 @@ function renderDrawer(i){
     <h2>${esc(i.title)}</h2>
     <div class="dmeta"><span>${i.url?.includes('/next_help/docs/')?'更新于':'发布于'} ${esc(articleDate(i,true))}（北京时间）</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">AI 评分 <b>${i.score}</b></span></div>
     <div class="reason">${esc(i.reason)}</div>
-    <div class="img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg><span>配图 · 抓取后显示</span></div>
+    ${i.ocr_used?'<p class="ocr-note">本文含图片文字识别内容，尚未经人工核对；金额、比例和效果数据请核对原图。</p>':''}
     <div class="body">${esc(i.content).split('\n').map(p=>`<p>${p}</p>`).join('')}${enBlock}</div>
+    ${articleImages(i)}
+    ${i.ocr_used&&i.ocr_text?`<details class="ocr-note"><summary>查看图片识别文字（未人工核对）</summary><p>${esc(i.ocr_text)}</p></details>`:''}
     <div class="dfoot">
       <a class="src-link" data-src="${i.id}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>查看原文来源</a>
       <button class="full-link" id="fullLink"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>全屏阅读</button>
       <button class="star ${on?'on':''}" data-save="${i.id}" title="收藏"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6L3.2 9.4l6.1-.9L12 3z"/></svg></button>
     </div>`;
   document.querySelector('#drawerPanel .src-link').onclick=e=>{e.preventDefault();openSource(i.id);};
+  document.querySelectorAll('#drawerPanel .article-images img').forEach(img=>img.onerror=()=>{img.hidden=true;img.parentElement.nextElementSibling.hidden=false;});
   document.getElementById('fullLink').onclick=()=>{document.getElementById('drawerPanel').classList.toggle('full');};
   document.querySelector('#drawerPanel .star').onclick=e=>{e.stopPropagation();toggleSaved(i.id);renderNav();renderFeed();renderDrawer(i);};
   document.addEventListener('keydown',function escK(e){if(e.key==='Escape'){closeDrawer();document.removeEventListener('keydown',escK);}});

@@ -60,14 +60,15 @@ class PlatformDiscoveryTests(unittest.TestCase):
             self.assertEqual(archive[0]['id'],123)
             self.assertEqual(archive[0]['t'],'archive')
 
-    def test_image_only_tencent_article_is_explicitly_unsupported(self):
+    def test_image_only_tencent_article_is_queued_for_ocr(self):
         response = Mock()
         response.json.return_value = {'code': 0, 'data': {'title': '图片榜单',
             'content': '<p><img src="https://example.com/chart.jpg"></p>', 'created_at': '2026-11-01'}}
         with patch.object(s, 'request', return_value=response):
-            with self.assertRaises(s.UnsupportedArticle):
-                s.Collector().article('https://e.qq.com/latestnews/detail?pid=1',
-                    {'adapter': 'tencent', 'hosts': ['e.qq.com'], 'pattern': '/latestnews/detail'})
+            article=s.Collector().article('https://e.qq.com/latestnews/detail?pid=1',
+                {'adapter': 'tencent', 'hosts': ['e.qq.com'], 'pattern': '/latestnews/detail'})
+            self.assertTrue(article['needs_ocr'])
+            self.assertEqual(article['image_candidates'][0]['source_url'],'https://example.com/chart.jpg')
 
     def test_search_interleaves_platforms_and_preserves_dates(self):
         collector = s.Collector()
