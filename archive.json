@@ -2653,7 +2653,8 @@
       "first_test": "未披露"
     },
     "income_claims": [],
-    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流"
+    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流",
+    "editorial_visibility": "archive"
   },
   {
     "title": "Google Ads账户中六个易被忽略的默认设置检查要点",
@@ -3041,7 +3042,8 @@
       "310d7fd031cc0a6e",
       "3141761ad1315f0c"
     ],
-    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐"
+    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐",
+    "editorial_visibility": "archive"
   },
   {
     "title": "HN 招聘帖：远程与现场职位信息聚合",
@@ -3269,7 +3271,8 @@
       "304036e1a7ae078b",
       "306100f461cca68a"
     ],
-    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐"
+    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐",
+    "editorial_visibility": "archive"
   },
   {
     "title": "新品上线广告预算怎么定：从盈亏平衡CPA到边际CPA的六步决策模型",
@@ -3666,8 +3669,6 @@
         "source_url": "https://cdn-static.sspai.com/ui/img-placeholder.png",
         "alt": "Matrix精选",
         "source_page": "https://sspai.com/post/118211",
-        "context_before": "",
-        "context_after": "Matrix 首页推荐 Matrix 是少数派的写作社区，我们主张分享真实的产品体验，有实用价值的经验与思考。我们会不定期挑选 Matrix 最优质的文章，展示来自用户的最真实的体验和观点。",
         "src": "assets/images/47b15e584a46f2e1ade7ed22128584f8.webp",
         "width": 100,
         "height": 101
@@ -3847,7 +3848,8 @@
       "095dfca23787399f",
       "095f2b521cc9284e"
     ],
-    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐"
+    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐",
+    "editorial_visibility": "archive"
   },
   {
     "title": "小红书专业号资质规范新增：分行业准入与资质要求",
@@ -6004,8 +6006,6 @@
         "source_url": "https://r2.levels.io/tweets/decompiled-battlefield-1942-web-multiplayer/cover.jpg",
         "alt": "",
         "source_page": "https://levels.io/decompiled-battlefield-1942-web-multiplayer",
-        "context_before": "",
-        "context_after": "I decompiled probably my favorite game ever: Battlefield 1942 and I put it on the web with multiplayer for you to play here: 👉 bf1942.pieter.com 👈",
         "src": "assets/images/a8e317740ef59898ed9f1fd5f2aa10f7.webp",
         "width": 1072,
         "height": 720
@@ -6179,7 +6179,8 @@
       "1639778646236762",
       "166d32735e17c06d"
     ],
-    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐"
+    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐",
+    "editorial_visibility": "archive"
   },
   {
     "title": "小红书「种草直达」智能助攻产品手册要点",
@@ -8738,7 +8739,8 @@
       "first_test": "未披露"
     },
     "income_claims": [],
-    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流"
+    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流",
+    "editorial_visibility": "archive"
   },
   {
     "title": "视频号2026创作扶持计划：新人流量、现金激励与长视频加码",
@@ -9240,7 +9242,8 @@
       "first_test": "未披露"
     },
     "income_claims": [],
-    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流"
+    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流",
+    "editorial_visibility": "archive"
   },
   {
     "title": "Meta广告排序三项AI更新：检索、预测与生成式推荐",
@@ -10995,8 +10998,6 @@
         "source_url": "https://substackcdn.com/image/fetch/$s_!1yJJ!,w_720,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F6d4ceb14-f698-44a1-b81e-9dea8a483f9c_4000x3000.jpeg",
         "alt": "",
         "source_page": "https://news.tonydinh.com/p/im-on-product-hunt-updates-jun-2026",
-        "context_before": "It’s been a while since the last update. Here’s what I’ve been working on recently. Hacker Residency Group #2 As you may already know, in November last year, I co-hosted an offline event to gather 10 indie hackers in a cool villa in Da Nang city and BUILD together.",
-        "context_after": "We decided to do it again in 2026, and for the past month in May 2026, I’ve been hacking with the group in a villa in Da Nang. You can see the list of all residents in this batch here . This batch, we also invited the OG Tibo Maker to the house for a few weeks to hack with us! It was so much more fu",
         "src": "assets/images/c12207740caccb0dbdbd63457c0c8272.webp",
         "width": 720,
         "height": 540
@@ -11005,8 +11006,6 @@
         "source_url": "https://substackcdn.com/image/fetch/$s_!GOTq!,w_720,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa69ecb08-f111-43e6-b096-dc0a5799938f_1600x900.jpeg",
         "alt": "",
         "source_page": "https://news.tonydinh.com/p/im-on-product-hunt-updates-jun-2026",
-        "context_before": "It’s been a while since the last update. Here’s what I’ve been working on recently. Hacker Residency Group #2 As you may already know, in November last year, I co-hosted an offline event to gather 10 indie hackers in a cool villa in Da Nang city and BUILD together.",
-        "context_after": "We decided to do it again in 2026, and for the past month in May 2026, I’ve been hacking with the group in a villa in Da Nang. You can see the list of all residents in this batch here . This batch, we also invited the OG Tibo Maker to the house for a few weeks to hack with us! It was so much more fu",
         "src": "assets/images/0d3ff3f1edb79b663ff19ebde190ae8d.webp",
         "width": 720,
         "height": 405
@@ -11015,8 +11014,6 @@
         "source_url": "https://substackcdn.com/image/fetch/$s_!LNDW!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4188b68d-01d0-411f-89ea-fbc49b3776ed_2828x1746.png",
         "alt": "",
         "source_page": "https://news.tonydinh.com/p/im-on-product-hunt-updates-jun-2026",
-        "context_before": " talk to the bot remotely from my phone. I (“we”) started working on a few small projects, then I moved on to build a few small iOS apps. iOS development seems to be a complicated enough task that I can test how “autonomous” and smart CC can be, and still provide a useful result that I can use myself. I built several apps end-to-end, fully remotely via Telegram, and pushed them all the way to the App Store (not just in development). One of the apps I built is Pulse - a Paddle revenue tracking app that I’ve been wanting to use for a few years now (Paddle doesn’t have a mobile app like Stripe!).",
-        "context_after": "You can see the app here https://pulserevenue.app/ , everything is built by the bot (who name itself “Otto”), from the app, the website, the screenshots, and the App Store submission. At one point, Otto received a rejection from the App Store reviewer in the middle of the night, opened the App Store",
         "src": "assets/images/4eec64c50c4304e38a8edcced7399c4a.webp",
         "width": 1456,
         "height": 899
@@ -11025,8 +11022,6 @@
         "source_url": "https://substackcdn.com/image/fetch/$s_!bCDN!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F906adfd4-c24c-4a52-8068-1d3501c61aec_1536x1388.jpeg",
         "alt": "Image",
         "source_page": "https://news.tonydinh.com/p/im-on-product-hunt-updates-jun-2026",
-        "context_before": "s I built is Pulse - a Paddle revenue tracking app that I’ve been wanting to use for a few years now (Paddle doesn’t have a mobile app like Stripe!). You can see the app here https://pulserevenue.app/ , everything is built by the bot (who name itself “Otto”), from the app, the website, the screenshots, and the App Store submission. At one point, Otto received a rejection from the App Store reviewer in the middle of the night, opened the App Store Connect dashboard to view the rejection reason, fixed the bug, and resubmitted. I woke up in the morning seeing the app approved with a brief report.",
-        "context_after": "It was really a big shift in perspective. It hit me really hard. AI can do so much these days with enough tools and context. Most people have no idea. I could go on and on forever about Otto, Claude Code, and Mac Mini, but I think I will write all of that down somewhere later instead of making this ",
         "src": "assets/images/390c41bcdcb9c58dc01e1747144c0f75.webp",
         "width": 1456,
         "height": 1316
@@ -11035,8 +11030,6 @@
         "source_url": "https://substackcdn.com/image/fetch/$s_!1txx!,w_474,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7d4e134f-124b-40ad-8d87-52e066b2ef24_943x2048.jpeg",
         "alt": "",
         "source_page": "https://news.tonydinh.com/p/im-on-product-hunt-updates-jun-2026",
-        "context_before": "s I built is Pulse - a Paddle revenue tracking app that I’ve been wanting to use for a few years now (Paddle doesn’t have a mobile app like Stripe!). You can see the app here https://pulserevenue.app/ , everything is built by the bot (who name itself “Otto”), from the app, the website, the screenshots, and the App Store submission. At one point, Otto received a rejection from the App Store reviewer in the middle of the night, opened the App Store Connect dashboard to view the rejection reason, fixed the bug, and resubmitted. I woke up in the morning seeing the app approved with a brief report.",
-        "context_after": "It was really a big shift in perspective. It hit me really hard. AI can do so much these days with enough tools and context. Most people have no idea. I could go on and on forever about Otto, Claude Code, and Mac Mini, but I think I will write all of that down somewhere later instead of making this ",
         "src": "assets/images/0386f64c331040ef778ac9af97b42feb.webp",
         "width": 474,
         "height": 1029
@@ -11045,8 +11038,6 @@
         "source_url": "https://substackcdn.com/image/fetch/$s_!l9PC!,w_474,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1eb9a2a2-14cf-4d04-aa9e-ef913c430f82_1320x1773.jpeg",
         "alt": "",
         "source_page": "https://news.tonydinh.com/p/im-on-product-hunt-updates-jun-2026",
-        "context_before": "s I built is Pulse - a Paddle revenue tracking app that I’ve been wanting to use for a few years now (Paddle doesn’t have a mobile app like Stripe!). You can see the app here https://pulserevenue.app/ , everything is built by the bot (who name itself “Otto”), from the app, the website, the screenshots, and the App Store submission. At one point, Otto received a rejection from the App Store reviewer in the middle of the night, opened the App Store Connect dashboard to view the rejection reason, fixed the bug, and resubmitted. I woke up in the morning seeing the app approved with a brief report.",
-        "context_after": "It was really a big shift in perspective. It hit me really hard. AI can do so much these days with enough tools and context. Most people have no idea. I could go on and on forever about Otto, Claude Code, and Mac Mini, but I think I will write all of that down somewhere later instead of making this ",
         "src": "assets/images/c45c6da6fc5e7f0e8685f58817d3ebc3.webp",
         "width": 474,
         "height": 637

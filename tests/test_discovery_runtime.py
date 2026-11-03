@@ -66,6 +66,12 @@ class SearchTests(unittest.TestCase):
 
 
 class PublicationBudgetTests(unittest.TestCase):
+    def test_existing_article_refresh_does_not_consume_new_publication_budget(self):
+        refresh={'row':{'src':'A','source_domain':'a.example','score':80},'refresh_only':True}
+        accepted,held=select_publications([refresh],[],{**DEFAULT,'max_publications_per_day':0},datetime.now(timezone.utc))
+        self.assertEqual(accepted,[refresh])
+        self.assertEqual(held,[])
+
     def test_daily_cap_and_source_share_hold_completed_items(self):
         staged=[{'row':{'src':'A','source_domain':'a.example','score':100-n}} for n in range(5)]+[{'row':{'src':'B','source_domain':'b.example','score':80}}]
         accepted,held=select_publications(staged,[],{**DEFAULT,'max_publications_per_day':5},datetime.now(timezone.utc))

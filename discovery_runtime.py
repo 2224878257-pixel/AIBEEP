@@ -82,6 +82,8 @@ def provenance(article,source,context,now):
 
 
 def finish_provenance(row,article,ai):
+    # DOM context is internal extraction metadata, not a public article mirror.
+    row['images']=[{k:v for k,v in image.items() if k not in {'context_before','context_after'}} for image in row.get('images',[])]
     for key in ('original_url','canonical_url','discovery_path','search_provider','search_query','query_group','body_obtained','collected_at','source_domain'):
         row[key]=article.get(key)
     row['event_id']=hashlib.sha256((article.get('canonical_url') or article['url']).encode()).hexdigest()[:16]
@@ -102,10 +104,11 @@ def select_publications(staged,existing,config,now):
         except (KeyError,TypeError,ValueError):
             pass
     remaining=max(0,config['max_publications_per_day']-len(today))
-    ordered=sorted(staged,key=lambda r:r['row'].get('score',0),reverse=True)
+    refreshes=[entry for entry in staged if entry.get('refresh_only')]
+    ordered=sorted([entry for entry in staged if not entry.get('refresh_only')],key=lambda r:r['row'].get('score',0),reverse=True)
     target=min(config['max_publications_per_day'],len(today)+len(ordered))
     # Integer rounding permits one item when there are fewer than five selections.
-    per_source=max(1,math.ceil(target*config['max_source_share']))
+    per_source=max(1,math.floor(target*config['max_source_share']))
     counts=Counter(r.get('source_domain') or r.get('src') for r in today)
     accepted,held=[],[]
     for entry in ordered:
@@ -116,7 +119,7 @@ def select_publications(staged,existing,config,now):
             held.append(entry)
     # Tighten the cap after selection so uneven supply cannot inflate its denominator.
     while accepted:
-        cap=max(1,math.ceil((len(today)+len(accepted))*config['max_source_share']))
+        cap=max(1,math.floor((len(today)+len(accepted))*config['max_source_share']))
         counts=Counter(r.get('source_domain') or r.get('src') for r in today)
         kept=[]
         for entry in accepted:
@@ -128,4 +131,4 @@ def select_publications(staged,existing,config,now):
         if len(kept)==len(accepted):
             break
         accepted=kept
-    return accepted,held
+    return refreshes+accepted,held

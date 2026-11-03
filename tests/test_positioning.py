@@ -10,6 +10,22 @@ from positioning import upgrade, editorial_score, POLICY
 
 
 class PositioningTests(unittest.TestCase):
+    def test_same_url_across_sources_is_read_and_reviewed_once(self):
+        with tempfile.TemporaryDirectory() as tmp,patch.object(s,'ROOT',Path(tmp)):
+            root=Path(tmp);url='https://example.com/a'
+            (root/'data.json').write_text('[]')
+            (root/'sources.json').write_text(json.dumps([{'name':name,'ch':'general','kind':'community'} for name in ('one','two')]))
+            collector=Mock();collector.discover.return_value=[url]
+            collector.article.return_value={'url':url,'title':'工具','body':'公开可读的操作资料','published_at':datetime.now(s.TZ).isoformat()}
+            ai=dict(title='工具',desc='摘要',content='步骤',reason='用途',cat='ai',tag='ai',score=80,relevant=True,discovery_relevant=True,discovery_category='tool')
+            with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}),patch.object(s,'enrich',return_value=ai) as enrich:
+                s.run(Mock(check_sources=False,limit=1),collector)
+            collector.article.assert_called_once()
+            enrich.assert_called_once()
+            report=json.loads((root/'run_report.json').read_text(encoding='utf-8'))
+            self.assertEqual(report['summary']['discovered_unique_urls'],1)
+            self.assertEqual(report['summary']['duplicates'],1)
+
     def test_high_scoring_technical_demo_is_not_reader_relevant(self):
         data=dict(title='技术演示',desc='演示',content='演示步骤',reason='演示参考',cat='ai',tag='ai',ch='general',
                   score=100,score_breakdown=dict(POLICY['weights']),column='methods',topics=['实用工具'],

@@ -142,7 +142,7 @@ class Collector:
                 # A product title or vote count alone cannot support a business breakdown.
                 self.structured[canonical(url)] = {'url':canonical(url),'title':item['title'],
                     'body':text,'published_at':date_value(item['time']).isoformat(),
-                    'image_candidates':[],'needs_ocr':False}
+                    'image_candidates':[],'needs_ocr':False,'evidence_candidates':evidence_links(item.get('text',''),url)+([{'url':item['url'],'label':'作者提交的产品原始链接'}] if item.get('url') else [])}
                 self.metadata[canonical(url)] = item['time']
                 self.authors[canonical(url)] = item.get('by','')
                 urls.append(url)
@@ -562,7 +562,7 @@ def run(args, collector):
             by_url[canonical(row.get('url', ''))] = row
         except ValueError:
             continue
-    protected_legacy={u:dict(r) for u,r in by_url.items() if r.get('section')!='discovery'}
+    protected_existing={u:dict(r) for u,r in by_url.items()}
     report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'updated': 0, 'ai_failures': 0, 'ai_successes': 0, 'ai_retries': 0, 'disabled_sources': [],
               'ignored_existing': max(0, len(old) + len(archived) - len(by_url))}
     config, searched_sources, search_report, candidate_pool = prepare(ROOT,now,args.check_sources)
@@ -570,6 +570,8 @@ def run(args, collector):
     report['budget'] = {'read_urls':0,'ai_articles':0,'max_urls':config['max_new_urls'],'max_ai':config['max_ai_articles']}
     budget=report['budget']
     staged=[]
+    seen_urls=set()
+    discovered_urls=set()
     source_quality=load_json(ROOT/'source_quality.json',{})
     url_cache=load_json(ROOT/'url_cache.json',{})
     fingerprints = {r.get('content_hash') for r in by_url.values() if r.get('content_hash') and
@@ -601,12 +603,20 @@ def run(args, collector):
                            and row.get('quality_version') != QUALITY_VERSION and allowed(url, source)]
                 urls = list(dict.fromkeys(urls + pending))[:min(args.limit * 5, 30) + 10]
             status['discovered'] = len(urls)
+            discovered_urls.update(canonical(url) for url in urls)
+            if source.get('adapter')=='hn_api':
+                links=[{'url':ref['url'],'discovery_path':'official_api_link','language':'en'} for url in urls for ref in collector.structured.get(canonical(url),{}).get('evidence_candidates',[])]
+                candidate_pool=candidate_sources(links,candidate_pool,now.isoformat())
             if not urls and source.get('adapter') != 'rss':
                 status['errors'].append('No article links; list may require login or adapter update')
             for url in urls:
                 if budget['read_urls']>=config['max_new_urls'] or (not args.check_sources and budget['ai_articles']>=config['max_ai_articles']) or (searched_sources and not source.get('dynamic') and (budget['ai_articles']>=max(1,int(config['max_ai_articles']*0.6)) or budget['read_urls']>=max(1,int(config['max_new_urls']*0.7)))):
                     report['budget_exhausted']=True
                     break
+                if canonical(url) in seen_urls:
+                    status['duplicates']+=1
+                    continue
+                seen_urls.add(canonical(url))
                 context=collector.discovery_context.get(canonical(url),{}) if isinstance(getattr(collector,'discovery_context',None),dict) else {}
                 max_age=context.get('max_age_days',source.get('max_age_days',config['max_article_days']))
                 failed_at=date_value(url_cache.get(canonical(url),{}).get('failed_at'))
@@ -627,6 +637,9 @@ def run(args, collector):
                     status['cached'] += 1
                     continue
                 if canonical(url) in by_url:
+                    if by_url[canonical(url)].get('editorial_visibility')=='archive':
+                        status['cached']+=1
+                        continue
                     updated = date_value(collector.metadata.get(canonical(url))) if source.get('adapter') == 'xiaohongshu' else None
                     cached = date_value(by_url[canonical(url)].get('published_at'))
                     needs_review = source.get('kind') == 'community' and by_url[canonical(url)].get('quality_version') != QUALITY_VERSION
@@ -689,7 +702,10 @@ def run(args, collector):
                             for queued in queue:
                                 if queued.get('url')==article['url']:
                                     queued.update(review_status='rejected',quality_version=QUALITY_VERSION,rejection_reason='New editorial relevance or score criteria not met')
-                            # Reclassification must never erase articles already in the historical archive.
+                            cached=by_url.get(article['url'])
+                            if cached and cached.get('section')=='discovery' and cached.get('publication_basis')!='editorial_source_review':
+                                cached.update(section='legacy',column='archive',migration_reason='New editorial relevance or score criteria not met')
+                            # Reclassification preserves IDs and URLs in the archive.
                             continue
                         status['qualified']=status.get('qualified',0)+1
                         existing = article['url'] in by_url
@@ -709,7 +725,7 @@ def run(args, collector):
                         published_row['also_reported_by']=aliases
                         published_row['content_hash']=fingerprint
                         published_row['body_sketch']=body_sketch(article['body'])
-                        staged.append({'row':published_row,'status':status,'existing':existing})
+                        staged.append({'row':published_row,'status':status,'existing':existing,'refresh_only':existing and by_url[article['url']].get('section')=='discovery' and by_url[article['url']].get('review_status')=='published'})
                         fingerprints.add(fingerprint)
                 except UnsupportedArticle:
                     status['unsupported_images'] = status.get('unsupported_images', 0) + 1
@@ -745,7 +761,7 @@ def run(args, collector):
                 rows.append(row)
         rows, report['merged_duplicates'] = deduplicate_rows(rows)
         kept_urls={r['url'] for r in rows}
-        rows.extend(r for u,r in protected_legacy.items() if u not in kept_urls)
+        rows.extend({**r,'section':'legacy','column':'archive','migration_reason':'Duplicate consolidated; historical ID and URL retained'} for u,r in protected_existing.items() if u not in kept_urls)
         # Total failure must not erase the last working snapshot.
         if any(s['readable'] for s in report['sources']) or (rows and any(s['discovery_ok'] for s in report['sources'])):
             ordered = sorted(rows, key=lambda r: r['published_at'], reverse=True)
@@ -764,7 +780,7 @@ def run(args, collector):
                     row['time'] = published.strftime('%H:%M' if row['t'] == 'today' else '%m/%d')
             if changed:
                 atomic_json(path, old)
-    report['summary']={'queries':search_report.get('queries',0),'discovered_urls':sum(s['discovered'] for s in report['sources']), 'read_urls':budget['read_urls'],'readable':sum(s['readable'] for s in report['sources']), 'duplicates':sum(s['duplicates'] for s in report['sources'])+report.get('merged_duplicates',0),'qualified':sum(s.get('qualified',0) for s in report['sources']),'generated':report['added'],'review_queue':sum(r.get('review_status')=='pending' for r in queue),'successful_source_listings':sum(bool(s['discovery_ok']) for s in report['sources']),'successful_source_bodies':sum(s['readable']>0 for s in report['sources'])}
+    report['summary']={'queries':search_report.get('queries',0),'discovered_urls':sum(s['discovered'] for s in report['sources']), 'discovered_unique_urls':len(discovered_urls),'read_urls':budget['read_urls'],'readable':sum(s['readable'] for s in report['sources']), 'duplicates':sum(s['duplicates'] for s in report['sources'])+report.get('merged_duplicates',0),'qualified':sum(s.get('qualified',0) for s in report['sources']),'generated':report['added'],'review_queue':sum(r.get('review_status')=='pending' for r in queue),'successful_source_listings':sum(bool(s['discovery_ok']) for s in report['sources']),'successful_source_bodies':sum(s['readable']>0 for s in report['sources'])}
     print('BATCH '+json.dumps(report['summary'],ensure_ascii=False),flush=True)
     atomic_json(ROOT / 'run_report.json', report)
     if not args.check_sources:
@@ -787,6 +803,14 @@ def run(args, collector):
         if source_status:atomic_json(ROOT/'source_status.json',source_status)
         atomic_json(ROOT/'source_quality.json',source_quality)
         atomic_json(ROOT/'url_cache.json',dict(list(url_cache.items())[-2000:]))
+        known_hosts={(urlsplit(r['entry_url']).hostname or '').removeprefix('www.') for r in load_json(ROOT/'source_catalog.json',[])}
+        for candidate in candidate_pool:
+            candidate['candidate_kind']='new_author_or_project' if candidate['domain'].removeprefix('www.') in known_hosts else 'new_domain'
+            if candidate['domain']=='github.com':
+                candidate['project_candidates']=list(dict.fromkeys('/'.join(urlsplit(u).path.strip('/').split('/')[:2]) for u in candidate['sample_articles'] if len(urlsplit(u).path.strip('/').split('/'))>=2))
+        report['summary']['new_domain_candidates']=sum(r['candidate_kind']=='new_domain' for r in candidate_pool)
+        report['summary']['known_platform_candidates']=sum(r['candidate_kind']=='new_author_or_project' for r in candidate_pool)
+        atomic_json(ROOT/'run_report.json',report)
         atomic_json(ROOT/'candidate_sources.json',candidate_pool)
         atomic_json(ROOT/'discovery_status.json',{'run_at':now.isoformat(),'search':{k:search_report.get(k) for k in ('provider','enabled','state','queries','cache_hits','discovered_urls')},'summary':report['summary'],'budget':budget,'held_for_budget':len(held),'source_metrics':{name:r['rates'] for name,r in source_quality.items()}})
         atomic_json(queue_path,queue)
