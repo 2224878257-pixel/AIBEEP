@@ -1,3 +1,9 @@
+# AIBEEP · 发现值得尝试的小生意
+
+当前定位、来源接入、搜索适配器、预算、部署与回滚说明见 [定位升级文档](POSITIONING_UPGRADE.md)，实际验证见 [验收记录](UPGRADE_VALIDATION.md)。站点：https://aibeep.cn/ ，来源状态：https://aibeep.cn/sources.html 。
+
+以下保留旧版接口与项目历史说明；旧字段继续兼容，运行器优先使用 discovery_sources.json，不代表下方旧需求全部仍是当前定位。
+
 # AIBEEP 增长资讯站
 
 面向广告投放/企业获客/AI+增长从业者的每日资讯站。前端已完成，需要你补后端采集。

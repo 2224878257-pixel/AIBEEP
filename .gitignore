@@ -4,3 +4,8 @@ __pycache__/
 run_report.json
 site/
 review_queue.json
+
+search_cache.json
+candidate_sources.json
+source_quality.json
+url_cache.json

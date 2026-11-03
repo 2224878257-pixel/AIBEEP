@@ -19,15 +19,20 @@ from bs4 import BeautifulSoup
 from trafilatura import bare_extraction
 from media import MEDIA_VERSION, image_candidates, json_image_candidates, prepare_media, prune_unreferenced
 from discovery import apply_schema
+from positioning import POLICY, upgrade, editorial_score
+from public_web import public_get, public_url
+from search_discovery import candidate_sources
+from discovery_runtime import prepare, evidence_links, verify_links, provenance, finish_provenance, select_publications, load_json
 
 ROOT = Path(__file__).resolve().parent
 TZ = ZoneInfo('Asia/Shanghai')
 CATS = {'platform', 'data', 'ai', 'case', 'acq'}
 TAGS = {'ad', 'acq', 'mkt', 'ai'}
 CHANNELS = {'dj', 'tx', 'ks', 'xhs', 'hw', 'ec', 'local', 'saas', 'game', 'edu', 'general', 'tmall', 'wx', 'multi'}
-QUALITY_VERSION = 3
+QUALITY_VERSION = 4
 TOPIC = re.compile(r'投放|获客|转化|买量|信息流|素材|竞价|广告|营销|增长|私域|线索|归因|落地页|品牌|种草|市场预算|商业漏斗|生活服务|抖音|小红书|视频号|投流|拉新|google ads|meta|facebook|ppc|lead|conversion|campaign|attribution|creative|placement|audience', re.I)
 TOPIC = re.compile(TOPIC.pattern+r'|副业|赚钱|变现|接单|自由职业|付费专栏|知识产品|素材销售|模板|工具|信息差|独立开发|数字产品|效率|自动化|开源|创作者|模型|copilot|workflow|open.source|agent|tool|assistant|transformer|model',re.I)
+TOPIC = re.compile('|'.join(re.escape(k) for k in POLICY['keywords']), re.I)
 SESSION = requests.Session()
 SESSION.headers['User-Agent'] = 'AIBEEP/1.0 (+https://github.com/2224878257-pixel/AIBEEP)'
 
@@ -54,15 +59,15 @@ def request(url, **kwargs):
 
 def canonical(url):
     p = urlsplit(url)
-    if p.scheme != 'https' or not p.hostname:
-        raise ValueError('Expected HTTPS article URL')
+    if p.scheme not in {'http','https'} or not p.hostname:
+        raise ValueError('Expected HTTP(S) article URL')
     query = [(k, v) for k, v in parse_qsl(p.query) if not k.startswith('utm_') and k not in {'from', 'spm', 'source'}]
     return urlunsplit((p.scheme, p.netloc.lower(), p.path.rstrip('/'), urlencode(sorted(query)), ''))
 
 
 def allowed(url, source):
     p = urlsplit(url)
-    return p.scheme == 'https' and p.hostname in source['hosts'] and bool(re.search(source['pattern'], p.path))
+    return p.scheme in ({'http','https'} if source.get('dynamic') else {'https'}) and p.hostname in source['hosts'] and bool(re.search(source['pattern'], p.path))
 
 
 def date_value(value):
@@ -95,8 +100,12 @@ class Collector:
         self.browser = browser
         self.metadata = {}
         self.authors = {}
+        self.structured = {}
+        self.discovery_context = {}
 
     def html(self, url, source):
+        if source.get('dynamic'):
+            return public_get(url,**source.get('web_limits',{})).text
         if self.browser and not source.get('http_only'):
             page = self.browser.new_page()
             try:
@@ -117,6 +126,27 @@ class Collector:
         return response.text
 
     def discover(self, source, limit):
+        if source.get('adapter') == 'discovered_urls':
+            for result in source['results']:
+                self.discovery_context[canonical(result['url'])] = result
+            return [r['url'] for r in source['results']][:limit]
+        if source.get('adapter') == 'hn_api':
+            ids = request(source['url']).json()
+            urls = []
+            for item_id in ids[:min(limit, 20)]:
+                item = request(f'https://hacker-news.firebaseio.com/v0/item/{int(item_id)}.json').json()
+                if not item or item.get('deleted') or item.get('dead'):
+                    continue
+                url = f'https://news.ycombinator.com/item?id={int(item_id)}'
+                text = BeautifulSoup(item.get('text',''), 'html.parser').get_text(' ', strip=True)
+                # A product title or vote count alone cannot support a business breakdown.
+                self.structured[canonical(url)] = {'url':canonical(url),'title':item['title'],
+                    'body':text,'published_at':date_value(item['time']).isoformat(),
+                    'image_candidates':[],'needs_ocr':False}
+                self.metadata[canonical(url)] = item['time']
+                self.authors[canonical(url)] = item.get('by','')
+                urls.append(url)
+            return urls
         if source.get('adapter') == 'site_search':
             groups = []
             for term in source['search_terms']:
@@ -150,11 +180,20 @@ class Collector:
             urls = []
             for item in root.findall('.//item')[:100]:
                 title, url = item.findtext('title', ''), item.findtext('link', '')
-                if not allowed(url, source) or not TOPIC.search(title):
+                if not allowed(url, source) or (not source.get('discover_all') and not TOPIC.search(title)):
                     continue
                 url = canonical(url)
                 self.metadata[url] = item.findtext('pubDate')
                 self.authors[url] = item.findtext('{http://purl.org/dc/elements/1.1/}creator', '')
+                urls.append(url)
+            ns = '{http://www.w3.org/2005/Atom}'
+            for item in root.findall(ns+'entry')[:100]:
+                link = item.find(ns+'link[@rel="alternate"]')
+                url = link.get('href','') if link is not None else ''
+                if not allowed(url, source):
+                    continue
+                url = canonical(url)
+                self.metadata[url] = item.findtext(ns+'published')
                 urls.append(url)
             return list(dict.fromkeys(urls))[:limit]
         if source.get('adapter') == 'tencent':
@@ -230,11 +269,19 @@ class Collector:
                 raise ValueError('Incomplete Tencent article')
             return {'url': canonical(url), 'title': data['title'], 'body': text[:16000], 'published_at': published.isoformat(),
                     'image_candidates': images, 'needs_ocr': len(text) < 180}
+        if source.get('adapter') == 'hn_api':
+            article = self.structured.get(canonical(url))
+            if not article or len(article['body']) < 180:
+                raise ValueError('HN submission has insufficient author text; manual research required')
+            return dict(article)
         html = self.html(url, source)
         extracted = bare_extraction(html, url=url, with_metadata=True)
         doc = extracted.as_dict() if extracted else None
         soup = BeautifulSoup(html, 'html.parser')
         scope = soup.select_one('article,.article-content,.entry-content,.post-content,#js_content')
+        access_text=(scope or soup).get_text(' ',strip=True)
+        if re.search(r'paid subscribers only|subscribe to (?:continue|read)|this post is for paid|订阅后阅读|付费后阅读|登录后阅读全文',access_text,re.I):
+            raise ValueError('Paywall or subscription restriction; full body not available')
         images = image_candidates(scope, url)
         if not doc:
             doc = {'text': '', 'title': soup.h1.get_text(strip=True) if soup.h1 else ''}
@@ -277,7 +324,7 @@ class Collector:
             raise ValueError('Missing title')
         self.authors[canonical(url)] = self.authors.get(canonical(url)) or doc.get('author') or ''
         return {'url': canonical(url), 'title': title, 'body': (doc.get('text') or '')[:16000], 'published_at': published.isoformat(),
-                'image_candidates': images, 'needs_ocr': len(doc.get('text') or '') < 180}
+                'image_candidates': images, 'needs_ocr': len(doc.get('text') or '') < 180, 'evidence_candidates':evidence_links(html,url)}
 
 
 def enrich(article, key):
@@ -299,7 +346,7 @@ def enrich(article, key):
 
 
 def _enrich_once(article, key):
-    payload = {k:article.get(k) for k in ('url','title','body','published_at','source_kind','author','ocr_used')}
+    payload = {k:article.get(k) for k in ('url','title','body','published_at','source_kind','author','ocr_used','evidence_pages')}
     payload['body'] = (payload.get('body') or '')[:16000]
     result = request('https://api.deepseek.com/chat/completions', timeout=60, headers={'Authorization': f'Bearer {key}'}, json={
         'model': os.getenv('DEEPSEEK_MODEL', 'deepseek-flash'),
@@ -312,6 +359,8 @@ def _enrich_once(article, key):
             {'role': 'system', 'content': '如果ocr_used为true，正文含未经人工复核的图片识别文字。desc、reason、content禁止包含数字、金额、比例、倍数或具体效果结论，只概括主题与用途，并明确写出图片文字识别、细节需核对原图。图片不是人工核验依据。'},
             {'role':'system','content':'新定位：互联网赚钱机会与实用信息发现平台。额外输出 discovery_relevant 布尔、discovery_category(project赚钱项目/method赚钱方法/tool实用工具/ai_toolAI工具/information信息差)、discovery_details对象含 purpose用途、audience适用人群、requirements前提、costs成本、risks风险、next_step可执行下一步。仅有具体机会、可复用方法或可用工具才相关，纯广告新闻归历史内容。资料不足写来源未说明。项目方收入说法仅为未核实宣称，不能改写为已证实盈利；禁止赚钱承诺、收益保证和夸大措辞，不生成亲测、已验证或非赞助结论。'},
             {'role':'system','content':'relevant 字段同样按新定位判断：可用的 AI/开发/效率工具和实用信息不必与广告投放直接相关。旧 cat/ch 为兼容字段仍按允许值填写，新的五分类单独写 discovery_category。纯技术研究若无可用方法、工具或实际适用场景，判为不相关。'},
+            {'role':'system','content':'新定位：发现互联网赚钱机会，分享实用方法和工具，拆解真实商业案例。AI只是工具。额外输出column(opportunity机会发现/case案例拆解/methods方法与工具)，绝不生成experiments项目实测。topics最多5个，从配置topics中选择。score_breakdown按配置weights分别给整数分，各项不超过权重；总分只是编辑排序，不是成功概率。案例重业务过程、第一批用户与证据；工具重用途、限制、可用性；机会重需求、可验证的小测试与时效。纯模型发布/参数比较/融资/无关大公司新闻/夸张收益/付费引流判relevant=false。不可因无AI关键词排除国内小生意。business_details按原文填写target_need目标用户与需求/product_service产品服务/payment_model收费方式/acquisition获客/inputs技能预算时间/limitations限制/first_test小测试；缺失写未披露，不猜测。income_claims为原文收入声明数组(metric营收/利润/交易额/融资额/不明确,amount原文数值与单位,period单月/累计等原文周期,attribution作者自述,source_quote原文短引文)，没有返回[]；不把收入当利润或自述当核实。海外摘要保留来源，不冒充原创或亲测。' + json.dumps(POLICY,ensure_ascii=False)},
+            {'role':'system','content':'discovery_details和business_details每项最多60个汉字，content最多300字，income_claims最多3条、fact_sources最多4条。fact_sources数组可按具体事实列出fact与url，只能引用输入正文url或已读取evidence_pages中的url。相关链接或转载不算独立佐证；目录排名、流量估计、标价、评论数、众筹金额和挂牌价不能推断销量、利润或回本周期。只有视频标题简介而无正文字幕时不能生成完整视频总结。'},
             {'role': 'user', 'content': json.dumps(payload, ensure_ascii=False)}]}).json()
     choice = result['choices'][0]
     if choice.get('finish_reason') != 'stop':
@@ -333,6 +382,9 @@ def _enrich_once(article, key):
         raise ValueError('Invalid AI score')
     if article.get('ocr_used') and any(re.search(r'\d|百分之|[一二三四五六七八九十百千万亿]+(?:元|倍|%|％)', data[k]) for k in ('desc','reason','content')):
         raise ValueError('Unverified OCR numeric claim')
+    data['score'] = editorial_score(data)
+    if data.get('column') not in {'opportunity','case','methods'} or not isinstance(data.get('topics'),list):
+        raise ValueError('Invalid positioning classification')
     if article.get('source_kind') == 'community':
         if type(data.get('relevant')) is not bool or data.get('ch') not in CHANNELS:
             raise ValueError('Missing community relevance/channel decision')
@@ -340,7 +392,7 @@ def _enrich_once(article, key):
             'relevant': data.get('relevant', True), 'detected_ch': data.get('ch', 'general'),
             'practical': data.get('practical') is True, 'actions': data.get('actions', []),
             'content_type': data.get('content_type'),
-            **{k:data.get(k) for k in ('discovery_relevant','discovery_category','discovery_details')}}
+            **{k:data.get(k) for k in ('discovery_relevant','discovery_category','discovery_details','column','topics','business_details','income_claims','score_breakdown','fact_sources')}}
 
 
 def classify_row(row, source=None):
@@ -376,7 +428,7 @@ def classify_row(row, source=None):
 
 
 def community_passes(ai):
-    return ai.get('relevant') is True and ai['score'] >= 60
+    return ai.get('relevant') is True and ai['score'] >= POLICY['threshold']
 
 
 def body_sketch(text):
@@ -469,12 +521,12 @@ def publish_row(article, ai, source):
     ai.pop('actions', None)
     ai.pop('_attempts', None)
     ai['title'] = re.sub(r'^(?:(?:帮助文档(?:更新)?|文档更新)[：:\s]+)+', '', ai['title']).strip()
-    return apply_schema(classify_row({**ai, 'id': int(hashlib.sha256(article['url'].encode()).hexdigest()[:12], 16),
+    return upgrade(apply_schema(classify_row({**ai, 'id': int(hashlib.sha256(article['url'].encode()).hexdigest()[:12], 16),
             'ch': channel, 't': 'week', 'src': source['name'] + (' · 作者经验' if source.get('kind') == 'community' else ''), 'url': article['url'],
             'time': '', 'heat': 0, 'focus': 0, 'st': False, 'co': 1,
             **{k:article.get(k,default) for k,default in [('images',[]),('cover',''),('ocr_used',False),('ocr_text',''),('media_version',0),('media_issues',[])]},
             'orig': article['body'] if source['ch'] == 'hw' and source.get('kind') != 'community' else '', 'published_at': article['published_at'],
-            'source_kind': source.get('kind', 'official'), 'author': article.get('author', ''), 'quality_version': QUALITY_VERSION}, source),ai,article)
+            'source_kind': source.get('kind', 'official'), 'author': article.get('author', ''), 'quality_version': QUALITY_VERSION}, source),ai,article),ai,article)
 
 
 def run(args, collector):
@@ -508,14 +560,33 @@ def run(args, collector):
     protected_legacy={u:dict(r) for u,r in by_url.items() if r.get('section')!='discovery'}
     report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'updated': 0, 'ai_failures': 0, 'ai_successes': 0, 'ai_retries': 0, 'disabled_sources': [],
               'ignored_existing': max(0, len(old) + len(archived) - len(by_url))}
+    config, searched_sources, search_report, candidate_pool = prepare(ROOT,now,args.check_sources)
+    report['search'] = search_report
+    report['budget'] = {'read_urls':0,'ai_articles':0,'max_urls':config['max_new_urls'],'max_ai':config['max_ai_articles']}
+    budget=report['budget']
+    staged=[]
+    source_quality=load_json(ROOT/'source_quality.json',{})
+    url_cache=load_json(ROOT/'url_cache.json',{})
     fingerprints = {r.get('content_hash') for r in by_url.values() if r.get('content_hash') and
                     (r.get('source_kind') != 'community' or r.get('quality_version') == QUALITY_VERSION)}
     known_aliases = {alias['url'] for row in by_url.values() for alias in row.get('also_reported_by', [])}
-    for source in json.loads((ROOT / 'sources.json').read_text(encoding='utf-8')):
+    configured_sources=json.loads((ROOT / ('discovery_sources.json' if (ROOT/'discovery_sources.json').exists() else 'sources.json')).read_text(encoding='utf-8'))
+    fixed=[s for s in configured_sources if s.get('enabled') is not False]
+    disabled=[s for s in configured_sources if s.get('enabled') is False]
+    if fixed:
+        offset=int(now.timestamp()//43200)%len(fixed)
+        fixed=fixed[offset:]+fixed[:offset]
+    for source in fixed + searched_sources + disabled:
         if source.get('enabled') is False:
             report['disabled_sources'].append(source['name'])
             continue
         status = {'source': source['name'], 'discovered': 0, 'readable': 0, 'added': 0, 'updated': 0, 'filtered': 0, 'duplicates': 0, 'cached': 0, 'rejected_cached': 0, 'evaluated': 0, 'attempted': 0, 'discovery_ok': False, 'errors': []}
+        quality=source_quality.get(source['name'],{})
+        last_attempt=date_value(quality.get('last_attempt'))
+        interval=quality.get('next_interval_hours',0)
+        if not args.check_sources and last_attempt and now-last_attempt<timedelta(hours=interval):
+            report.setdefault('backoff_sources',[]).append(source['name'])
+            continue
         source_limit = min(args.limit, source.get('limit', args.limit))
         try:
             urls = collector.discover(source, min(args.limit * 5, 30))
@@ -528,11 +599,20 @@ def run(args, collector):
             if not urls and source.get('adapter') != 'rss':
                 status['errors'].append('No article links; list may require login or adapter update')
             for url in urls:
-                if canonical(url) in {r.get('url') for r in queue}:
+                if budget['read_urls']>=config['max_new_urls'] or (not args.check_sources and budget['ai_articles']>=config['max_ai_articles']) or (searched_sources and not source.get('dynamic') and (budget['ai_articles']>=max(1,int(config['max_ai_articles']*0.6)) or budget['read_urls']>=max(1,int(config['max_new_urls']*0.7)))):
+                    report['budget_exhausted']=True
+                    break
+                context=collector.discovery_context.get(canonical(url),{}) if isinstance(getattr(collector,'discovery_context',None),dict) else {}
+                max_age=context.get('max_age_days',source.get('max_age_days',config['max_article_days']))
+                failed_at=date_value(url_cache.get(canonical(url),{}).get('failed_at'))
+                if failed_at and now-failed_at<timedelta(hours=12):
+                    status['cached']+=1
+                    continue
+                if canonical(url) in {r.get('url') for r in queue if r.get('quality_version')==QUALITY_VERSION}:
                     status['cached'] += 1
                     continue
                 known_date = date_value(collector.metadata.get(canonical(url))) if isinstance(getattr(collector, 'metadata', None), dict) else None
-                if known_date and not now - timedelta(days=7) <= known_date <= now:
+                if known_date and not now - timedelta(days=max_age) <= known_date <= now:
                     status['out_of_window'] = status.get('out_of_window', 0) + 1
                     continue
                 if canonical(url) in screening and source.get('kind') == 'community':
@@ -553,9 +633,16 @@ def run(args, collector):
                     if status['evaluated'] >= source_limit or status['attempted'] >= source_limit * 3:
                         break
                     status['attempted'] += 1
+                    budget['read_urls']+=1
                     article = collector.article(url, source)
+                    status['readable'] += 1
+                    provenance(article,source,context,now)
+                    if source.get('dynamic'):
+                        article['image_candidates']=[]
+                    discovered_links=[{'url':r['url'],'discovery_path':'article_link','language':context.get('language','unknown')} for r in article.get('evidence_candidates',[])]
+                    candidate_pool=candidate_sources(discovered_links,candidate_pool,now.isoformat())
                     published = date_value(article['published_at'])
-                    if not published or not now - timedelta(days=7) <= published <= now:
+                    if not published or not now - timedelta(days=max_age) <= published <= now:
                         continue
                     if not args.check_sources:
                         article.update(prepare_media(article, ROOT, SESSION))
@@ -576,12 +663,13 @@ def run(args, collector):
                     if fingerprint in fingerprints:
                         status['duplicates'] += 1
                         continue
-                    status['readable'] += 1
                     published = date_value(article['published_at'])
-                    if not now - timedelta(days=7) <= published <= now:
+                    if not now - timedelta(days=max_age) <= published <= now:
                         continue
                     if not args.check_sources:
                         status['evaluated'] += 1
+                        budget['ai_articles']+=1
+                        verify_links(article,config,budget)
                         try:
                             ai = enrich(article, key)
                             report['ai_successes'] += 1
@@ -589,42 +677,61 @@ def run(args, collector):
                         except Exception:
                             report['ai_failures'] += 1
                             raise
-                        if (source.get('kind') == 'community' or source.get('require_relevance')) and not community_passes(ai):
+                        if not community_passes(ai):
                             status['filtered'] += 1
                             screening[article['url']] = {'checked_at':now.isoformat(),'quality_version':QUALITY_VERSION}
                             # Reclassification must never erase articles already in the historical archive.
                             continue
+                        status['qualified']=status.get('qualified',0)+1
                         existing = article['url'] in by_url
                         aliases = by_url.get(article['url'], {}).get('also_reported_by', [])
                         published_row=publish_row(article, ai, source)
-                        if article['url'] in by_url and by_url[article['url']].get('section')!='discovery':
-                            published_row['section']='legacy'
+                        finish_provenance(published_row,article,ai)
+                        for candidate in candidate_pool:
+                            if candidate['domain']==article['source_domain']:
+                                candidate['accessibility']='body_read'
+                                candidate['author']=article.get('author') or 'not_identified'
+                                candidate['quality_passed_samples']=list(dict.fromkeys(candidate['quality_passed_samples']+[article['url']]))[-10:]
+                        if existing:
+                            published_row['id'] = by_url[article['url']]['id']
                         if published_row.get('review_status')=='pending':
                             queue=[r for r in queue if r.get('url')!=article['url']]+[published_row]
                             continue
-                        by_url[article['url']] = published_row
-                        if aliases:
-                            by_url[article['url']]['also_reported_by'] = aliases
-                        by_url[article['url']]['content_hash'] = fingerprint
-                        by_url[article['url']]['body_sketch'] = body_sketch(article['body'])
+                        published_row['also_reported_by']=aliases
+                        published_row['content_hash']=fingerprint
+                        published_row['body_sketch']=body_sketch(article['body'])
+                        staged.append({'row':published_row,'status':status,'existing':existing})
                         fingerprints.add(fingerprint)
-                        status['updated' if existing else 'added'] += 1
                 except UnsupportedArticle:
                     status['unsupported_images'] = status.get('unsupported_images', 0) + 1
                 except Exception as exc:
                     status['errors'].append({'url': url, 'error': type(exc).__name__ + ': ' + safe_error(exc)})
+                    status['missing_dates']=status.get('missing_dates',0)+int('publication date' in str(exc))
+                    url_cache[canonical(url)]={'failed_at':now.isoformat(),'error_type':type(exc).__name__}
         except Exception as exc:
             status['errors'].append(type(exc).__name__ + ': ' + safe_error(exc))
         report['sources'].append(status)
         report['added'] += status['added']
         report['updated'] += status['updated']
-        print(f"{source['name']}: discovered={status['discovered']} readable={status['readable']} added={status['added']} errors={len(status['errors'])}", flush=True)
-    if not args.check_sources:
+        print(f"{source['name']}: discovered={status['discovered']} readable={status['readable']} qualified={status.get('qualified',0)} errors={len(status['errors'])}", flush=True)
+    accepted,held=select_publications(staged,by_url.values(),config,now)
+    for entry in accepted:
+        row=entry['row'];by_url[row['url']]=row
+        queue=[r for r in queue if r.get('url')!=row['url']]
+        entry['status']['updated' if entry['existing'] else 'added']+=1
+    for entry in held:
+        row=entry['row'];row.update(review_status='pending',hold_reason='daily_budget_or_source_concentration')
+        queue=[r for r in queue if r.get('url')!=row['url']]+[row]
+    report.update(added=sum(s['added'] for s in report['sources']),updated=sum(s['updated'] for s in report['sources']),held_for_budget=len(held),queued_for_review=len(queue))
+    ai_outage = bool(report['ai_failures'] and not report['ai_successes'])
+    if not args.check_sources and not ai_outage:
         rows = []
         for row in by_url.values():
             published = date_value(row.get('published_at'))
             if published and published <= now:
-                row.update(t='today' if published.date() == now.date() else ('week' if now - published <= timedelta(days=7) else 'archive'),
+                display_date=date_value(row.get('collected_at')) if row.get('section')=='discovery' else None
+                display_date=display_date or published
+                row.update(t='today' if display_date.date() == now.date() else ('week' if now - display_date <= timedelta(days=7) else 'archive'),
                            time=published.strftime('%H:%M') if published.date() == now.date() else published.strftime('%m/%d'))
                 rows.append(row)
         rows, report['merged_duplicates'] = deduplicate_rows(rows)
@@ -648,8 +755,31 @@ def run(args, collector):
                     row['time'] = published.strftime('%H:%M' if row['t'] == 'today' else '%m/%d')
             if changed:
                 atomic_json(path, old)
+    report['summary']={'queries':search_report.get('queries',0),'discovered_urls':sum(s['discovered'] for s in report['sources']), 'read_urls':budget['read_urls'],'readable':sum(s['readable'] for s in report['sources']), 'duplicates':sum(s['duplicates'] for s in report['sources'])+report.get('merged_duplicates',0),'qualified':sum(s.get('qualified',0) for s in report['sources']),'generated':report['added'],'review_queue':len(queue),'successful_source_listings':sum(bool(s['discovery_ok']) for s in report['sources']),'successful_source_bodies':sum(s['readable']>0 for s in report['sources'])}
+    print('BATCH '+json.dumps(report['summary'],ensure_ascii=False),flush=True)
     atomic_json(ROOT / 'run_report.json', report)
     if not args.check_sources:
+        for status in report['sources']:
+            previous=source_quality.get(status['source'],{})
+            samples=(previous.get('samples',[])+[{'attempted':status['attempted'],'readable':status['readable'],'duplicates':status['duplicates'],'discovered':status['discovered'],'qualified':status.get('qualified',0),'added':status['added'],'missing_dates':status.get('missing_dates',0)}])[-20:]
+            totals={k:sum(r.get(k,0) for r in samples) for k in samples[-1]}
+            streak=previous.get('failure_streak',0)+1 if status['errors'] and not status['readable'] else 0
+            rates={'fetch_success_rate':totals['readable']/max(1,totals['attempted']),'effective_content_rate':totals['qualified']/max(1,totals['readable']),'duplicate_rate':totals['duplicates']/max(1,totals['discovered']),'missing_date_rate':totals['missing_dates']/max(1,totals['attempted']),'selection_rate':totals['added']/max(1,totals['readable'])}
+            source_quality[status['source']]={'samples':samples,'rates':rates,'failure_streak':streak,'last_attempt':now.isoformat(),'next_interval_hours':config['source_failure_backoff_hours'] if streak else 24 if totals['readable']>=3 and rates['effective_content_rate']<0.1 else 0}
+        source_status=load_json(ROOT/'source_status.json',[])
+        by_source={s['source']:s for s in report['sources']}
+        for entry in source_status:
+            status=by_source.get(entry['name'])
+            if not status:continue
+            entry['last_checked_at']=now.isoformat()
+            if status['discovery_ok']:entry['last_listing_success_at']=now.isoformat()
+            if status['readable']:entry['last_success_at']=now.isoformat()
+            entry['last_error']=(str(status['errors'][-1].get('error')) if isinstance(status['errors'][-1],dict) else str(status['errors'][-1]))[:180] if status['errors'] else None
+        if source_status:atomic_json(ROOT/'source_status.json',source_status)
+        atomic_json(ROOT/'source_quality.json',source_quality)
+        atomic_json(ROOT/'url_cache.json',dict(list(url_cache.items())[-2000:]))
+        atomic_json(ROOT/'candidate_sources.json',candidate_pool)
+        atomic_json(ROOT/'discovery_status.json',{'run_at':now.isoformat(),'search':{k:search_report.get(k) for k in ('provider','enabled','state','queries','cache_hits','discovered_urls')},'summary':report['summary'],'budget':budget,'held_for_budget':len(held),'source_metrics':{name:r['rates'] for name,r in source_quality.items()}})
         atomic_json(queue_path,queue)
         atomic_json(screening_path, dict(list(screening.items())[-1000:]))
     failed = not any(s['discovery_ok'] for s in report['sources']) or bool(report['ai_failures'] and not report['ai_successes'])

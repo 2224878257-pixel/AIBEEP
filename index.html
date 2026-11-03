@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AIBEEP · 互联网赚钱机会与实用信息发现平台</title>
+<title>AIBEEP · 发现值得尝试的小生意</title>
 <meta name="description" content="发现互联网机会、实用方法和 AI 工具。保留信息来源与发布日期，区分亲测、验证、赞助和项目方宣称。">
 <link rel="canonical" href="https://aibeep.cn/">
-<meta property="og:title" content="AIBEEP · 互联网赚钱机会与实用信息发现平台">
-<meta property="og:description" content="赚钱项目、赚钱方法、实用工具、AI工具和信息差；不将收入宣称视为已验证盈利。">
+<meta property="og:title" content="AIBEEP · 发现值得尝试的小生意">
+<meta property="og:description" content="赚钱机会、实用工具、商业案例与项目实测，帮你找到下一步值得研究的方向。">
 <meta property="og:url" content="https://aibeep.cn/"><meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FF8200'/%3E%3Ctext x='16' y='22' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
 <script src="https://fastly.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
@@ -440,14 +440,14 @@
     </section>
 
     <!-- 栏目分类 -->
-    <div class="chiprow" id="catRow">
-      <button class="chip on" data-cat="all">全部</button>
-      <button class="chip" data-cat="project">赚钱项目</button>
-      <button class="chip" data-cat="method">赚钱方法</button>
-      <button class="chip" data-cat="tool">实用工具</button>
-      <button class="chip" data-cat="ai_tool">AI工具</button>
-      <button class="chip" data-cat="information">信息差</button>
+    <div class="chiprow" id="catRow" aria-label="内容栏目">
+      <button class="chip on" data-cat="all">全部栏目</button>
+      <button class="chip" data-cat="opportunity">机会发现</button>
+      <button class="chip" data-cat="case">案例拆解</button>
+      <button class="chip" data-cat="methods">方法与工具</button>
+      <button class="chip" data-cat="experiments">项目实测</button>
     </div>
+    <div class="chiprow" id="topicRow"><label for="topicFilter">主题</label><select class="chip" id="topicFilter"><option value="all">全部主题</option><option>互联网小生意</option><option>个人创业</option><option>副业项目</option><option>AI应用</option><option>实用工具</option><option>数字产品</option><option>内容变现</option><option>获客与分发</option><option>商业案例</option><option>平台变化</option></select></div>
 
     <div class="chiprow" id="contentTypeRow" aria-label="内容类型">
       <span class="lab">内容类型</span><button class="chip on" data-kind="all">全部类型</button><button class="chip" data-kind="editorial">编辑整理</button><button class="chip" data-kind="official">官方动态</button><button class="chip" data-kind="experience">作者经验</button><button class="chip" data-kind="analysis">行业分析</button>
@@ -468,7 +468,7 @@
   <!-- 右侧 -->
   <aside class="side">
     <section class="panel">
-      <h4>AI 推荐榜 · TOP 5</h4>
+      <h4>编辑推荐榜 · TOP 5</h4>
       <ol class="hot-list" id="hotList"></ol>
     </section>
     <section class="panel">
@@ -526,11 +526,19 @@ const PLAT_IDS=['dj','tx','wx','ks','xhs','tmall','hw'];
 const IND_IDS=['ec','local','saas','game','edu'];
 const chMeta={all:'全部',dj:'巨量引擎/抖音',tx:'腾讯广告',wx:'微信/视频号',ks:'快手磁力',xhs:'小红书',tmall:'淘宝/天猫',multi:'多平台',hw:'海外投放',ec:'电商',local:'本地生活',saas:'企服SaaS',game:'游戏',edu:'教育',general:'投放与增长'};
 const CONTENT_TYPES={editorial:'编辑整理',official:'官方动态',experience:'作者经验',analysis:'行业分析'};
-function scoreLabel(i){return i.score_type==='not_scored'?'编辑整理':`AI ${Number(i.score)||0} 分`;}
-const DISCOVERY_CATEGORIES={project:'赚钱项目',method:'赚钱方法',tool:'实用工具',ai_tool:'AI工具',information:'信息差'};
+function scoreLabel(i){return i.score_type==='not_scored'?'编辑整理':i.score_breakdown?`编辑分 ${Number(i.score)||0}`:'旧版收录';}
+const DISCOVERY_CATEGORIES={opportunity:'机会发现',case:'案例拆解',methods:'方法与工具',experiments:'项目实测'};
+function articleColumn(i){return i.column||({project:'opportunity',information:'opportunity',method:'methods',tool:'methods',ai_tool:'methods'}[i.discovery_category])||'archive';}
+function topicBadges(i){return `<div class="trust-badges">${(i.topics||[]).map(t=>`<span>${esc(t)}</span>`).join('')}</div>`;}
 function isLegacy(i){return i.section!=='discovery';}
-function trustBadges(i){return `<div class="trust-badges"><span>${DISCOVERY_CATEGORIES[i.discovery_category]||'历史栏目'}</span><span>亲测：${i.tested_status==='tested'?'已亲测':'未标注'}</span><span>验证：${i.verification_status==='verified'?'已验证':'未验证'}</span><span>赞助：${i.sponsorship_status==='sponsored'?'是':i.sponsorship_status==='not_sponsored'?'否':'未标注'}</span></div>`;}
+function trustBadges(i){return `<div class="trust-badges"><span>${DISCOVERY_CATEGORIES[articleColumn(i)]||'历史栏目'}</span><span>亲测：${i.tested_status==='tested'?'已亲测':'未标注'}</span><span>验证：${i.verification_status==='verified'?'已验证':'未验证'}</span><span>赞助：${i.sponsorship_status==='sponsored'?'是':i.sponsorship_status==='not_sponsored'?'否':'未标注'}</span></div>`;}
 function discoveryDetails(i){if(isLegacy(i))return '';const details=i.discovery_details||{};const title=i.discovery_category==='method'?'方法详情':i.detail_kind==='project'?'项目详情':i.detail_kind==='tool'?'工具详情':'信息详情';return `<section class="detail-section"><h3>${title}</h3>${Object.entries({purpose:'内容与用途',audience:'适用人群',requirements:'参与或使用前提',costs:'费用与成本',risks:'风险与限制',next_step:'下一步核实'}).map(([k,label])=>`<section class="detail-section"><h3>${label}</h3><p>${esc(details[k]||'来源未说明，请先查看原文或产品官方说明。')}</p></section>`).join('')}<p class="ocr-note">收录不等于推荐投资或保证盈利。项目方收入宣称未经本平台证实；亲测、验证与赞助状态分别记录。</p></section>`;}
+function evidenceDetails(i){
+  const status={public_source_unverified:'公开来源，内容与经营效果未独立核验',author_reported_unverified:'作者自述，未经独立核验',public_documentation_only:'已核对公开功能文档，未验证经营效果'};
+  const date=v=>v?new Date(v).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}):'未披露';
+  const labels={target_need:'目标用户与需求',product_service:'产品或服务',payment_model:'收费方式',acquisition:'获客方式',inputs:'已知投入条件',limitations:'主要限制',first_test:'可以尝试的第一步'};
+  return `<section class="detail-section"><h3>来源与证据</h3><p>原文发布时间：${esc(date(i.source_published_at))}</p><p>本站收录时间：${esc(date(i.collected_at))}</p><p>${esc(status[i.evidence_status]||'历史资料，证据状态未重新审核')}</p><p>发现路径：${esc(({subscription:'固定订阅',search:'关键词检索',manual:'人工提交'}[i.discovery_path])||'历史收录')}；作者：${esc(i.author||'未披露')}</p>${(i.evidence_links||[]).length?`<h4>已读取的相关资料</h4>${i.evidence_links.filter(r=>safeSourceLink(r.url)).map(r=>`<p><a href="${esc(safeSourceLink(r.url))}" target="_blank" rel="noopener noreferrer">${esc(r.label||r.url)} ↗</a></p>`).join('')}<p>已读取相关页面不等于独立核验。转载只作为同一事件的补充链接。</p>`:''}${(i.fact_sources||[]).filter(r=>safeSourceLink(r.url)).map(r=>`<p>${esc(r.fact)}：<a href="${esc(safeSourceLink(r.url))}" target="_blank" rel="noopener noreferrer">支撑资料 ↗</a></p>`).join('')}${i.income_claims?.length?`<p>以下为作者自述，无法独立核实：</p>${i.income_claims.map(c=>`<p>${esc(c.metric)} · ${esc(c.amount)} · ${esc(c.period)}；${esc(c.attribution)}</p>`).join('')}`:''}</section>${['opportunity','case'].includes(articleColumn(i))?`<section class="detail-section"><h3>研究线索</h3>${Object.entries(labels).map(([k,v])=>`<h4>${v}</h4><p>${esc(i.business_details?.[k]||'未披露')}</p>`).join('')}</section>`:''}${i.score_breakdown?`<p class="ocr-note">编辑排序分 ${Number(i.score)||0}/100，不代表成功概率或收益承诺。分项：${Object.entries(i.score_breakdown).map(([k,v])=>esc(({relevance:'相关性',evidence:'证据',actionability:'行动价值',low_cost_fit:'低成本适配',durability:'时效与长期价值',novelty:'信息增量'}[k]||k))+': '+Number(v)).join(' · ')}</p>`:''}`;
+}
 function contentType(i){return i.content_type||(i.source_kind==='community'?'experience':'official');}
 function contentBadge(i){return `<span class="tag">${CONTENT_TYPES[contentType(i)]||'作者分享'}</span>`;}
 const plats=[['all','全部'],...PLAT_IDS.map(id=>[id,chMeta[id]]),['general',chMeta.general]];
@@ -574,9 +582,9 @@ let RAW = [];
 let ARCHIVE = [];
 let archiveError = '';
 function labelDate(i){const stamp=Date.parse(i.published_at);if(!stamp)return i;const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});return {...i,t:Date.now()-stamp>7*86400000?'archive':new Date(stamp).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})===today?'today':'week'};}
-function allArticles(){return [...new Map([...ARCHIVE,...RAW].map(i=>[i.url||i.id,i])).values()].sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0));}
+function allArticles(){return [...new Map([...ARCHIVE,...RAW].map(i=>[i.url||i.id,i])).values()].sort((a,b)=>(Date.parse(b.collected_at||b.published_at)||0)-(Date.parse(a.collected_at||a.published_at)||0));}
 function isEvergreen(i){return i.discovery_category==='method'||i.content_type==='experience'||i.cat==='case'||i.practical===true||(/教程|指南|方法|技巧|实操|复盘|步骤|手册|误区|SOP/i.test(i.title));}
-const state={ kind:'all', hotRange:'week', view:'featured', cat:'all', plat:'all', ind:'all', time:'all', q:'',
+const state={ kind:'all', hotRange:'week', view:'featured', topic:'all', cat:'all', plat:'all', ind:'all', time:'all', q:'',
   saved:new Set(), read:new Set(), onlyUnread:false };
 const READING_KEY='aibeep.reading.v1';
 function restoreReadingState(){
@@ -622,6 +630,7 @@ function renderNav(){
   });
 }
 
+document.getElementById('topicFilter').onchange=e=>{state.topic=e.target.value;renderFeed();};
 /* ===== 栏目 chips ===== */
 document.querySelectorAll('#catRow .chip').forEach(c=>c.onclick=()=>{
   document.querySelectorAll('#catRow .chip').forEach(x=>x.classList.remove('on'));
@@ -649,7 +658,8 @@ function filtered(){
   else if(state.view==='daily') list=list.filter(i=>i.t==='today');
   else if(state.view==='hot') list=rankArticles(list,state.hotRange);
   // 栏目分类
-  if(state.cat!=='all'&&state.view!=='archive') list=list.filter(i=>i.discovery_category===state.cat);
+  if(state.cat!=='all'&&state.view!=='archive') list=list.filter(i=>articleColumn(i)===state.cat);
+  if(state.topic!=='all'&&state.view!=='archive')list=list.filter(i=>(i.topics||[]).includes(state.topic));
   // 平台/行业（全部动态页）
   if(state.kind!=='all') list=list.filter(i=>contentType(i)===state.kind);
   if(state.plat!=='all') list=list.filter(i=>i.ch===state.plat||(i.platforms||[]).includes(state.plat));
@@ -658,7 +668,7 @@ function filtered(){
   if(state.time==='today') list=list.filter(i=>i.t==='today');
   if(state.time==='week') list=list.filter(i=>i.t==='week'||i.t==='today');
   // 搜索
-  if(state.q){const k=state.q.toLowerCase();list=list.filter(i=>[i.title,i.desc,i.src,...(['archive','library'].includes(state.view)?[i.content]:[])].some(v=>String(v||'').toLowerCase().includes(k)));}
+  if(state.q){const k=state.q.toLowerCase();list=list.filter(i=>[i.title,i.desc,i.src,i.reason,i.content,DISCOVERY_CATEGORIES[articleColumn(i)],...(i.topics||[]),...Object.values(i.business_details||{}),...Object.values(i.discovery_details||{})].some(v=>String(v||'').toLowerCase().includes(k)));}
   if(state.onlyUnread) list=list.filter(i=>!state.read.has(i.id));
   return list;
 }
@@ -668,6 +678,7 @@ const VIEW_TITLE={archive:'历史广告栏目',library:'干货库',all:'全部�
 function updateChrome(){
   const v=state.view;
   $('#heroSection').style.display='none';
+  $('#topicRow').style.display=['featured','all','library','hot','daily'].includes(v)?'':'none';
   $('#catRow').style.display=['featured','all','library','hot','daily'].includes(v)?'':'none';
   $('#contentTypeRow').style.display=['archive','library','featured','all','hot','fav','daily'].includes(v)?'':'none';
   // 标题栏 bar：首页精选显示
@@ -687,7 +698,7 @@ function renderFeed(){
   $('#feedCount').textContent=list.length;
   $('#feedTitle').textContent=VIEW_TITLE[state.view];
   updateUnread();
-  if(!list.length&&!['archive','library','fav'].includes(state.view)){$('#feed').innerHTML=`<div class="empty">暂时没有匹配的已发布内容。赚钱项目与方法需人工审核后上线。<br><button class="chip" onclick="resetAll()">重置筛选</button></div>`;return;}
+  if(!list.length&&!['archive','library','fav','all'].includes(state.view)){$('#feed').innerHTML=`<div class="empty">${state.cat==='experiments'?'项目实测还没有公开记录。这里将记录侯同学呀亲自参与并确认的测试过程与复盘。':'暂时没有匹配的已发布内容。可以换个栏目或主题看看。'}<br><button class="chip" onclick="resetAll()">重置筛选</button></div>`;return;}
   if(state.view==='hot'){
     renderHotBoard(list); return;
   }else if(state.view==='featured'){
@@ -696,16 +707,16 @@ function renderFeed(){
     const today=list.filter(i=>i.t==='today'), week=list.filter(i=>i.t==='week'), past=list.filter(i=>i.t==='archive');
     const d=new Date();const wd=['日','一','二','三','四','五','六'][d.getDay()];
     const cats=[];
-    let html=`<div class="crumb">AIBEEP <span>/</span> 赚钱项目 <span>/</span> 赚钱方法 <span>/</span> 实用工具 <span>/</span> AI工具 <span>/</span> 信息差</div>
+    let html=`<div class="crumb">AIBEEP <span>/</span> 机会发现 <span>/</span> 案例拆解 <span>/</span> 方法与工具 <span>/</span> 项目实测</div>
     <div class="page-head"><h1>${VIEW_TITLE[state.view]}</h1><p>${state.view==='archive'?'保留已收录的全部历史文章，可按平台、栏目和关键词查找。':state.view==='library'?'教程、方法和案例长期保留；阅读时请留意发布日期与平台规则变化。':'保留来源和记录时间，按需检索每一条信息。'}</p><p id="archiveStatus">${esc(archiveError)}</p></div>
     <div class="chiprow"><span class="lab">平台</span>`+plats.map(p=>`<button class="chip ${state.plat===p[0]?'on':''}" data-plat="${p[0]}">${p[1]}</button>`).join('')+`</div>
     <div class="chiprow"><span class="lab">行业</span>`+inds.map(p=>`<button class="chip ${state.ind===p[0]?'on':''}" data-ind="${p[0]}">${p[1]}</button>`).join('')+`</div>
-    <div class="catrow"><div class="mini-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="miniQ" value="${esc(state.q)}" placeholder="搜索标题、来源、摘要..."/></div></div>
+    <div class="catrow"><div class="mini-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="miniQ" value="${esc(state.q)}" placeholder="搜索需求、工具、标签、来源..."/></div></div>
     <div class="all-count">所有记录 <b>${list.length}</b> 条</div>`;
     if(today.length) html+=`<div class="ghead"><span class="gt">今天</span><span class="gsub">${d.getMonth()+1}月${d.getDate()}日 · 周${wd} · ${today.length}条</span><span class="gl"></span></div>`+today.map(cardHTML).join('');
     if(week.length) html+=`<div class="ghead"><span class="gt">近7天</span><span class="gsub">${week.length}条</span><span class="gl"></span></div>`+week.map(cardHTML).join('');
     if(past.length) html+=`<div class="ghead"><span class="gt">更早文章</span><span class="gsub">${past.length}条 · 按发布日期排序</span><span class="gl"></span></div>`+past.map(cardHTML).join('');
-    if(!list.length) html+='<div class="empty">没有匹配的文章，请调整上方筛选条件。</div>';
+    if(!list.length) html+=`<div class="empty">${state.cat==='experiments'?'项目实测还没有公开记录。这里将记录侯同学呀亲自参与并确认的测试过程与复盘。':'没有匹配的文章，请调整上方筛选条件。'}</div>`;
     $('#feed').innerHTML=html;
   }
   bindCards();
@@ -730,7 +741,7 @@ function renderFeatured(list){
   const today=diversifyPlatforms(list.filter(i=>i.t==='today')), week=diversifyPlatforms(list.filter(i=>i.t==='week'));
   const d=new Date();const wd=['日','一','二','三','四','五','六'][d.getDay()];
   let html='';
-  html+='<p class="crumb">同一时段内优先交错展示不同平台；完整时间顺序请查看全部动态。</p>';
+  html+='<p class="crumb">发现、筛选与整理公开信息；判断和实践，留给进一步研究。</p>';
   if(today.length) html+=`<div class="ghead"><span class="gt">今天</span><span class="gsub">${d.getMonth()+1}月${d.getDate()}日 · 周${wd} · ${today.length}条</span><span class="gl"></span></div>`+today.map(richCardHTML).join('');
   if(week.length) html+=`<div class="ghead"><span class="gt">近7天</span><span class="gsub">${week.length}条</span><span class="gl"></span></div>`+week.map(richCardHTML).join('');
   $('#feed').innerHTML=html;
@@ -742,12 +753,12 @@ function richCardHTML(i){
     <div class="flow-head">
       <span class="flow-time">${esc(i.time)}</span>
       <span class="flow-dot">·</span>
-      <span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span>
+      <span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[articleColumn(i)]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span>
       ${i.orig?'<span class="tag ai">译</span>':''}
       <span class="flow-score">${scoreLabel(i)}</span>
     </div>
     <h3>${esc(i.title)}</h3>
-    <p class="flow-desc">${esc(i.desc)}</p>${trustBadges(i)}
+    <p class="flow-desc">${esc(i.desc)}</p>${topicBadges(i)}
     <div class="flow-foot">
       <span class="flow-src">${esc(i.src)}</span>
       <span class="flow-actions">
@@ -762,7 +773,7 @@ function rankArticles(items,range='week'){
   const stamp=i=>Date.parse(i.published_at)||0;
   const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});
   return items.filter(i=>range==='today'?(stamp(i)?new Date(stamp(i)).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})===today:i.t==='today'):(stamp(i)?stamp(i)>=Date.now()-7*86400000: i.t==='today'||i.t==='week'))
-    .sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)||stamp(b)-stamp(a)||Number(a.id)-Number(b.id));
+    .sort((a,b)=>(b.score_breakdown?Number(b.score)||0:0)-(a.score_breakdown?Number(a.score)||0:0)||stamp(b)-stamp(a)||Number(a.id)-Number(b.id));
 }
 function renderHotBoard(list){
   $('#feed').innerHTML=`<div class="hotboard">
@@ -773,7 +784,7 @@ function renderHotBoard(list){
       return `<div class="hb-row" data-id="${i.id}">
         <span class="hb-rank r${rank}">${rank}</span>
         <div class="hb-body"><p class="hb-title">${esc(i.title)}</p>
-        <span class="hb-meta"><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span> · ${esc(i.src)}</span></div>
+        <span class="hb-meta"><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[articleColumn(i)]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span> · ${esc(i.src)}</span></div>
         <div class="hb-right"><span class="hb-heat">${scoreLabel(i)}</span></div>
       </div>`;
     }).join('')+`</div></div>`;
@@ -801,7 +812,7 @@ function renderDaily(){
         <div class="daily-items">`+items.map(i=>`
           <article class="daily-item" data-id="${i.id}">
             <span class="di-time">${esc(i.time)}</span>
-            <div class="di-body"><h4>${esc(i.title)}</h4><p>${esc(i.desc)}</p><span class="di-src">${esc(i.src)} · ${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span></div>
+            <div class="di-body"><h4>${esc(i.title)}</h4><p>${esc(i.desc)}</p><span class="di-src">${esc(i.src)} · ${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[articleColumn(i)]||'实用信息')}</span></div>
           </article>`).join('')+`</div></div>`;
     }).join('')+`</div>`;
   document.querySelectorAll('.daily-item').forEach(r=>r.onclick=()=>openCard(r.dataset.id));
@@ -870,7 +881,7 @@ function renderChangelog(){
 /* 关于页 */
 function renderAbout(){
   $('#feedCount').textContent='';$('#feedTitle').textContent='关于 AIBEEP';
-  $('#feed').innerHTML=`<div class="about"><h1>关于 AIBEEP</h1><p class="about-sub">互联网赚钱机会与实用信息发现平台</p><section class="about-sec"><h3>我们整理什么</h3><p>赚钱项目、赚钱方法、实用工具、AI工具和信息差。每条内容保留信息来源、发布日期、适用前提和限制。</p></section><section class="about-sec"><h3>如何理解标记</h3><p>亲测、验证和赞助是分别记录的状态，未标注不能理解为亲测、已验证或没有赞助。项目方收入宣称不代表平台已证实盈利。自动采集的赚钱项目、方法及收益宣称先进入待审队列。编辑整理条目会单独注明资料核对范围，不代表盈利验证。</p></section><section class="about-sec"><h3>历史内容</h3><p>原有广告投放和企业获客内容继续保存在历史广告栏目，原始来源链接和文章编号保留。</p></section><section class="about-sec"><h3>侯同学呀</h3><p><a href="https://houyuping.cn/" target="_blank" rel="noopener noreferrer">访问个人网站 ↗</a> · <a href="mailto:2224878257@qq.com">商务合作联系</a></p></section></div>`;
+  $('#feed').innerHTML=`<div class="about"><h1>关于 AIBEEP</h1><p class="about-sub">发现值得尝试的小生意</p><section class="about-sec"><h3>我们整理什么</h3><p>AIBEEP 由「侯同学呀」整理，关注互联网小生意、实用工具、商业案例与项目实践。网站负责发现、筛选和整理信息；个人账号负责判断、讲解、实践和复盘。AI 是提高效率、降低成本的工具，并非所有内容都与 AI 有关。</p></section><section class="about-sec"><h3>如何理解标记</h3><p>亲测、验证和赞助是分别记录的状态，未标注不能理解为亲测、已验证或没有赞助。项目方收入宣称不代表平台已证实盈利。自动采集的赚钱项目、方法及收益宣称先进入待审队列。编辑整理条目会单独注明资料核对范围，不代表盈利验证。</p></section><section class="about-sec"><h3>历史内容</h3><p>原有广告投放和企业获客内容继续保存在历史广告栏目，原始来源链接和文章编号保留。</p></section><section class="about-sec"><h3>侯同学呀</h3><p><a href="https://houyuping.cn/" target="_blank" rel="noopener noreferrer">访问个人网站 ↗</a> · <a href="mailto:2224878257@qq.com">商务合作联系</a></p><details><summary>微信联系侯同学呀</summary><img src="assets/owner-wechat.png" alt="侯同学呀个人微信联系二维码，复用个人网站已有素材" width="180" height="180" loading="lazy"></details></section><section class="about-sec"><h3>来源接入状态</h3><p><a href="mailto:2224878257@qq.com?subject=AIBEEP选题提交">提交公开文章或博客订阅 ↗</a> · <a href="sources.html">查看来源与发现运行状态 ↗</a></p><p>尚未稳定接入的来源仅用于人工选题，不表示已经实现自动采集。</p></section></div>`;
 }
 function cardHTML(i){
   const on=state.saved.has(i.id), read=state.read.has(i.id);
@@ -878,10 +889,10 @@ function cardHTML(i){
     <div class="time">${esc(i.time)}</div>
     <div class="body">
       <div class="head">
-        <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${esc(articleDate(i))}</span></span>
+        <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[articleColumn(i)]||'实用信息')}</span>${contentBadge(i)}${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${esc(articleDate(i))}</span></span>
       </div>
       <h3>${esc(i.title)}</h3>
-      <p class="desc">${esc(i.desc)}</p>${trustBadges(i)}
+      <p class="desc">${esc(i.desc)}</p>${topicBadges(i)}
       <div class="meta">
         <a class="src" data-src="${i.id}">阅读原始来源<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
         <button class="star ${on?'on':''}" data-save="${i.id}" title="收藏"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6L3.2 9.4l6.1-.9L12 3z"/></svg></button>
@@ -892,11 +903,11 @@ function bindCards(){
   document.querySelectorAll('.flow-item, .card').forEach(c=>c.onclick=e=>{if(e.target.closest('.star'))return;openCard(c.dataset.id);});
   document.querySelectorAll('.star').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleSaved(b.dataset.save);renderNav();renderFeed();});
 }
-function openSource(id){const i=allArticles().find(x=>x.id==id);if(i && /^https:\/\//i.test(i.url))window.open(i.url,'_blank','noopener,noreferrer');else toast('这条记录暂无原文链接');}
+function openSource(id){const i=allArticles().find(x=>x.id==id);if(i && /^https?:\/\//i.test(i.url))window.open(i.url,'_blank','noopener,noreferrer');else toast('这条记录暂无原文链接');}
 function openCard(id){id=Number(id);const i=allArticles().find(x=>x.id==id);if(!i)return;state.read.add(id);persistReadingState();renderFeed();renderDrawer(i);$('#drawer').classList.add('open');document.body.style.overflow='hidden';}
 function closeDrawer(){$('#drawer').classList.remove('open');document.body.style.overflow='';}
 function safeImageSrc(src){return typeof src==='string'&&/^assets\/images\/[a-f0-9]{32}\.webp$/.test(src)?new URL(src,document.baseURI).href:'';}
-function safeSourceLink(url){try{const u=new URL(url);return u.protocol==='https:'?u.href:'';}catch{return '';}}
+function safeSourceLink(url){try{const u=new URL(url);return ['http:','https:'].includes(u.protocol)&&!u.username&&!u.password?u.href:'';}catch{return '';}}
 function articleImages(i){
   const images=(Array.isArray(i.images)?i.images:[]).filter(x=>safeImageSrc(x.src)).slice(0,6);
   if(!images.length)return '';
@@ -907,12 +918,12 @@ function renderDrawer(i){
   const enBlock=i.orig?`<div class="en"><div class="enlab">原文（EN，已自动翻译为中文）</div><p>${esc(i.orig)}</p></div>`:'';
   $('#drawerPanel').innerHTML=`
     <button class="close" onclick="closeDrawer()" aria-label="关闭"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="tags"><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
+    <div class="tags"><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[articleColumn(i)]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
     <h2>${esc(i.title)}</h2>
     <div class="dmeta"><span>${i.publication_basis==='editorial_source_review'?'整理发布于':i.url?.includes('/next_help/docs/')?'更新于':'发布于'} ${esc(articleDate(i,true))}（北京时间）</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">${scoreLabel(i)}</span></div>
     ${i.publication_basis==='editorial_source_review'?`<section class="ocr-note"><p>资料核对日期：${esc(i.source_checked_at)}。官方页面未明确标注原始发布日期；上方为本站整理时间。</p><p>${esc(i.verification_scope)}</p><p>以下内容区分平台公开功能与编辑建议，没有实施注册、接单、销售或提现测试。</p></section>`:''}
     <a class="discovery-links" href="?article=${encodeURIComponent(i.id)}" target="_blank" rel="noopener noreferrer">打开可分享的详情链接 ↗</a>
-    ${trustBadges(i)}<div class="reason">${esc(i.reason)}</div>${discoveryDetails(i)}
+    ${trustBadges(i)}${evidenceDetails(i)}<div class="reason">${esc(i.reason)}</div>${discoveryDetails(i)}
     ${i.ocr_used?'<p class="ocr-note">本文含图片文字识别内容，尚未经人工核对；金额、比例和效果数据请核对原图。</p>':''}
     <div class="body">${String(i.content||'').split(/\n+|(?<=[。；])/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}${enBlock}</div>
     ${Array.isArray(i.references)?`<section class="detail-section"><h3>资料来源</h3><ul>${i.references.filter(r=>safeSourceLink(r.url)).map(r=>`<li><a href="${esc(safeSourceLink(r.url))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-ink)">${esc(r.title)} ↗</a></li>`).join('')}</ul></section>`:''}
@@ -962,7 +973,7 @@ function renderHot(){
 function renderStats(){
   $('#st1').textContent=RAW.filter(i=>!isLegacy(i)&&i.t==='today').length;
   $('#st2').textContent=new Set(RAW.filter(i=>!isLegacy(i)).map(i=>i.src)).size;
-  $('#st3').textContent=new Set(RAW.filter(i=>!isLegacy(i)).map(i=>i.discovery_category)).size;
+  $('#st3').textContent=new Set(RAW.filter(i=>!isLegacy(i)).map(i=>articleColumn(i))).size;
   $('#st4').textContent=allArticles().filter(isLegacy).length;
   $('#trend').hidden=true;
 }
@@ -974,7 +985,7 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show'
 function openFeedback(){
   toast('反馈功能暂未开放，当前不接收或保存反馈。');
 }
-function resetAll(){state.view='all';state.kind='all';state.plat='all';state.ind='all';state.cat='all';state.time='all';state.q='';state.onlyUnread=false;$('#q').value='';document.querySelectorAll('#contentTypeRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#catRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#timeFilters .chip').forEach((c,i)=>c.classList.toggle('on',i===0));renderNav();renderFeed();}
+function resetAll(){state.view='all';state.kind='all';state.plat='all';state.ind='all';state.cat='all';state.topic='all';$('#topicFilter').value='all';state.time='all';state.q='';state.onlyUnread=false;$('#q').value='';document.querySelectorAll('#contentTypeRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#catRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#timeFilters .chip').forEach((c,i)=>c.classList.toggle('on',i===0));renderNav();renderFeed();}
 
 async function init(){
   try{
@@ -1029,7 +1040,7 @@ async function loadCollectionHistory(){
     if(history.days.length<3){const li=document.createElement('li');li.textContent=`目前记录 ${history.days.length} 天，后续自动累计，不补造历史。`;list.appendChild(li);}
   }catch(e){list.textContent='暂无历史记录，下一轮采集后开始累计。';}
 }
-const intro=document.createElement('section');intro.className='discovery-intro';intro.innerHTML='<h1>互联网赚钱机会与实用信息发现平台</h1><p>发现值得核实的机会、方法和工具。保留来源与日期，收入宣称不等于已证实盈利。</p><nav class="discovery-links" aria-label="侯同学呀的个人网站和内容账号"><a href="https://houyuping.cn/" target="_blank" rel="noopener noreferrer">侯同学呀 · 个人网站 ↗</a><a href="https://x.com/LaohouGrowth" target="_blank" rel="noopener noreferrer">X ↗</a><a href="https://xhslink.cn/o/6GBc3jNCZAJ" target="_blank" rel="noopener noreferrer">小红书 ↗</a><a href="https://v.douyin.com/vRrS_vDoSOk/" target="_blank" rel="noopener noreferrer">抖音 ↗</a></nav>';document.querySelector('.topbar').after(intro);
+const intro=document.createElement('section');intro.className='discovery-intro';intro.innerHTML='<h1>发现值得尝试的小生意</h1><p>赚钱机会、实用工具、商业案例与项目实测，帮你找到下一步值得研究的方向。</p><nav class="discovery-links" aria-label="侯同学呀的个人网站和内容账号"><a href="https://houyuping.cn/" target="_blank" rel="noopener noreferrer">侯同学呀 · 个人网站 ↗</a><a href="https://x.com/LaohouGrowth" target="_blank" rel="noopener noreferrer">X ↗</a><a href="https://xhslink.cn/o/6GBc3jNCZAJ" target="_blank" rel="noopener noreferrer">小红书 ↗</a><a href="sources.html">来源与发现</a><a href="https://v.douyin.com/vRrS_vDoSOk/" target="_blank" rel="noopener noreferrer">抖音 ↗</a></nav>';document.querySelector('.topbar').after(intro);
 const themeButton=document.createElement('button');themeButton.className='theme-switch';themeButton.setAttribute('aria-label','切换日夜模式');themeButton.textContent='日 / 夜';document.querySelector('.topbar-inner').append(themeButton);
 try{document.documentElement.dataset.theme=localStorage.getItem('aibeep.theme.v1')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch{document.documentElement.dataset.theme='light';}
 themeButton.onclick=()=>{const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('aibeep.theme.v1',theme);}catch{}};

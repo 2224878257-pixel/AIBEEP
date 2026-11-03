@@ -1,0 +1,101 @@
+# AIBEEP 定位与发现机制升级（2026-11-03）
+
+## 实际审计与兼容范围
+
+本仓库是单文件 HTML/CSS/原生 JavaScript 前端，Python requests/BeautifulSoup/trafilatura 采集，DeepSeek JSON 处理，GitHub Actions 生成静态文件并发布 GitHub Pages；没有 React、数据库或常驻后端。原有 URL/正文指纹/相似度去重、媒体二维码排除、OCR 风险检查、历史归档、待审队列和 Pages 部署可复用。此前评分为模型单一分数，五分类偏工具和广告，搜索字段较少，固定信源偏广告。
+
+升级从提交 `038d8f2` 开始。审计时 archive.json 有 65 条，data.json 有 56 条，去重合并后 65 条：13 条发现内容、52 条历史内容。此次保留全部 ID、原文 URL 与 `?article=ID` 访问方式。已有 8 条编辑整理仍是公开资料整理，绝非侯同学呀亲测。3 条纯模型/区域性公司/基础设施通知移入历史，剩余 10 条发现内容映射新栏目。旧内容未删除；后续只有重新读取原文并通过新审核的历史内容才可重新分类。找不到可靠事实的旧内容继续归档。
+
+没有改动个人网站、原 sources.json、现有密钥、CNAME 或域名配置。原配置保留，运行器优先读取新增 discovery_sources.json；回退时可恢复原脚本和配置。
+
+## 用户界面与数据
+
+首页采用“发现值得尝试的小生意”，四个栏目是机会发现、案例拆解、方法与工具、项目实测。支持主题、关键词、来源类型、时间筛选，搜索涵盖标题/摘要/来源/理由/正文/主题/拆解字段。卡片仅简述、标签、来源和时间，详情展示来源证据与研究线索。原文发布时间和本站收录时间分开，未知写未披露。旧数据没有可靠抓取时间时不倒填当前时间。
+
+`schema_version:3` 增加 column、topics、business_details、source_published_at、collected_at、evidence_status、income_claims、score_breakdown。采集新记录另有 original_url、canonical_url、author、discovery_path、search_provider、search_query、body_obtained、fact_sources、evidence_links、event_id。旧 cat/tag/ch/discovery_category 保留兼容。
+
+缺失的用户需求、产品服务、收费方式、获客方式、投入、限制、小测试均为“未披露”，不补猜成本或回本周期。AI 不可创建项目实测；只有真实 owner_confirmed 与 experiment_record 的记录才能进入实测栏目。目前没有此类记录，所以使用空状态。亲测/验证/赞助仍独立记录，模型不能填写为已证实。
+
+关于页说明网站负责发现筛选整理、个人账号负责判断实践复盘；复用原有个人网站、X、小红书、抖音和邮件链接，个人微信二维码来自个人网站原素材。文章图片仍不显示封面，文章二维码过滤继续有效。
+
+详情仍是静态站抽屉加 `?article=ID` 深链，没有伪称已生成每篇独立的服务端 SEO 页面。首页及来源页有描述、canonical、移动适配和站点地图；逐篇预渲染可后续增量增加。
+
+## 来源目录：候选不等于接入
+
+- source_catalog.json：逐项记录用户提供的 64 个入口，包括测试时间、页面可达、正文样本可读、方法、错误、可持续性、启用状态与具体端点。
+- source_catalog_summary.json：候选入口/平台/根域名/主机名/已测试入口/启用入口/采集端点/成功端点/具体作者分开统计。平台按本目录根域名合并；64 个入口对应 59 个平台/根域名、62 个主机名。目录全部使用已核对的常见后缀；不要把该简化统计函数用作任意新域名的公共后缀解析器。
+- discovery_sources.json：运行中的白名单，新增而非覆盖旧 sources.json。
+- source_status.json：具体端点最近成功、最近列表成功、最近错误；来源页只展示公开状态。
+- sources.html：实际的来源与发现状态页面，可搜索/按采集方式筛选。未稳定来源保留人工选题入口。
+
+第一轮逐入口真实探测完成 64/64；一次网页可达不代表有采集授权，正文样本成功也不代表自动启用。验证码页记为失败。实时数值以目录文件和来源页为准。
+
+固定启用并完成列表＋正文读取测试的端点：人人都是产品经理 RSS、青瓜传媒 RSS、运营派 RSS、运营派主题搜索、少数派 RSS、Show HN 官方 API、Ask HN 官方 API、Pieter Levels 长文 RSS、Tony Dinh 公开通讯 RSS。共 9 个端点、7 个不同网站/主机，不是 9 个独立平台。中文与英文内容都进入同一套审核。两个作者身份分别由作者自有博客介绍/RSS 标题与 Tony 通讯 RSS 作者字段核实。
+
+Starter Story、Indie Hackers、Failory 等案例入口暂用于人工/搜索发现；不得从收入榜直接写成盈利事实。Product Hunt 的 Atom 可读但仅有简短产品介绍，全文与商业用途授权未落实，不启用自动发布；其 API 商业用途需联系平台：[官方文档](https://www.producthunt.com/v2/docs)。Reddit 公开 JSON 本次 403；X、微信公众号、小红书、知乎等不绕登录、验证码或访问限制。趋势/市场/评价站只作线索，不用排名、标价、互动、流量估计、众筹额或挂牌价推断销量与利润。视频没有正文/字幕就不生成完整总结。
+
+## 三条实际发现路径
+
+1. 固定订阅/官方 API/已测试公开搜索页：由 Collector 原适配器和新增 HN 适配器读取。HN 只读投稿作者提供的文字，标题/投票数不足的 Show HN 留作线索，不编造产品拆解。
+2. 关键词全网检索：search_discovery.py 提供 SearchProvider 接口与 BraveSearch 实现，使用官方 Web Search API。discovery_keywords.json 包含七组中英文词，半日轮换；开放网络与 site: 域名限定轮换。失败案例和需求讨论各有固定查询，默认每批 14 条，最多 20 条。动态内容近 7 天，案例/经营过程近一年。搜索日期筛选只作发现提示，正文日期仍单独核对。
+3. 新来源池：搜索结果及正文中原作者/产品官网/定价/文档链接进入 candidate_sources.json。记录域名、语言、主题、发现方式、样本、最近发现、可访问性、推广倾向（未评估）、优先级、已通过编辑初筛样本。单次命中不自动订阅。升为固定来源前需编辑核对原创/一手比例、至少三篇合格样本、反软文风险，并再次测试稳定 RSS/API/公开页面；当前没有无人确认自动扩展站点的行为。
+
+人工提交入口是联系邮箱，管理者把具体公开链接加入 manual_submissions.json（url、可选 language）。该文件不是自动发布白名单；仍必须获得正文、模型审核和预算筛选。
+
+对正文里的相关资料，最多再读取两页公开官网/定价/文档，作为 evidence_pages 交模型。fact_sources 只允许指向实际读过的 URL。链接存在、同站转载或模型判断不能制造“独立佐证”；目前自动证据状态保持公开来源未独立核验/作者自述，人工独立核验状态需后续明确确认。
+
+搜索摘要仅作线索，不冒充正文。动态页面必须单独抽取正文和可靠发布时间；付费墙、订阅限制、缺日期或短视频描述会拒绝。不会批量复制新来源全文到前端，只发布短中文整理与必要事实链接。既有历史数据保持可恢复。
+
+## 搜索服务评估与条件
+
+2026-11-03 根据官方文档核对：
+
+| 服务 | 接口及过滤 | 公开计费信息 | 本次状态 |
+|---|---|---|---|
+| Brave | GET /res/v1/web/search，语言、国家、pd/pw/pm/py/日期范围，site: | 计划区标注 $5/千请求，账号抵扣以控制台为准 | 已实现可替换适配器，缺密钥时不调用 |
+| Tavily | POST /search，时间、域名、国家等 | 免费 1000 credits/月，basic/advanced 消耗不同，按量 $0.008/credit | 已评估，未实现适配器、不强制依赖 |
+| Exa | POST /search，域名/日期等，另有 Contents | 价格页 Auto Search $7/千次（最多10结果），其他模式另计 | 已评估，未实现适配器、不强制依赖 |
+
+参考：[Brave 文档](https://api-dashboard.search.brave.com/documentation/services/web-search)、[价格与存储条件](https://brave.com/search/api/)、[Tavily 接口](https://docs.tavily.com/documentation/api-reference/endpoint/search)、[Tavily 价格](https://docs.tavily.com/documentation/api-credits)、[Tavily 条款](https://www.tavily.com/terms)、[Exa 接口](https://exa.ai/docs/reference/search)、[Exa 价格](https://exa.ai/pricing)、[Exa 条款](https://exa.ai/terms)。
+
+Brave 说明存储结果需要包含 storage rights 的计划，因此除 BRAVE_SEARCH_API_KEY 外，还需在确认自己计划允许本项目缓存/保存发现记录后设置仓库变量 BRAVE_ALLOW_RESULT_STORAGE=true；否则显示未启用。未购买任何套餐，也未创建新账号。现有开发环境无搜索密钥，不把本对话的临时联网能力当作定时检索成功记录。搜索可能漏掉登录、付费、未收录、地区受限内容。
+
+## 审核、预算、调度与失败处理
+
+editorial_policy.json 的权重：相关性25、证据25、行动20、低成本适配15、时效/长期价值10、增量5，阈值65。代码检查每项为有界整数并自行求和，不信任模型自行给出的总分。分数仅用于编辑排序，不代表收益或成功率。工具、案例、平台变化在提示词里采用不同证据重点。纯模型参数/融资/无关大公司新闻/软文/过时方法不靠配额放行。
+
+收入字段分 metric/amount/period/attribution/source_quote。营收、利润、交易额、融资额，以及单月/累计不混用。带收入自述的内容与自动项目/方法先进入待审队列，不把作者宣称改写成已证实。8 条既有编辑整理保留“仅核对公开文档”的范围，不是人工实测。
+
+collection_config.json 默认：每天 08:00/20:00 北京时间，Actions cron `0 0,12 * * *`（UTC 00:00/12:00，GitHub 可能延迟）；每轮最多20条查询、每条5结果、读取100个候选/证据 URL、深度处理20个候选，每日最多20条自动新增，无最低配额。每候选沿用最多3次模型尝试，因此候选预算不是 HTTP 请求总数。固定源列表/官方 API 列表获取不计入正文 URL 数；源码与文档已明确该口径。来源审计单独运行，不在每轮任务中额外重复抓取64个首页。
+
+有搜索结果时给动态发现预留40%的模型处理预算、30%的正文读取预算；没有搜索结果时全部可用于免费固定源。固定源顺序半日轮换。已完成但超预算或来源过度集中的条目进入待审队列，不丢弃成果。
+
+同源按 source_domain 合并，自动新增每日份额默认20%，条数向上取整，少于5条时至少允许同源1条，因此小样本可能超过20%；这项离散例外明确记录，不为了比例凑数。既有编辑整理/历史记录不倒删。暂不承诺每日国内外/成功失败的固定比例；通过来源组合、查询配额和证据标准控制。
+
+source_quality.json 保留近20次成功率、有效率、重复率、缺日期率和最终入选率。连续失败按12小时退避；至少3次可读但有效率低于10%时降为24小时，其他来源继续。URL 失败12小时缓存、拒绝内容72小时缓存、搜索结果（有存储权时）24小时缓存。固定源请求沿用有界重试，动态读取限制超时/大小/重定向及同域请求间隔；抓取串行，单域最多1个请求。SSR F防护会验证所有 DNS 地址并固定连接到已验证的公网 IP，保留原始 Host/SNI/TLS 验证；每个重定向重新验证，拒绝本机、内网、保留地址、元数据、非HTTP(S)、凭据URL及非标准端口。动态来源暂不下载未加入白名单的图片。
+
+缺 DeepSeek key 在采集前失败，保留有效 JSON；模型全面失败不替换 data/archive；单来源失败继续其他来源；无新内容保留已有内容，只更新时效标记/状态。所有新候选处理完成后再写临时文件并原子替换各 JSON。data/archive 为两个独立原子文件，文件系统崩溃时不保证跨文件事务；Actions 失败会恢复上次提交的快照。新版本信息流按收录时间确定近期，详情仍保留原文日期，常青案例不会被伪装成今天首发。
+
+## 环境、运行与发布
+
+必需：GitHub Secrets DEEPSEEK_API_KEY；可选仓库变量 DEEPSEEK_MODEL（沿用已配置值）。启用全网检索：可选 Secret BRAVE_SEARCH_API_KEY，并核对存储权后设变量 BRAVE_ALLOW_RESULT_STORAGE=true。不需要同时注册三家服务。
+
+.env.example 仅是变量参考，脚本不会自动加载 .env。PowerShell 用 `$env:DEEPSEEK_API_KEY=...`，不要把真实值写入仓库。前端只接收筛选后的 JSON；缓存、原始搜索结果、候选池、待审队列和内部报告均不进入 Pages。
+
+```powershell
+python -m pip install -r requirements.txt
+python -m unittest discover -s tests -v
+python source_audit.py              # 免费端点列表＋正文，不调用模型
+python catalog_audit.py             # 64候选入口实测；较慢，手动运行
+python scraper.py --check-sources --limit 2  # 不调用模型，不写文章JSON
+python scraper.py --limit 6         # 实际批处理，需要模型key；搜索key可选
+python -m http.server 8765 --bind 127.0.0.1
+```
+
+本地打开 http://127.0.0.1:8765/ 与 /sources.html。所有数据/素材路径相对部署目录，兼容 /AIBEEP/ 子路径。原深链通过真实历史 ID 验证。推送 main 会部署静态文件，不自动调用收费模型；手动运行 Daily collection and Pages 或定时事件才采集。仅上传明确列出的公共文件，Actions cache 保留内部队列/搜索/质量缓存，report artifact 保存14天。
+
+## 回滚
+
+变更在一组 Git 提交中完成，先查看差异再 `git revert <升级提交>`，推送 main 触发旧版 Pages 部署；不要强推或清空归档。必要时从升级前 `038d8f2` 恢复 index.html、scraper.py、data.json、archive.json、daily.yml，再部署；密钥和域名设置不需要变化。原 sources.json 仍完整保留。若仅停搜索，删去搜索 Secret 或把 BRAVE_ALLOW_RESULT_STORAGE=false，免费固定源继续。
+
+实际自动批处理及浏览器验证结果另见 UPGRADE_VALIDATION.md，不把单元测试桩当作真实服务调用成功。

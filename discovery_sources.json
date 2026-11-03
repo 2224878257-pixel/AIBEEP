@@ -1,0 +1,431 @@
+[
+  {
+    "ch": "general",
+    "name": "人人都是产品经理",
+    "url": "https://www.woshipm.com/feed",
+    "pattern": "/[^/]+/[0-9]+\\.html$",
+    "hosts": [
+      "www.woshipm.com",
+      "woshipm.com"
+    ],
+    "adapter": "rss",
+    "kind": "community",
+    "http_only": true,
+    "enabled": true,
+    "official_url": "https://www.woshipm.com/",
+    "language": "zh-CN",
+    "topics": [
+      "个人创业",
+      "获客与分发",
+      "商业案例",
+      "内容变现"
+    ],
+    "method": "rss",
+    "status": "automatic",
+    "last_success_at": null,
+    "last_error": null,
+    "require_relevance": true,
+    "limit": 3,
+    "discover_all": true
+  },
+  {
+    "ch": "general",
+    "name": "青瓜传媒",
+    "url": "https://www.opp2.com/feed",
+    "pattern": "/[0-9]+\\.html$",
+    "hosts": [
+      "www.opp2.com"
+    ],
+    "adapter": "rss",
+    "kind": "community",
+    "http_only": true,
+    "enabled": true,
+    "official_url": "https://www.opp2.com/",
+    "language": "zh-CN",
+    "topics": [
+      "个人创业",
+      "获客与分发",
+      "商业案例",
+      "内容变现"
+    ],
+    "method": "rss",
+    "status": "automatic",
+    "last_success_at": null,
+    "last_error": null,
+    "require_relevance": true,
+    "limit": 3,
+    "discover_all": true
+  },
+  {
+    "ch": "general",
+    "name": "运营派",
+    "url": "https://www.yunyingpai.com/feed",
+    "pattern": "/[^/]+/[0-9]+\\.html$",
+    "hosts": [
+      "www.yunyingpai.com"
+    ],
+    "adapter": "rss",
+    "kind": "community",
+    "http_only": true,
+    "enabled": true,
+    "official_url": "https://www.yunyingpai.com/",
+    "language": "zh-CN",
+    "topics": [
+      "个人创业",
+      "获客与分发",
+      "商业案例",
+      "内容变现"
+    ],
+    "method": "rss",
+    "status": "automatic",
+    "last_success_at": null,
+    "last_error": null,
+    "require_relevance": true,
+    "limit": 3,
+    "discover_all": true
+  },
+  {
+    "ch": "general",
+    "name": "运营派项目与方法线索",
+    "url": "https://www.yunyingpai.com/",
+    "pattern": "/[^/]+/[0-9]+\\.html$",
+    "hosts": [
+      "www.yunyingpai.com"
+    ],
+    "adapter": "site_search",
+    "kind": "community",
+    "http_only": true,
+    "search_terms": [
+      "需求验证",
+      "数字产品",
+      "独立开发",
+      "接单",
+      "内容变现"
+    ],
+    "limit": 3,
+    "enabled": true,
+    "official_url": "https://www.yunyingpai.com/",
+    "language": "zh-CN",
+    "topics": [
+      "个人创业",
+      "获客与分发",
+      "商业案例",
+      "内容变现"
+    ],
+    "method": "site_search",
+    "status": "automatic",
+    "last_success_at": null,
+    "last_error": null,
+    "require_relevance": true
+  },
+  {
+    "name": "少数派",
+    "url": "https://sspai.com/feed",
+    "official_url": "https://sspai.com/",
+    "ch": "general",
+    "hosts": [
+      "sspai.com"
+    ],
+    "pattern": "/post/[0-9]+",
+    "adapter": "rss",
+    "method": "rss",
+    "kind": "community",
+    "enabled": true,
+    "http_only": true,
+    "language": "zh-CN",
+    "topics": [
+      "实用工具",
+      "个人创业",
+      "AI应用"
+    ],
+    "status": "automatic",
+    "limit": 3,
+    "last_success_at": null,
+    "last_error": null,
+    "discover_all": true
+  },
+  {
+    "name": "Show HN",
+    "url": "https://hacker-news.firebaseio.com/v0/showstories.json",
+    "official_url": "https://news.ycombinator.com/show",
+    "ch": "general",
+    "hosts": [
+      "news.ycombinator.com"
+    ],
+    "pattern": "/item",
+    "adapter": "hn_api",
+    "method": "official_api",
+    "kind": "community",
+    "enabled": true,
+    "http_only": true,
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "需求验证"
+    ],
+    "status": "automatic",
+    "limit": 3,
+    "last_success_at": null,
+    "last_error": null
+  },
+  {
+    "name": "Ask HN",
+    "url": "https://hacker-news.firebaseio.com/v0/askstories.json",
+    "official_url": "https://news.ycombinator.com/ask",
+    "ch": "general",
+    "hosts": [
+      "news.ycombinator.com"
+    ],
+    "pattern": "/item",
+    "adapter": "hn_api",
+    "method": "official_api",
+    "kind": "community",
+    "enabled": true,
+    "http_only": true,
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "需求验证"
+    ],
+    "status": "automatic",
+    "limit": 3,
+    "last_success_at": null,
+    "last_error": null
+  },
+  {
+    "name": "Starter Story",
+    "official_url": "https://www.starterstory.com/",
+    "url": "https://www.starterstory.com/",
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "manual",
+    "enabled": false,
+    "status": "manual",
+    "disabled_reason": "首页可访问；案例完整性、原始证据与付费范围逐篇核对，不批量导入收入故事",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "Indie Hackers",
+    "official_url": "https://www.indiehackers.com/",
+    "url": "https://www.indiehackers.com/",
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "manual",
+    "enabled": false,
+    "status": "manual",
+    "disabled_reason": "首页公开；测试 /feed.xml 返回404，未发现已验证的稳定订阅",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "Product Hunt",
+    "official_url": "https://www.producthunt.com/",
+    "url": "https://www.producthunt.com/feed",
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "optional_api",
+    "enabled": false,
+    "status": "optional_api",
+    "disabled_reason": "Atom订阅可读但仅有简短介绍；完整正文未验证。官方GraphQL需要应用授权与使用条款核对",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "Reddit 创业社区",
+    "official_url": "https://www.reddit.com/r/smallbusiness/",
+    "url": "https://www.reddit.com/r/smallbusiness/",
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "optional_api",
+    "enabled": false,
+    "status": "optional_api",
+    "disabled_reason": "公开JSON返回403；需获准的API访问与OAuth，不绕过限制；sideproject/SaaS/Entrepreneur同等待接入",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "Ben’s Bites",
+    "official_url": "https://www.bensbites.com/",
+    "url": "https://www.bensbites.com/",
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "manual",
+    "enabled": false,
+    "status": "manual",
+    "disabled_reason": "首页可访问；仅考虑具体应用，待验证公开订阅与全文范围",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "Future Tools",
+    "official_url": "https://futuretools.io/",
+    "url": "https://futuretools.io/",
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "manual",
+    "enabled": false,
+    "status": "manual",
+    "disabled_reason": "首页可访问；目录用途匹配，但稳定日期和结构化采集待验证",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "生财有术公开内容",
+    "official_url": "https://scys.com/",
+    "url": "https://scys.com/",
+    "language": "zh-CN",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "manual",
+    "enabled": false,
+    "status": "manual",
+    "disabled_reason": "首页可访问；仅接受可公开阅读的具体文章，登录内容不采集",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "数字生命卡兹克 / 秋芝2046",
+    "official_url": "https://mp.weixin.qq.com/",
+    "url": "https://mp.weixin.qq.com/",
+    "language": "zh-CN",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "manual",
+    "enabled": false,
+    "status": "manual",
+    "disabled_reason": "创作者具体公开账号与授权入口待提供核实，不使用猜测域名；微信公众号不稳定批采",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "X 创业者原始分享",
+    "official_url": "https://x.com/",
+    "url": "https://x.com/",
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "optional_api",
+    "enabled": false,
+    "status": "optional_api",
+    "disabled_reason": "需X API访问资格与具体作者白名单；公开页面壳不代表可采集正文",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "平台官方公告与创业者博客",
+    "official_url": "https://help.xiaobot.net/",
+    "url": "https://help.xiaobot.net/",
+    "language": "zh-CN",
+    "topics": [
+      "个人创业",
+      "实用工具",
+      "商业案例"
+    ],
+    "method": "manual",
+    "enabled": false,
+    "status": "manual",
+    "disabled_reason": "已有小报童/Gumroad/Fiverr/itch.io公开规则编辑条目；新增公告或博客订阅需逐个核实",
+    "last_success_at": null,
+    "last_error": null,
+    "manual_submission": "mailto:2224878257@qq.com?subject=AIBEEP选题提交"
+  },
+  {
+    "name": "Pieter Levels 长文",
+    "official_url": "https://levels.io/",
+    "url": "https://levels.io/rss/longform",
+    "ch": "general",
+    "hosts": [
+      "levels.io"
+    ],
+    "pattern": "/.+",
+    "adapter": "rss",
+    "method": "rss",
+    "kind": "community",
+    "enabled": true,
+    "http_only": true,
+    "discover_all": true,
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "商业案例",
+      "数字产品"
+    ],
+    "status": "automatic",
+    "limit": 2,
+    "last_success_at": null,
+    "last_error": null,
+    "max_age_days": 365
+  },
+  {
+    "name": "Tony Dinh 公开通讯",
+    "official_url": "https://news.tonydinh.com/",
+    "url": "https://news.tonydinh.com/feed",
+    "ch": "general",
+    "hosts": [
+      "news.tonydinh.com"
+    ],
+    "pattern": "/.+",
+    "adapter": "rss",
+    "method": "rss",
+    "kind": "community",
+    "enabled": true,
+    "http_only": true,
+    "discover_all": true,
+    "language": "en",
+    "topics": [
+      "个人创业",
+      "商业案例",
+      "数字产品"
+    ],
+    "status": "automatic",
+    "limit": 2,
+    "last_success_at": null,
+    "last_error": null,
+    "max_age_days": 365
+  }
+]

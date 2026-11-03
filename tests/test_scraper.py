@@ -54,8 +54,8 @@ class PlatformDiscoveryTests(unittest.TestCase):
             with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}):
                 s.run(Mock(check_sources=False,limit=1),collector)
                 s.run(Mock(check_sources=False,limit=1),collector)
-            self.assertEqual(json.loads((Path(d)/'data.json').read_text()),[])
-            archive=json.loads((Path(d)/'archive.json').read_text())
+            self.assertEqual(json.loads((Path(d)/'data.json').read_text(encoding='utf-8')),[])
+            archive=json.loads((Path(d)/'archive.json').read_text(encoding='utf-8'))
             self.assertEqual(len(archive),1)
             self.assertEqual(archive[0]['id'],123)
             self.assertEqual(archive[0]['t'],'archive')
@@ -130,12 +130,12 @@ class ScraperTests(unittest.TestCase):
             collector=Mock()
             collector.discover.return_value=urls
             collector.article.return_value=dict(url=urls[3],title='new',body='text',published_at=stamp)
-            ai=dict(title='new',desc='summary',content='body',reason='reason',cat='data',tag='ad',score=80)
+            ai=dict(title='new',desc='summary',content='body',reason='reason',cat='data',tag='ad',score=80,relevant=True)
             with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}),patch.object(s,'enrich',return_value=ai) as enrich:
                 s.run(Mock(check_sources=False,limit=1),collector)
             collector.discover.assert_called_once_with({'name':'test','ch':'tx'},5)
             self.assertEqual(enrich.call_count,1)
-            self.assertEqual(len(json.loads((Path(d)/'data.json').read_text())),4)
+            self.assertEqual(len(json.loads((Path(d)/'data.json').read_text(encoding='utf-8'))),4)
 
     def test_recent_rejections_skipped_without_ai_cost(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s,'ROOT',Path(d)):
@@ -150,7 +150,7 @@ class ScraperTests(unittest.TestCase):
                 s.run(Mock(check_sources=False,limit=1),collector)
             enrich.assert_not_called()
             collector.article.assert_not_called()
-            self.assertEqual(json.loads((Path(d)/'run_report.json').read_text())['sources'][0]['rejected_cached'],1)
+            self.assertEqual(json.loads((Path(d)/'run_report.json').read_text(encoding='utf-8'))['sources'][0]['rejected_cached'],1)
 
     def test_one_bad_candidate_does_not_block_valid_filter_results(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s,'ROOT',Path(d)):
@@ -162,7 +162,7 @@ class ScraperTests(unittest.TestCase):
             collector.article.side_effect=[{'url':u,'title':'test','body':u,'published_at':datetime.now(s.TZ).isoformat()} for u in urls]
             with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}), patch.object(s,'enrich',side_effect=[ValueError('bad JSON'),{'relevant':False,'score':50}]):
                 self.assertEqual(s.run(Mock(check_sources=False,limit=3),collector),0)
-            result=json.loads((Path(d)/'collection_status.json').read_text())
+            result=json.loads((Path(d)/'collection_status.json').read_text(encoding='utf-8'))
             self.assertEqual(result['status'],'partial')
             self.assertEqual(result['ai_failures'],1)
 
@@ -177,6 +177,7 @@ class ScraperTests(unittest.TestCase):
 
     def test_retry_truncated_ai_output_then_succeed(self):
         data = dict(title='test',desc='summary',content='body',reason='reason',cat='case',tag='ad',ch='hw',score=80,relevant=True)
+        data.update(column='methods', topics=['实用工具'], score_breakdown={'relevance':20,'evidence':20,'actionability':16,'low_cost_fit':12,'durability':8,'novelty':4})
         bad, good = Mock(), Mock()
         bad.json.return_value = {'choices':[{'finish_reason':'length','message':{'content':'{'}}]}
         good.json.return_value = {'choices':[{'finish_reason':'stop','message':{'content':json.dumps(data)}}]}
@@ -190,7 +191,7 @@ class ScraperTests(unittest.TestCase):
             report={'added':2,'sources':[{'source':'test','errors':[],'filtered':1,'duplicates':3,'cached':4}]}
             s.collection_status(report)
             s.collection_status(report)
-            history=json.loads((Path(d)/'collection_history.json').read_text())
+            history=json.loads((Path(d)/'collection_history.json').read_text(encoding='utf-8'))
             self.assertEqual(len(history['days']),1)
             self.assertEqual(history['days'][0]['added'],4)
             self.assertEqual(history['days'][0]['duplicates'],6)
@@ -199,18 +200,18 @@ class ScraperTests(unittest.TestCase):
     def test_expanded_gate_accepts_relevant_analysis(self):
         base = {'relevant':True,'practical':True,'score':80,'actions':['在相同预算下对比两组素材的获客成本']}
         self.assertTrue(s.community_passes(base))
-        self.assertTrue(s.community_passes({**base,'practical':False,'actions':[],'score':60}))
-        self.assertFalse(s.community_passes({**base,'score':59}))
+        self.assertTrue(s.community_passes({**base,'practical':False,'actions':[],'score':65}))
+        self.assertFalse(s.community_passes({**base,'score':64}))
         self.assertFalse(s.community_passes({**base,'relevant':False}))
 
     def test_public_status_preserves_last_success_on_failure(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
             s.collection_status({'sources':[{'errors':['timeout']}],'added':2,'updated':1})
-            good = json.loads((Path(d)/'collection_status.json').read_text())
+            good = json.loads((Path(d)/'collection_status.json').read_text(encoding='utf-8'))
             self.assertEqual(good['status'], 'partial')
             self.assertEqual(good['added'], 2)
             s.collection_status({}, failed=True)
-            bad = json.loads((Path(d)/'collection_status.json').read_text())
+            bad = json.loads((Path(d)/'collection_status.json').read_text(encoding='utf-8'))
             self.assertEqual(bad['status'], 'failed')
             self.assertEqual(bad['last_success_at'], good['last_success_at'])
 
@@ -223,6 +224,7 @@ class ScraperTests(unittest.TestCase):
     def test_ai_multiple_labels_choose_supported_primary(self):
         data = dict(title='test', desc='summary', content='body', reason='reason', cat=['case','acq'], tag=['ad'], ch=['hw','general'], score=80, relevant=True)
         response = Mock()
+        data.update(column='case', topics=['商业案例'], score_breakdown={'relevance':20,'evidence':20,'actionability':16,'low_cost_fit':12,'durability':8,'novelty':4})
         response.json.return_value = {'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(data)}}]}
         with patch.object(s, 'request', return_value=response):
             result = s.enrich({'source_kind': 'community'}, 'test')
@@ -231,7 +233,7 @@ class ScraperTests(unittest.TestCase):
 
     def test_feed_filters_topics_and_external_links(self):
         response = Mock()
-        response.content = b'<rss><channel><item><title>Meta Ads testing</title><link>https://www.jonloomer.com/testing/</link><pubDate>Sat, 31 Oct 2026 08:00:00 +0000</pubDate></item><item><title>Meta Ads fake</title><link>https://evil.example/testing/</link></item><item><title>Weather today</title><link>https://www.jonloomer.com/weather/</link></item></channel></rss>'
+        response.content = b'<rss><channel><item><title>Customer acquisition tool testing</title><link>https://www.jonloomer.com/testing/</link><pubDate>Sat, 31 Oct 2026 08:00:00 +0000</pubDate></item><item><title>Customer acquisition tool fake</title><link>https://evil.example/testing/</link></item><item><title>Weather today</title><link>https://www.jonloomer.com/weather/</link></item></channel></rss>'
         source = {'adapter': 'rss', 'url': 'https://www.jonloomer.com/feed/', 'hosts': ['www.jonloomer.com'], 'pattern': '/.+'}
         with patch.object(s, 'request', return_value=response):
             collector = s.Collector()
@@ -249,8 +251,8 @@ class ScraperTests(unittest.TestCase):
             ai = dict(title='test', desc='summary', content='body', reason='reason', cat='data', tag='ad', score=90, relevant=False, detected_ch='hw')
             with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}), patch.object(s, 'enrich', return_value=ai):
                 s.run(Mock(check_sources=False, limit=1), collector)
-            self.assertEqual(json.loads((Path(d) / 'data.json').read_text()), [])
-            self.assertEqual(json.loads((Path(d) / 'run_report.json').read_text())['sources'][0]['filtered'], 1)
+            self.assertEqual(json.loads((Path(d) / 'data.json').read_text(encoding='utf-8')), [])
+            self.assertEqual(json.loads((Path(d) / 'run_report.json').read_text(encoding='utf-8'))['sources'][0]['filtered'], 1)
 
     def test_demo_placeholder_does_not_block_collection(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
@@ -260,7 +262,7 @@ class ScraperTests(unittest.TestCase):
             collector = Mock()
             collector.discover.return_value = [article['url']]
             collector.article.return_value = article
-            ai = dict(title='real', desc='summary', content='body', reason='reason', cat='data', tag='ad', score=80)
+            ai = dict(title='real', desc='summary', content='body', reason='reason', cat='data', tag='ad', score=80,relevant=True)
             with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}), patch.object(s, 'enrich', return_value=ai):
                 self.assertEqual(s.run(Mock(check_sources=False, limit=1), collector), 0)
             rows = json.loads((Path(d) / 'data.json').read_text(encoding='utf-8'))
@@ -312,7 +314,7 @@ class ScraperTests(unittest.TestCase):
             collector.discover.side_effect = ValueError('unavailable')
             with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}):
                 self.assertEqual(s.run(Mock(check_sources=False, limit=1), collector), 1)
-            self.assertEqual((Path(d) / 'data.json').read_text(), old)
+            self.assertEqual((Path(d) / 'data.json').read_text(encoding='utf-8'), old)
 
     def test_recent_article_publishes_schema(self):
         with tempfile.TemporaryDirectory() as d, patch.object(s, 'ROOT', Path(d)):
@@ -322,7 +324,7 @@ class ScraperTests(unittest.TestCase):
             collector = Mock()
             collector.discover.return_value = [article['url']]
             collector.article.return_value = article
-            ai = dict(title='标题', desc='摘要', content='正文', reason='理由', cat='data', tag='ad', score=80)
+            ai = dict(title='标题', desc='摘要', content='正文', reason='理由', cat='data', tag='ad', score=80,relevant=True)
             with patch.dict(s.os.environ, {'DEEPSEEK_API_KEY': 'test'}), patch.object(s, 'enrich', return_value=ai):
                 s.run(Mock(check_sources=False, limit=1), collector)
             row = json.loads((Path(d) / 'data.json').read_text(encoding='utf-8'))[0]

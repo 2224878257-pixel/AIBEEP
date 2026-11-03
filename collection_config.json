@@ -1,0 +1,18 @@
+{
+  "batch_hours_beijing": [8,20],
+  "max_search_queries":20,
+  "results_per_query":5,
+  "max_new_urls":100,
+  "max_ai_articles":20,
+  "max_publications_per_day":20,
+  "max_source_share":0.2,
+  "search_provider":"brave",
+  "search_cache_hours":24,
+  "domain_delay_seconds":1,
+  "max_evidence_pages":2,
+  "source_failure_backoff_hours":12,
+  "max_article_days":7,
+  "evergreen_article_days":365,
+  "search_request_timeout":15,
+  "request_retries":1
+}

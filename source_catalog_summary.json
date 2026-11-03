@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-11-03T13:24:46.142914+00:00",
+  "candidate_entries": 64,
+  "unique_platforms": 59,
+  "unique_hosts": 62,
+  "tested_entries": 64,
+  "page_accessible": 36,
+  "body_readable": 17,
+  "enabled_entries": 6,
+  "enabled_endpoints": 9,
+  "successful_endpoints": 9,
+  "unique_domains": 59,
+  "authors_verified": 2,
+  "column_entries": 64,
+  "domain_count_method": "hosts exclude www; root domains checked for the catalog .com/.net/.org/.io/.vc/.cn/.ai suffixes; platforms grouped by root domain"
+}

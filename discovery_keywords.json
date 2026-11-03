@@ -1,0 +1,154 @@
+[
+  {
+    "id": "first_customer",
+    "zh": [
+      "第一单",
+      "第一笔收入",
+      "首批付费用户",
+      "冷启动",
+      "预售验证"
+    ],
+    "en": [
+      "first customer",
+      "first paying users",
+      "first sale",
+      "pre-sell",
+      "validated idea"
+    ],
+    "domains": [
+      "indiehackers.com",
+      "woshipm.com"
+    ]
+  },
+  {
+    "id": "small_business",
+    "zh": [
+      "一人公司",
+      "独立开发",
+      "副业复盘",
+      "细分需求",
+      "数字产品",
+      "小生意"
+    ],
+    "en": [
+      "solopreneur",
+      "bootstrapped",
+      "micro SaaS",
+      "side project",
+      "digital product",
+      "niche business"
+    ],
+    "domains": [
+      "levels.io",
+      "sspai.com"
+    ]
+  },
+  {
+    "id": "failure",
+    "zh": [
+      "项目复盘",
+      "没人买",
+      "获客失败",
+      "退款",
+      "停止运营",
+      "转型"
+    ],
+    "en": [
+      "postmortem",
+      "failed startup",
+      "no customers",
+      "shutting down",
+      "churn",
+      "lessons learned"
+    ],
+    "domains": [
+      "failory.com",
+      "v2ex.com"
+    ]
+  },
+  {
+    "id": "workflow",
+    "zh": [
+      "AI工作流",
+      "自动化",
+      "批量处理",
+      "效率工具",
+      "开源替代"
+    ],
+    "en": [
+      "workflow automation",
+      "AI workflow",
+      "open source alternative",
+      "productivity tool"
+    ],
+    "domains": [
+      "sspai.com",
+      "github.com"
+    ]
+  },
+  {
+    "id": "demand",
+    "zh": [
+      "有没有工具",
+      "太贵了",
+      "求替代",
+      "手动处理",
+      "愿意付费"
+    ],
+    "en": [
+      "looking for a tool",
+      "too expensive",
+      "alternative to",
+      "manual process",
+      "would pay for"
+    ],
+    "domains": [
+      "v2ex.com",
+      "news.ycombinator.com"
+    ]
+  },
+  {
+    "id": "digital_products",
+    "zh": [
+      "付费订阅",
+      "模板销售",
+      "电子书",
+      "插件",
+      "内容变现",
+      "知识产品"
+    ],
+    "en": [
+      "paid newsletter",
+      "template business",
+      "ebook",
+      "plugin",
+      "creator business",
+      "membership"
+    ],
+    "domains": [
+      "gumroad.com",
+      "yunyingpai.com"
+    ]
+  },
+  {
+    "id": "platform_change",
+    "zh": [
+      "规则更新",
+      "分成调整",
+      "新功能",
+      "创作者收益",
+      "开放接口"
+    ],
+    "en": [
+      "policy update",
+      "monetization update",
+      "revenue share",
+      "creator program",
+      "API update"
+    ],
+    "domains": [
+      "blog.youtube",
+      "shopify.com"
+    ]
+  }
+]

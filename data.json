@@ -23,7 +23,7 @@
     "source_published_at": null,
     "source_checked_at": "2026-11-03",
     "publication_basis": "editorial_source_review",
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "discovery_category": "project",
     "detail_kind": "project",
@@ -57,7 +57,24 @@
     "platforms": [],
     "industries": [],
     "images": [],
-    "cover": ""
+    "cover": "",
+    "topics": [
+      "数字产品",
+      "内容变现"
+    ],
+    "column": "opportunity",
+    "collected_at": null,
+    "evidence_status": "public_documentation_only",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": []
   },
   {
     "id": 192898384544757,
@@ -83,7 +100,7 @@
     "source_published_at": null,
     "source_checked_at": "2026-11-03",
     "publication_basis": "editorial_source_review",
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "discovery_category": "project",
     "detail_kind": "project",
@@ -121,7 +138,24 @@
     "platforms": [],
     "industries": [],
     "images": [],
-    "cover": ""
+    "cover": "",
+    "topics": [
+      "数字产品",
+      "个人创业"
+    ],
+    "column": "opportunity",
+    "collected_at": null,
+    "evidence_status": "public_documentation_only",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": []
   },
   {
     "id": 177399950080247,
@@ -147,7 +181,7 @@
     "source_published_at": null,
     "source_checked_at": "2026-11-03",
     "publication_basis": "editorial_source_review",
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "discovery_category": "project",
     "detail_kind": "project",
@@ -181,7 +215,24 @@
     "platforms": [],
     "industries": [],
     "images": [],
-    "cover": ""
+    "cover": "",
+    "topics": [
+      "个人创业",
+      "副业项目"
+    ],
+    "column": "opportunity",
+    "collected_at": null,
+    "evidence_status": "public_documentation_only",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": []
   },
   {
     "id": 190726847199128,
@@ -207,7 +258,7 @@
     "source_published_at": null,
     "source_checked_at": "2026-11-03",
     "publication_basis": "editorial_source_review",
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "discovery_category": "project",
     "detail_kind": "project",
@@ -241,7 +292,24 @@
     "platforms": [],
     "industries": [],
     "images": [],
-    "cover": ""
+    "cover": "",
+    "topics": [
+      "数字产品",
+      "个人创业"
+    ],
+    "column": "opportunity",
+    "collected_at": null,
+    "evidence_status": "public_documentation_only",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": []
   },
   {
     "id": 37280062137041,
@@ -267,7 +335,7 @@
     "source_published_at": null,
     "source_checked_at": "2026-11-03",
     "publication_basis": "editorial_source_review",
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "discovery_category": "method",
     "detail_kind": "project",
@@ -297,7 +365,24 @@
     "platforms": [],
     "industries": [],
     "images": [],
-    "cover": ""
+    "cover": "",
+    "topics": [
+      "数字产品",
+      "内容变现"
+    ],
+    "column": "methods",
+    "collected_at": null,
+    "evidence_status": "public_documentation_only",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": []
   },
   {
     "id": 110024521008203,
@@ -323,7 +408,7 @@
     "source_published_at": null,
     "source_checked_at": "2026-11-03",
     "publication_basis": "editorial_source_review",
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "discovery_category": "method",
     "detail_kind": "project",
@@ -353,7 +438,24 @@
     "platforms": [],
     "industries": [],
     "images": [],
-    "cover": ""
+    "cover": "",
+    "topics": [
+      "数字产品",
+      "个人创业"
+    ],
+    "column": "methods",
+    "collected_at": null,
+    "evidence_status": "public_documentation_only",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": []
   },
   {
     "id": 82536933405673,
@@ -379,7 +481,7 @@
     "source_published_at": null,
     "source_checked_at": "2026-11-03",
     "publication_basis": "editorial_source_review",
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "discovery_category": "method",
     "detail_kind": "project",
@@ -409,7 +511,24 @@
     "platforms": [],
     "industries": [],
     "images": [],
-    "cover": ""
+    "cover": "",
+    "topics": [
+      "个人创业",
+      "副业项目"
+    ],
+    "column": "methods",
+    "collected_at": null,
+    "evidence_status": "public_documentation_only",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": []
   },
   {
     "id": 277370148739433,
@@ -435,7 +554,7 @@
     "source_published_at": null,
     "source_checked_at": "2026-11-03",
     "publication_basis": "editorial_source_review",
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "discovery_category": "method",
     "detail_kind": "project",
@@ -465,7 +584,24 @@
     "platforms": [],
     "industries": [],
     "images": [],
-    "cover": ""
+    "cover": "",
+    "topics": [
+      "数字产品",
+      "个人创业"
+    ],
+    "column": "methods",
+    "collected_at": null,
+    "evidence_status": "public_documentation_only",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": []
   },
   {
     "title": "品牌总监工作重心转向投流的行业观察",
@@ -1885,8 +2021,8 @@
     "quality_version": 3,
     "platforms": [],
     "industries": [],
-    "schema_version": 2,
-    "section": "discovery",
+    "schema_version": 3,
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -2023,7 +2159,26 @@
       "04233eee39bdb2c0",
       "04258b26fb37efaa",
       "0435d7d5d1249d94"
-    ]
+    ],
+    "topics": [
+      "AI应用",
+      "实用工具"
+    ],
+    "column": "archive",
+    "source_published_at": "2026-11-03T06:57:48+08:00",
+    "collected_at": null,
+    "evidence_status": "public_source_unverified",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": [],
+    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流"
   },
   {
     "title": "Google Ads账户中六个易被忽略的默认设置检查要点",
@@ -7015,8 +7170,8 @@
     "quality_version": 3,
     "platforms": [],
     "industries": [],
-    "schema_version": 2,
-    "section": "discovery",
+    "schema_version": 3,
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -7153,7 +7308,25 @@
       "3a28a7c881ba08db",
       "3a892a390230c533",
       "3b00715c631e7b65"
-    ]
+    ],
+    "topics": [
+      "平台变化"
+    ],
+    "column": "archive",
+    "source_published_at": "2026-10-29T00:00:00+08:00",
+    "collected_at": null,
+    "evidence_status": "public_source_unverified",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": [],
+    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流"
   },
   {
     "title": "视频号2026创作扶持计划：新人流量、现金激励与长视频加码",
@@ -7498,8 +7671,8 @@
       "hw"
     ],
     "industries": [],
-    "schema_version": 2,
-    "section": "discovery",
+    "schema_version": 3,
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -7636,7 +7809,26 @@
       "14534e5d668b5360",
       "14545754c37a0990",
       "145e2c8de2d71be7"
-    ]
+    ],
+    "topics": [
+      "AI应用",
+      "实用工具"
+    ],
+    "column": "archive",
+    "source_published_at": "2026-10-28T08:00:03+08:00",
+    "collected_at": null,
+    "evidence_status": "public_source_unverified",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": [],
+    "migration_reason": "定位升级：纯模型发布、基础设施通知或区域性大公司动态退出默认信息流"
   },
   {
     "title": "Meta广告排序三项AI更新：检索、预测与生成式推荐",
@@ -7759,7 +7951,7 @@
     "quality_version": 3,
     "platforms": [],
     "industries": [],
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "tested_status": "unknown",
     "verification_status": "unverified",
@@ -7897,7 +8089,26 @@
       "0b0249955dc264d1",
       "0b18d567b67df806",
       "0b2685952ea9ef67"
-    ]
+    ],
+    "topics": [
+      "AI应用",
+      "实用工具"
+    ],
+    "column": "methods",
+    "source_published_at": "2026-10-28T00:00:00+08:00",
+    "collected_at": null,
+    "evidence_status": "public_source_unverified",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": [],
+    "score_type": "legacy_unscored"
   },
   {
     "title": "GitHub Copilot 应用新增项目与电脑操作功能",
@@ -7964,7 +8175,7 @@
     "quality_version": 3,
     "platforms": [],
     "industries": [],
-    "schema_version": 2,
+    "schema_version": 3,
     "section": "discovery",
     "tested_status": "unknown",
     "verification_status": "unverified",
@@ -8102,7 +8313,26 @@
       "144f0ce230daeb2b",
       "147b4ec4c0ba411f",
       "149692a6dda4db38"
-    ]
+    ],
+    "topics": [
+      "AI应用",
+      "实用工具"
+    ],
+    "column": "methods",
+    "source_published_at": "2026-10-28T00:00:00+08:00",
+    "collected_at": null,
+    "evidence_status": "public_source_unverified",
+    "business_details": {
+      "target_need": "未披露",
+      "product_service": "未披露",
+      "payment_model": "未披露",
+      "acquisition": "未披露",
+      "inputs": "未披露",
+      "limitations": "未披露",
+      "first_test": "未披露"
+    },
+    "income_claims": [],
+    "score_type": "legacy_unscored"
   },
   {
     "title": "Google Ads 六种常见“优化”误区与应对",
