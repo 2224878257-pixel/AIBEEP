@@ -487,6 +487,7 @@ def collection_status(report, failed=False):
               'cached': sum(s.get('cached', 0) for s in report.get('sources', [])),
               'ai_failures': report.get('ai_failures', 0), 'ai_retries': report.get('ai_retries', 0),
               'sources_disabled': report.get('disabled_sources', []),
+              'sources_pending':report.get('pending_sources',[]),
               'sources_total': len(report.get('sources', [])),
               'sources_with_errors': sum(bool(s['errors']) for s in report.get('sources', [])),
               'last_success_at': previous.get('last_success_at') if failed else datetime.now(TZ).isoformat()}
@@ -585,7 +586,10 @@ def run(args, collector):
         fixed=fixed[offset:]+fixed[:offset]
     for source in fixed + searched_sources + disabled:
         if source.get('enabled') is False:
-            report['disabled_sources'].append(source['name'])
+            if source.get('status') in {'manual','optional_api'}:
+                report.setdefault('pending_sources',[]).append(source['name'])
+            else:
+                report['disabled_sources'].append(source['name'])
             continue
         status = {'source': source['name'], 'discovered': 0, 'readable': 0, 'added': 0, 'updated': 0, 'filtered': 0, 'duplicates': 0, 'cached': 0, 'rejected_cached': 0, 'evaluated': 0, 'attempted': 0, 'discovery_ok': False, 'errors': []}
         quality=source_quality.get(source['name'],{})

@@ -10,6 +10,15 @@ from positioning import upgrade, editorial_score, POLICY
 
 
 class PositioningTests(unittest.TestCase):
+    def test_unconnected_research_candidates_are_not_source_outages(self):
+        with tempfile.TemporaryDirectory() as tmp,patch.object(s,'ROOT',Path(tmp)):
+            s.collection_status({'pending_sources':['manual candidate'],'disabled_sources':[],
+                                 'sources':[{'source':'working','errors':[]}]})
+            status=json.loads((Path(tmp)/'collection_status.json').read_text(encoding='utf-8'))
+            self.assertEqual(status['status'],'success')
+            self.assertEqual(status['sources_with_errors'],0)
+            self.assertEqual(status['sources_pending'],['manual candidate'])
+
     def test_same_url_across_sources_is_read_and_reviewed_once(self):
         with tempfile.TemporaryDirectory() as tmp,patch.object(s,'ROOT',Path(tmp)):
             root=Path(tmp);url='https://example.com/a'

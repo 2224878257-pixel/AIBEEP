@@ -1,6 +1,6 @@
 {
   "completed_at": "2026-11-03T21:47:25.595154+08:00",
-  "status": "partial",
+  "status": "success",
   "added": 1,
   "updated": 0,
   "filtered": 13,
@@ -8,7 +8,11 @@
   "cached": 2,
   "ai_failures": 0,
   "ai_retries": 6,
-  "sources_disabled": [
+  "sources_disabled": [],
+  "sources_total": 9,
+  "sources_with_errors": 0,
+  "last_success_at": "2026-11-03T21:47:25.595167+08:00",
+  "sources_pending": [
     "Starter Story",
     "Indie Hackers",
     "Product Hunt",
@@ -19,8 +23,5 @@
     "数字生命卡兹克 / 秋芝2046",
     "X 创业者原始分享",
     "平台官方公告与创业者博客"
-  ],
-  "sources_total": 9,
-  "sources_with_errors": 0,
-  "last_success_at": "2026-11-03T21:47:25.595167+08:00"
+  ]
 }
