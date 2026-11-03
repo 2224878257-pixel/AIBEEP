@@ -639,7 +639,7 @@ document.querySelectorAll('#contentTypeRow .chip').forEach(b=>b.onclick=()=>{
 });
 function filtered(){
   let list=['archive','library','fav'].includes(state.view)?allArticles():RAW.slice();
-  if(state.view==='archive')list=list.filter(isLegacy);else if(state.view!=='fav')list=list.filter(i=>!isLegacy(i)&&i.review_status!=='pending');
+  if(state.view==='archive')list=list.filter(isLegacy);else if(state.view!=='fav')list=list.filter(i=>!isLegacy(i)&&i.review_status==='published');
   if(state.view==='library') list=list.filter(isEvergreen);
   // 视图
   if(state.view==='fav') list=list.filter(i=>state.saved.has(i.id));
