@@ -24,6 +24,7 @@
   :root[data-theme="dark"]{--bg:#16191e;--card:#20252c;--ink:#e9edf4;--ink-2:#c4ccd8;--ink-3:#a2adbc;--line:#38404b;--line-soft:#292f38;--accent-soft:#35291f;--accent-ink:#ffad55}
   :root[data-theme="dark"] .chip:not(.on),:root[data-theme="dark"] .search,:root[data-theme="dark"] .mini-search,:root[data-theme="dark"] .drawer,:root[data-theme="dark"] .card,:root[data-theme="dark"] input{background:var(--card);color:var(--ink)}
   .discovery-intro{max-width:1280px;margin:0 auto;padding:18px 20px 0}.discovery-intro h1{font-size:clamp(20px,3vw,30px);line-height:1.4}.discovery-intro p{color:var(--ink-3);font-size:13px;margin-top:8px}.discovery-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--accent-ink)}
+  body.discovery-view #feed .chiprow{display:none}
   .trust-badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.trust-badges span{font-size:11px;padding:2px 7px;background:var(--line-soft);border-radius:4px;color:var(--ink-2)}.detail-section{margin:22px 0}.detail-section h3{font-size:16px;margin-bottom:9px}.detail-section p{white-space:pre-line;line-height:1.95}.theme-switch{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 9px;white-space:nowrap}
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
@@ -472,9 +473,9 @@
       <h4>数据速览</h4>
       <div class="stats">
         <div class="stat"><div class="v" id="st1">0</div><div class="k">今日更新</div></div>
-        <div class="stat"><div class="v" id="st2">0</div><div class="k">覆盖平台</div></div>
-        <div class="stat"><div class="v" id="st3">0</div><div class="k">覆盖行业</div></div>
-        <div class="stat"><div class="v" id="st4">0</div><div class="k">本周重点</div></div>
+        <div class="stat"><div class="v" id="st2">0</div><div class="k">信息来源</div></div>
+        <div class="stat"><div class="v" id="st3">0</div><div class="k">内容分类</div></div>
+        <div class="stat"><div class="v" id="st4">0</div><div class="k">历史记录</div></div>
       </div>
       <div id="trend"></div>
       <p class="trend-cap">近 7 日「AI+增长」资讯热度趋势（示例）</p>
@@ -672,7 +673,7 @@ function updateChrome(){
   // 时间筛选：首页精选显示
   $('#timeFilters').style.display=(v==='featured')?'':'none';
   // 右侧边栏只在首页精选显示
-  document.body.classList.toggle('no-side', v!=='featured');
+  document.body.classList.toggle('no-side', v!=='featured');document.body.classList.toggle('discovery-view',!['archive','fav'].includes(v));
 }
 function renderFeed(){
   updateChrome();
@@ -739,7 +740,7 @@ function richCardHTML(i){
     <div class="flow-head">
       <span class="flow-time">${esc(i.time)}</span>
       <span class="flow-dot">·</span>
-      <span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}<span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span>
+      <span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span>
       ${i.orig?'<span class="tag ai">译</span>':''}
       <span class="flow-score">AI ${i.score}</span>
     </div>
@@ -770,7 +771,7 @@ function renderHotBoard(list){
       return `<div class="hb-row" data-id="${i.id}">
         <span class="hb-rank r${rank}">${rank}</span>
         <div class="hb-body"><p class="hb-title">${esc(i.title)}</p>
-        <span class="hb-meta"><span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}<span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span> · ${esc(i.src)}</span></div>
+        <span class="hb-meta"><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span> · ${esc(i.src)}</span></div>
         <div class="hb-right"><span class="hb-heat">AI ${i.score} 分</span></div>
       </div>`;
     }).join('')+`</div></div>`;
@@ -798,7 +799,7 @@ function renderDaily(){
         <div class="daily-items">`+items.map(i=>`
           <article class="daily-item" data-id="${i.id}">
             <span class="di-time">${esc(i.time)}</span>
-            <div class="di-body"><h4>${esc(i.title)}</h4><p>${esc(i.desc)}</p><span class="di-src">${esc(i.src)} · ${chMeta[i.ch]}</span></div>
+            <div class="di-body"><h4>${esc(i.title)}</h4><p>${esc(i.desc)}</p><span class="di-src">${esc(i.src)} · ${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span></div>
           </article>`).join('')+`</div></div>`;
     }).join('')+`</div>`;
   document.querySelectorAll('.daily-item').forEach(r=>r.onclick=()=>openCard(r.dataset.id));
@@ -875,7 +876,7 @@ function cardHTML(i){
     <div class="time">${esc(i.time)}</div>
     <div class="body">
       <div class="head">
-        <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${esc(articleDate(i))}</span></span>
+        <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${esc(articleDate(i))}</span></span>
       </div>
       <h3>${esc(i.title)}</h3>
       <p class="desc">${esc(i.desc)}</p>${trustBadges(i)}
@@ -904,7 +905,7 @@ function renderDrawer(i){
   const enBlock=i.orig?`<div class="en"><div class="enlab">原文（EN，已自动翻译为中文）</div><p>${esc(i.orig)}</p></div>`:'';
   $('#drawerPanel').innerHTML=`
     <button class="close" onclick="closeDrawer()" aria-label="关闭"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="tags"><span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}<span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
+    <div class="tags"><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
     <h2>${esc(i.title)}</h2>
     <div class="dmeta"><span>${i.url?.includes('/next_help/docs/')?'更新于':'发布于'} ${esc(articleDate(i,true))}（北京时间）</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">AI 评分 <b>${i.score}</b></span></div>
     <a class="discovery-links" href="?article=${encodeURIComponent(i.id)}" target="_blank" rel="noopener noreferrer">打开可分享的详情链接 ↗</a>
@@ -956,16 +957,10 @@ function renderHot(){
 /* ===== 数据速览 ===== */
 function renderStats(){
   $('#st1').textContent=RAW.filter(i=>!isLegacy(i)&&i.t==='today').length;
-  const plat=new Set(PLAT_IDS);$('#st2').textContent=new Set(RAW.filter(i=>!isLegacy(i)).map(i=>i.ch).filter(c=>plat.has(c))).size;
-  const ind=new Set(IND_IDS);$('#st3').textContent=new Set(RAW.flatMap(i=>i.industries||[i.ch]).filter(c=>ind.has(c))).size;
-  $('#st4').textContent=RAW.filter(i=>i.focus).length;
-  if(window.echarts){const chart=echarts.init($('#trend'));
-    chart.setOption({grid:{left:6,right:10,top:14,bottom:4,containLabel:true},
-      xAxis:{type:'category',data:TREND.map(d=>d[0]),axisLine:{lineStyle:{color:'#E9E6E0'}},axisTick:{show:false},axisLabel:{color:'#8A9099',fontSize:10}},
-      yAxis:{type:'value',show:false,min:0},
-      tooltip:{trigger:'axis',confine:true,formatter:p=>p[0].name+'：热度 '+p[0].value},
-      series:[{type:'line',data:TREND.map(d=>d[1]),smooth:true,symbol:'circle',symbolSize:6,lineStyle:{width:2,color:'#FF8200'},itemStyle:{color:'#FF8200'},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(255,130,0,.18)'},{offset:1,color:'rgba(255,130,0,.02)'}]}}}]});
-    window.addEventListener('resize',()=>chart.resize());}
+  $('#st2').textContent=new Set(RAW.filter(i=>!isLegacy(i)).map(i=>i.src)).size;
+  $('#st3').textContent=new Set(RAW.filter(i=>!isLegacy(i)).map(i=>i.discovery_category)).size;
+  $('#st4').textContent=allArticles().filter(isLegacy).length;
+  $('#trend').hidden=true;
 }
 /* ===== 搜索 / CTA ===== */
 $('#q').addEventListener('input',e=>{state.q=e.target.value.trim();renderFeed();});
