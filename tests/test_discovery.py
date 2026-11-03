@@ -23,3 +23,6 @@ class DiscoveryTests(unittest.TestCase):
         r=apply_schema(self.row(),{}, {'body':'旧广告经验'})
         self.assertEqual(r['section'],'legacy')
         self.assertEqual(r['id'],42)
+    def test_advertising_industry_observation_stays_in_legacy(self):
+        r=apply_schema(self.row(),{'discovery_relevant':True,'discovery_category':'information'},{'title':'品牌总监的工作重心转向投流','body':'广告行业观察'})
+        self.assertEqual(r['section'],'legacy')

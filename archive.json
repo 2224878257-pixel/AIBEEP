@@ -9,7 +9,7 @@
     "score": 62,
     "content_type": "analysis",
     "discovery_relevant": true,
-    "discovery_category": "information",
+    "discovery_category": null,
     "discovery_details": {
       "purpose": "了解品牌预算向效果投放倾斜的行业趋势及品牌岗位职能变化",
       "audience": "品牌与市场营销从业者、投放负责人、营销管理者",
@@ -42,7 +42,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 2,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -6504,10 +6504,10 @@
     ]
   },
   {
-    "title": "GitHub Webhook 新增 IP 段，广告数据回调要加白名单",
-    "desc": "GitHub 官方变更日志：webhook 投递新增三个 IP 段，接回调的广告数据管道需同步更新白名单。",
-    "reason": "对接 GitHub 回调做广告归因或数据同步的团队，不加白名单会漏数据；官方来源可直接核对。",
-    "content": "GitHub 在 Meta API 的 hooks 字段中新增 webhook 投递 IP 段，均为 CIDR 前缀，适用于 github.com 全部套餐（含企业云）。若用静态网络白名单接收 webhook，需手动加入这些前缀，否则投递可能被拒；若通过 Meta API 动态同步白名单，则无需操作。对广告技术团队的意义：凡用 GitHub webhook 触发归因、素材同步或数据入库的管道，属基础设施层变更，需检查回调入口白名单。内容源自官方变更日志，IP 段具体数值与生效细节建议对照原文核对。",
+    "title": "GitHub Webhook 新增 IP 地址段：检查防火墙白名单",
+    "desc": "GitHub 更新 Webhook 请求的 IP 地址段，使用固定白名单接收回调的用户需核对 Meta API 公布的地址范围。",
+    "reason": "适合维护 GitHub Webhook 接收服务的开发者，核对网络白名单与事件接收是否正常。",
+    "content": "GitHub 官方更新了 Webhook 请求的 IP 地址范围。\n如果接收端通过防火墙白名单限制 GitHub 回调，需要核对官方 Meta API 中的地址列表，并按自己的网络策略更新。\n这是 GitHub 平台的技术更新，原文没有提供广告投放或盈利效果证明。",
     "cat": "platform",
     "tag": "ad",
     "score": 72,
@@ -6515,12 +6515,12 @@
     "discovery_relevant": true,
     "discovery_category": "information",
     "discovery_details": {
-      "purpose": "避免 GitHub webhook 投递因 IP 白名单缺失被拒，保障回调数据链路完整",
-      "audience": "用 GitHub webhook 做广告归因、素材同步或数据入库的开发与投放技术团队",
-      "requirements": "维护静态网络白名单，或有权限读取 GitHub Meta API",
-      "costs": "来源未说明",
-      "risks": "仅加白名单不改流程；具体 IP 段与生效时间以原文为准，图片无相关识别内容",
-      "next_step": "访问 GitHub Meta API 的 hooks 字段，核对现有白名单与新增段是否一致"
+      "purpose": "了解 GitHub Webhook IP 地址范围更新",
+      "audience": "维护 GitHub Webhook 接收服务的开发者",
+      "requirements": "确认自己的接收服务是否使用固定 IP 白名单",
+      "costs": "来源未说明新增费用",
+      "risks": "白名单遗漏可能影响回调接收，更新时应遵循自己的网络安全策略",
+      "next_step": "查看 GitHub 官方更新与 Meta API，核对地址范围。"
     },
     "id": 43185646500494,
     "ch": "general",

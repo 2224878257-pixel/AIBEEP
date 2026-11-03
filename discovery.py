@@ -9,6 +9,9 @@ CLAIMS=re.compile(r'稳赚|保本|保收益|零风险|无风险|躺赚|包赚|�
 def apply_schema(row, ai, article):
     category=ai.get('discovery_category')
     discovery=ai.get('discovery_relevant') is True and category in CATEGORIES
+    title=str(article.get('title',''))
+    if category=='information' and re.search(r'投放|投流|获客|广告|营销|品牌总监|聚光|千川',title) and not re.search(r'工具|AI|Copilot|自动化|开源|副业|变现|赚钱|独立开发|SaaS|数字产品',title,re.I):
+        discovery=False
     row.update(schema_version=2,section='discovery' if discovery else 'legacy',
                discovery_category=category if discovery else None,
                tested_status='unknown',verification_status='unverified',sponsorship_status='unknown')
