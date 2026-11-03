@@ -490,7 +490,7 @@
 </div>
 
 <footer>
-  <span>© 2026 <b>AIBEEP</b> · 增长资讯站</span>
+  <span>© 2026 <b>AIBEEP</b> · 互联网小生意与实用信息</span>
   <span>公开来源采集 · AI 辅助整理 · 收藏与已读保存在当前浏览器</span>
 </footer>
 
@@ -581,7 +581,7 @@ const LAO_QUOTES=[
 let RAW = [];
 let ARCHIVE = [];
 let archiveError = '';
-function labelDate(i){const stamp=Date.parse(i.published_at);if(!stamp)return i;const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});return {...i,t:Date.now()-stamp>7*86400000?'archive':new Date(stamp).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})===today?'today':'week'};}
+function labelDate(i){const stamp=Date.parse(!isLegacy(i)&&i.collected_at?i.collected_at:i.published_at);if(!stamp)return i;const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});return {...i,t:Date.now()-stamp>7*86400000?'archive':new Date(stamp).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})===today?'today':'week'};}
 function allArticles(){return [...new Map([...ARCHIVE,...RAW].map(i=>[i.url||i.id,i])).values()].sort((a,b)=>(Date.parse(b.collected_at||b.published_at)||0)-(Date.parse(a.collected_at||a.published_at)||0));}
 function isEvergreen(i){return i.discovery_category==='method'||i.content_type==='experience'||i.cat==='case'||i.practical===true||(/教程|指南|方法|技巧|实操|复盘|步骤|手册|误区|SOP/i.test(i.title));}
 const state={ kind:'all', hotRange:'week', view:'featured', topic:'all', cat:'all', plat:'all', ind:'all', time:'all', q:'',
@@ -674,7 +674,7 @@ function filtered(){
 }
 
 /* ===== 信息流 ===== */
-const VIEW_TITLE={archive:'历史广告栏目',library:'干货库',all:'全部发现',featured:'每日精选',hot:'推荐榜',daily:'AI日报',fav:'我的收藏',about:'关于 AIBEEP',topics:'主题',changelog:'更新日志'};
+const VIEW_TITLE={archive:'历史广告栏目',library:'干货库',all:'全部发现',featured:'每日精选',hot:'推荐榜',daily:'每日更新',fav:'我的收藏',about:'关于 AIBEEP',topics:'主题',changelog:'更新日志'};
 function updateChrome(){
   const v=state.view;
   $('#heroSection').style.display='none';
@@ -770,14 +770,14 @@ function richCardHTML(i){
 }
 /* 热点榜页 */
 function rankArticles(items,range='week'){
-  const stamp=i=>Date.parse(i.published_at)||0;
+  const stamp=i=>Date.parse(!isLegacy(i)&&i.collected_at?i.collected_at:i.published_at)||0;
   const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});
   return items.filter(i=>range==='today'?(stamp(i)?new Date(stamp(i)).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})===today:i.t==='today'):(stamp(i)?stamp(i)>=Date.now()-7*86400000: i.t==='today'||i.t==='week'))
     .sort((a,b)=>(b.score_breakdown?Number(b.score)||0:0)-(a.score_breakdown?Number(a.score)||0:0)||stamp(b)-stamp(a)||Number(a.id)-Number(b.id));
 }
 function renderHotBoard(list){
   $('#feed').innerHTML=`<div class="hotboard">
-    <p style="font-size:12px;color:var(--ink-3);margin-bottom:12px">已评分内容按 AI 分数排序，同分按时间排序；编辑整理条目未做 AI 评分，列于其后。分数不代表盈利能力或真实热度。</p>
+    <p style="font-size:12px;color:var(--ink-3);margin-bottom:12px">按新标准的编辑分排序，同分按收录时间排序；未按新标准评分的资料列于其后。分数不代表成功概率、盈利能力或真实热度。</p>
     <div class="hot-tabs"><button class="${state.hotRange==='today'?'on':''}" data-ht="today">今日榜</button><button class="${state.hotRange==='week'?'on':''}" data-ht="week">本周榜</button></div>
     <div class="hb-list">`+list.map((i,idx)=>{
       const rank=idx+1;
@@ -797,15 +797,15 @@ function renderHotBoard(list){
 function renderDaily(){
   const today=filtered().filter(i=>i.t==='today');
   $('#feedCount').textContent=today.length;$('#feedTitle').textContent='每日更新';updateUnread();
-  const groups=[['ad','广告投放'],['acq','企业获客'],['mkt','营销方法'],['ai','AI+增长']];
+  const groups=Object.entries(DISCOVERY_CATEGORIES);
   const d=new Date();
   $('#feed').innerHTML=`<div class="daily">
     <div class="daily-head">
-      <div class="daily-kicker">AI DAILY · ${d.getMonth()+1}月${d.getDate()}日 周${['日','一','二','三','四','五','六'][d.getDay()]}</div>
-      <h1>今日增长资讯日报</h1>
-      <p class="daily-sub">共 ${today.length} 条 · 按方向分组 · 侯同学已筛过一遍</p>
+      <div class="daily-kicker">AIBEEP DAILY · ${d.getMonth()+1}月${d.getDate()}日 周${['日','一','二','三','四','五','六'][d.getDay()]}</div>
+      <h1>今天发现了什么</h1>
+      <p class="daily-sub">共 ${today.length} 条 · 按栏目分组 · 保留来源，不代表亲测</p>
     </div>`+groups.map(([key,label])=>{
-      const items=today.filter(i=>i.tag===key);
+      const items=today.filter(i=>articleColumn(i)===key);
       if(!items.length) return '';
       return `<div class="daily-sec">
         <h3>${label}<span class="daily-cnt">${items.length}</span></h3>
@@ -1003,7 +1003,7 @@ async function init(){
     const rows=await response.json();if(!Array.isArray(rows))throw new Error('归档格式无效');
     ARCHIVE=rows.map(labelDate);
   }catch(e){archiveError='历史归档暂时加载失败，当前仅显示已加载的近期文章。';}
-  RAW=RAW.map(labelDate).filter(i=>i.t!=='archive');
+  RAW=RAW.map(labelDate).filter(i=>i.t!=='archive').sort((a,b)=>(Date.parse(b.collected_at||b.published_at)||0)-(Date.parse(a.collected_at||a.published_at)||0));
   restoreReadingState();
   renderHeader(); renderStats(); renderNav(); renderFeed(); renderFocus(); renderHot();
   const requested=new URL(location.href).searchParams.get('article');if(requested)openCard(requested);

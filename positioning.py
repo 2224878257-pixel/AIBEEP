@@ -35,7 +35,8 @@ def upgrade(row, ai=None, article=None):
     row['topics'] = list(dict.fromkeys(t for t in tags if t in POLICY['topics']))[:5]
     row['source_published_at'] = row.get('source_published_at', article.get('published_at',row.get('published_at')))
     row['collected_at'] = row.get('collected_at') or (datetime.now(timezone.utc).isoformat() if article else None)
-    row['evidence_status'] = 'public_source_unverified'
+    row['source_evidence_type']=article.get('source_evidence_type',row.get('source_evidence_type','unknown'))
+    row['evidence_status'] = 'author_reported_unverified' if row['source_evidence_type']=='author_self_report' else 'public_source_unverified'
     if row.get('income_claim_status') == 'unverified':
         row['evidence_status'] = 'author_reported_unverified'
     if row.get('publication_basis') == 'editorial_source_review':

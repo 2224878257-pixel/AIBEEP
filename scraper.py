@@ -29,7 +29,7 @@ TZ = ZoneInfo('Asia/Shanghai')
 CATS = {'platform', 'data', 'ai', 'case', 'acq'}
 TAGS = {'ad', 'acq', 'mkt', 'ai'}
 CHANNELS = {'dj', 'tx', 'ks', 'xhs', 'hw', 'ec', 'local', 'saas', 'game', 'edu', 'general', 'tmall', 'wx', 'multi'}
-QUALITY_VERSION = 4
+QUALITY_VERSION = 5
 TOPIC = re.compile(r'投放|获客|转化|买量|信息流|素材|竞价|广告|营销|增长|私域|线索|归因|落地页|品牌|种草|市场预算|商业漏斗|生活服务|抖音|小红书|视频号|投流|拉新|google ads|meta|facebook|ppc|lead|conversion|campaign|attribution|creative|placement|audience', re.I)
 TOPIC = re.compile(TOPIC.pattern+r'|副业|赚钱|变现|接单|自由职业|付费专栏|知识产品|素材销售|模板|工具|信息差|独立开发|数字产品|效率|自动化|开源|创作者|模型|copilot|workflow|open.source|agent|tool|assistant|transformer|model',re.I)
 TOPIC = re.compile('|'.join(re.escape(k) for k in POLICY['keywords']), re.I)
@@ -360,6 +360,7 @@ def _enrich_once(article, key):
             {'role':'system','content':'新定位：互联网赚钱机会与实用信息发现平台。额外输出 discovery_relevant 布尔、discovery_category(project赚钱项目/method赚钱方法/tool实用工具/ai_toolAI工具/information信息差)、discovery_details对象含 purpose用途、audience适用人群、requirements前提、costs成本、risks风险、next_step可执行下一步。仅有具体机会、可复用方法或可用工具才相关，纯广告新闻归历史内容。资料不足写来源未说明。项目方收入说法仅为未核实宣称，不能改写为已证实盈利；禁止赚钱承诺、收益保证和夸大措辞，不生成亲测、已验证或非赞助结论。'},
             {'role':'system','content':'relevant 字段同样按新定位判断：可用的 AI/开发/效率工具和实用信息不必与广告投放直接相关。旧 cat/ch 为兼容字段仍按允许值填写，新的五分类单独写 discovery_category。纯技术研究若无可用方法、工具或实际适用场景，判为不相关。'},
             {'role':'system','content':'新定位：发现互联网赚钱机会，分享实用方法和工具，拆解真实商业案例。AI只是工具。额外输出column(opportunity机会发现/case案例拆解/methods方法与工具)，绝不生成experiments项目实测。topics最多5个，从配置topics中选择。score_breakdown按配置weights分别给整数分，各项不超过权重；总分只是编辑排序，不是成功概率。案例重业务过程、第一批用户与证据；工具重用途、限制、可用性；机会重需求、可验证的小测试与时效。纯模型发布/参数比较/融资/无关大公司新闻/夸张收益/付费引流判relevant=false。不可因无AI关键词排除国内小生意。business_details按原文填写target_need目标用户与需求/product_service产品服务/payment_model收费方式/acquisition获客/inputs技能预算时间/limitations限制/first_test小测试；缺失写未披露，不猜测。income_claims为原文收入声明数组(metric营收/利润/交易额/融资额/不明确,amount原文数值与单位,period单月/累计等原文周期,attribution作者自述,source_quote原文短引文)，没有返回[]；不把收入当利润或自述当核实。海外摘要保留来源，不冒充原创或亲测。' + json.dumps(POLICY,ensure_ascii=False)},
+            {'role':'system','content':'补充reader_fit枚举direct/technical_demo/general_employment/general_news以及reader_task字符串（原文中普通人的具体工作、经营、创作或效率任务；未披露则原样写未披露）。只有direct且具体任务明确才relevant=true。纯趣味硬件玩法、游戏移植或底层技术演示、一般招聘与求职汇总、无目标需求的可视化展示不收录；不要把演示猜成商业机会。案例必须有真实业务或产品经营过程，不把作者技术实验自动当商业案例。'},
             {'role':'system','content':'discovery_details和business_details每项最多60个汉字，content最多300字，income_claims最多3条、fact_sources最多4条。fact_sources数组可按具体事实列出fact与url，只能引用输入正文url或已读取evidence_pages中的url。相关链接或转载不算独立佐证；目录排名、流量估计、标价、评论数、众筹金额和挂牌价不能推断销量、利润或回本周期。只有视频标题简介而无正文字幕时不能生成完整视频总结。'},
             {'role': 'user', 'content': json.dumps(payload, ensure_ascii=False)}]}).json()
     choice = result['choices'][0]
@@ -383,6 +384,10 @@ def _enrich_once(article, key):
     if article.get('ocr_used') and any(re.search(r'\d|百分之|[一二三四五六七八九十百千万亿]+(?:元|倍|%|％)', data[k]) for k in ('desc','reason','content')):
         raise ValueError('Unverified OCR numeric claim')
     data['score'] = editorial_score(data)
+    if data.get('reader_fit') not in {'direct','technical_demo','general_employment','general_news'}:
+        raise ValueError('Missing reader fit decision')
+    if data['reader_fit']!='direct' or not isinstance(data.get('reader_task'),str) or data['reader_task'] in {'','未披露','来源未说明'}:
+        data['relevant']=False
     if data.get('column') not in {'opportunity','case','methods'} or not isinstance(data.get('topics'),list):
         raise ValueError('Invalid positioning classification')
     if article.get('source_kind') == 'community':
@@ -392,7 +397,7 @@ def _enrich_once(article, key):
             'relevant': data.get('relevant', True), 'detected_ch': data.get('ch', 'general'),
             'practical': data.get('practical') is True, 'actions': data.get('actions', []),
             'content_type': data.get('content_type'),
-            **{k:data.get(k) for k in ('discovery_relevant','discovery_category','discovery_details','column','topics','business_details','income_claims','score_breakdown','fact_sources')}}
+            **{k:data.get(k) for k in ('discovery_relevant','discovery_category','discovery_details','column','topics','business_details','income_claims','score_breakdown','fact_sources','reader_fit','reader_task')}}
 
 
 def classify_row(row, source=None):
@@ -583,7 +588,7 @@ def run(args, collector):
         status = {'source': source['name'], 'discovered': 0, 'readable': 0, 'added': 0, 'updated': 0, 'filtered': 0, 'duplicates': 0, 'cached': 0, 'rejected_cached': 0, 'evaluated': 0, 'attempted': 0, 'discovery_ok': False, 'errors': []}
         quality=source_quality.get(source['name'],{})
         last_attempt=date_value(quality.get('last_attempt'))
-        interval=quality.get('next_interval_hours',0)
+        interval=quality.get('next_interval_hours',0) if quality.get('policy_version')==QUALITY_VERSION else 0
         if not args.check_sources and last_attempt and now-last_attempt<timedelta(hours=interval):
             report.setdefault('backoff_sources',[]).append(source['name'])
             continue
@@ -653,11 +658,12 @@ def run(args, collector):
                                 raise UnsupportedArticle('Insufficient reliable OCR text')
                             article['body'] = article['body']+'\n[图片识别文字，未经人工复核]\n'+article['ocr_text']
                         cached_row = by_url.get(article['url'])
-                        if cached_row and cached_row.get('content_hash') == hashlib.sha256(re.sub(r'\W+', '',article['body']).encode()).hexdigest():
+                        if cached_row and cached_row.get('quality_version') == QUALITY_VERSION and cached_row.get('content_hash') == hashlib.sha256(re.sub(r'\W+', '',article['body']).encode()).hexdigest():
                             cached_row.update({k:article[k] for k in ('images','cover','ocr_used','ocr_text','media_version','media_issues')})
                             status['media_updated']=status.get('media_updated',0)+1
                             continue
                     article['source_kind'] = source.get('kind', 'official')
+                    article['source_evidence_type']=source.get('evidence_type','public_secondary_report' if source.get('kind')=='community' else 'official_material')
                     article['author'] = collector.authors.get(canonical(url), '') if isinstance(getattr(collector, 'authors', None), dict) else ''
                     fingerprint = hashlib.sha256(re.sub(r'\W+', '', article['body']).encode()).hexdigest()
                     if fingerprint in fingerprints:
@@ -680,6 +686,9 @@ def run(args, collector):
                         if not community_passes(ai):
                             status['filtered'] += 1
                             screening[article['url']] = {'checked_at':now.isoformat(),'quality_version':QUALITY_VERSION}
+                            for queued in queue:
+                                if queued.get('url')==article['url']:
+                                    queued.update(review_status='rejected',quality_version=QUALITY_VERSION,rejection_reason='New editorial relevance or score criteria not met')
                             # Reclassification must never erase articles already in the historical archive.
                             continue
                         status['qualified']=status.get('qualified',0)+1
@@ -732,7 +741,7 @@ def run(args, collector):
                 display_date=date_value(row.get('collected_at')) if row.get('section')=='discovery' else None
                 display_date=display_date or published
                 row.update(t='today' if display_date.date() == now.date() else ('week' if now - display_date <= timedelta(days=7) else 'archive'),
-                           time=published.strftime('%H:%M') if published.date() == now.date() else published.strftime('%m/%d'))
+                           time=display_date.strftime('%H:%M') if display_date.date() == now.date() else display_date.strftime('%m/%d'))
                 rows.append(row)
         rows, report['merged_duplicates'] = deduplicate_rows(rows)
         kept_urls={r['url'] for r in rows}
@@ -755,17 +764,17 @@ def run(args, collector):
                     row['time'] = published.strftime('%H:%M' if row['t'] == 'today' else '%m/%d')
             if changed:
                 atomic_json(path, old)
-    report['summary']={'queries':search_report.get('queries',0),'discovered_urls':sum(s['discovered'] for s in report['sources']), 'read_urls':budget['read_urls'],'readable':sum(s['readable'] for s in report['sources']), 'duplicates':sum(s['duplicates'] for s in report['sources'])+report.get('merged_duplicates',0),'qualified':sum(s.get('qualified',0) for s in report['sources']),'generated':report['added'],'review_queue':len(queue),'successful_source_listings':sum(bool(s['discovery_ok']) for s in report['sources']),'successful_source_bodies':sum(s['readable']>0 for s in report['sources'])}
+    report['summary']={'queries':search_report.get('queries',0),'discovered_urls':sum(s['discovered'] for s in report['sources']), 'read_urls':budget['read_urls'],'readable':sum(s['readable'] for s in report['sources']), 'duplicates':sum(s['duplicates'] for s in report['sources'])+report.get('merged_duplicates',0),'qualified':sum(s.get('qualified',0) for s in report['sources']),'generated':report['added'],'review_queue':sum(r.get('review_status')=='pending' for r in queue),'successful_source_listings':sum(bool(s['discovery_ok']) for s in report['sources']),'successful_source_bodies':sum(s['readable']>0 for s in report['sources'])}
     print('BATCH '+json.dumps(report['summary'],ensure_ascii=False),flush=True)
     atomic_json(ROOT / 'run_report.json', report)
     if not args.check_sources:
         for status in report['sources']:
             previous=source_quality.get(status['source'],{})
-            samples=(previous.get('samples',[])+[{'attempted':status['attempted'],'readable':status['readable'],'duplicates':status['duplicates'],'discovered':status['discovered'],'qualified':status.get('qualified',0),'added':status['added'],'missing_dates':status.get('missing_dates',0)}])[-20:]
+            samples=([r for r in previous.get('samples',[]) if 'evaluated' in r]+[{'evaluated':status['evaluated'],'attempted':status['attempted'],'readable':status['readable'],'duplicates':status['duplicates'],'discovered':status['discovered'],'qualified':status.get('qualified',0),'added':status['added'],'missing_dates':status.get('missing_dates',0)}])[-20:]
             totals={k:sum(r.get(k,0) for r in samples) for k in samples[-1]}
             streak=previous.get('failure_streak',0)+1 if status['errors'] and not status['readable'] else 0
-            rates={'fetch_success_rate':totals['readable']/max(1,totals['attempted']),'effective_content_rate':totals['qualified']/max(1,totals['readable']),'duplicate_rate':totals['duplicates']/max(1,totals['discovered']),'missing_date_rate':totals['missing_dates']/max(1,totals['attempted']),'selection_rate':totals['added']/max(1,totals['readable'])}
-            source_quality[status['source']]={'samples':samples,'rates':rates,'failure_streak':streak,'last_attempt':now.isoformat(),'next_interval_hours':config['source_failure_backoff_hours'] if streak else 24 if totals['readable']>=3 and rates['effective_content_rate']<0.1 else 0}
+            rates={'fetch_success_rate':totals['readable']/max(1,totals['attempted']),'effective_content_rate':totals['qualified']/max(1,totals['evaluated']),'duplicate_rate':totals['duplicates']/max(1,totals['discovered']),'missing_date_rate':totals['missing_dates']/max(1,totals['attempted']),'selection_rate':totals['added']/max(1,totals['readable'])}
+            source_quality[status['source']]={'policy_version':QUALITY_VERSION,'samples':samples,'rates':rates,'failure_streak':streak,'last_attempt':now.isoformat(),'next_interval_hours':config['source_failure_backoff_hours'] if streak else 24 if totals['evaluated']>=3 and rates['effective_content_rate']<0.1 else 0}
         source_status=load_json(ROOT/'source_status.json',[])
         by_source={s['source']:s for s in report['sources']}
         for entry in source_status:

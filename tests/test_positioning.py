@@ -10,6 +10,34 @@ from positioning import upgrade, editorial_score, POLICY
 
 
 class PositioningTests(unittest.TestCase):
+    def test_high_scoring_technical_demo_is_not_reader_relevant(self):
+        data=dict(title='技术演示',desc='演示',content='演示步骤',reason='演示参考',cat='ai',tag='ai',ch='general',
+                  score=100,score_breakdown=dict(POLICY['weights']),column='methods',topics=['实用工具'],
+                  reader_fit='technical_demo',reader_task='未披露',relevant=True)
+        response=Mock()
+        response.json.return_value={'choices':[{'finish_reason':'stop','message':{'content':json.dumps(data)}}]}
+        with patch.object(s,'request',return_value=response):
+            ai=s.enrich({'source_kind':'community'},'test')
+        self.assertFalse(ai['relevant'])
+        self.assertFalse(s.community_passes(ai))
+
+    def test_unchanged_body_must_be_reviewed_after_policy_version_change(self):
+        with tempfile.TemporaryDirectory() as tmp,patch.object(s,'ROOT',Path(tmp)):
+            root=Path(tmp);stamp=datetime.now(s.TZ).isoformat();url='https://example.com/article';body='原文实际内容'
+            old={'id':42,'url':url,'title':'旧分类','source_kind':'community','published_at':stamp,'quality_version':0,
+                 'media_version':s.MEDIA_VERSION,'content_hash':s.hashlib.sha256(s.re.sub(r'\W+','',body).encode()).hexdigest()}
+            (root/'data.json').write_text(json.dumps([old]))
+            (root/'sources.json').write_text('[{"name":"test","ch":"general","kind":"community","hosts":["example.com"],"pattern":"/article"}]')
+            collector=Mock();collector.discover.return_value=[url]
+            collector.article.return_value={'url':url,'title':'原文','body':body,'published_at':stamp}
+            ai=dict(title='重新审核后的工具',desc='摘要',content='要点',reason='用途',cat='ai',tag='ai',score=80,relevant=True,discovery_relevant=True,discovery_category='tool')
+            with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}),patch.object(s,'enrich',return_value=ai) as enrich:
+                s.run(Mock(check_sources=False,limit=1),collector)
+            enrich.assert_called_once()
+            row=json.loads((root/'archive.json').read_text(encoding='utf-8'))[0]
+            self.assertEqual(row['id'],42)
+            self.assertEqual(row['quality_version'],s.QUALITY_VERSION)
+
     def test_score_is_sum_of_bounded_components_not_model_total(self):
         parts=dict(POLICY['weights'])
         self.assertEqual(editorial_score({'score':1,'score_breakdown':parts}),100)

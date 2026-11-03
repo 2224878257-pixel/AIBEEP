@@ -26,3 +26,8 @@ class DiscoveryTests(unittest.TestCase):
     def test_advertising_industry_observation_stays_in_legacy(self):
         r=apply_schema(self.row(),{'discovery_relevant':True,'discovery_category':'information'},{'title':'品牌总监的工作重心转向投流','body':'广告行业观察'})
         self.assertEqual(r['section'],'legacy')
+
+    def test_technical_demonstration_without_business_process_is_not_auto_case(self):
+        row=apply_schema(self.row(),{'discovery_relevant':True,'discovery_category':'ai_tool','column':'case','business_details':{'target_need':'未披露','product_service':'未披露'}},{'title':'作者技术实验','body':'代码移植'})
+        self.assertEqual(row['review_status'],'pending')
+        self.assertEqual(row['hold_reason'],'insufficient_business_process')

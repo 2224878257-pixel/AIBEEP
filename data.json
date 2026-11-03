@@ -787,7 +787,7 @@
   },
   {
     "title": "少数派社区周报：用户用 AI 编程替代付费订阅的实践汇总",
-    "desc": "社区用户分享用 AI 编程自建工具替代付费软件的做法与限制，图片识别未涉及。",
+    "desc": "社区用户分享用 AI 编程自建工具替代付费软件的做法与限制。",
     "reason": "汇总了多个可直接访问的开源项目与自建工具，含作者自述的替代思路与风险提醒，可复用。",
     "content": "少数派一派的讨论汇总了社区用户用 AI 编程或开源项目替代付费订阅的实践。作者们提到的替代对象包括记账、阅读器、音乐播放、打印设置、文件暂存、闪念胶囊、韩语词典等；做法多为借助 AI 编程工具或开源项目自建小工具。可参考的项目有新闻聚合工具 Horizon（多平台爬取、自定义处理管线、轻量部署）、离线语音随手记项目 shengwuji（本地语音识别、不上传数据）。讨论中也提到限制：AI 编程订阅本身有成本，长期使用需考虑维护成本与代码负担，核心工作流不宜全押在开源替代上。另有一派友提到二手 TITAN V 显卡的可购信息与维修风险。以上效果均为作者自述，未核实。",
     "cat": "case",
@@ -2611,7 +2611,7 @@
       "risks": "初次加载慢，桌面端体验更佳",
       "next_step": "克隆开源仓库并替换为本地数据试做原型"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "实用工具",
       "数字产品"
@@ -2659,7 +2659,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -2811,7 +2811,8 @@
       "30f5afd2d121365d",
       "310d7fd031cc0a6e",
       "3141761ad1315f0c"
-    ]
+    ],
+    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐"
   },
   {
     "title": "HN 招聘帖：远程与现场职位信息聚合",
@@ -2832,7 +2833,7 @@
       "risks": "岗位真实性与签证、远程地区限制需自行核实",
       "next_step": "打开文中检索工具按远程条件筛选岗位"
     },
-    "column": "opportunity",
+    "column": "archive",
     "topics": [
       "互联网小生意",
       "获客与分发",
@@ -2886,7 +2887,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -3038,7 +3039,8 @@
       "3034971ef21ae3aa",
       "304036e1a7ae078b",
       "306100f461cca68a"
-    ]
+    ],
+    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐"
   },
   {
     "title": "新品上线广告预算怎么定：从盈亏平衡CPA到边际CPA的六步决策模型",
@@ -3391,7 +3393,7 @@
       "risks": "标定耗时且依赖盘片批次，失败与浪费盘片风险",
       "next_step": "下载工具，选内置预设型号盘先刻测试图"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "实用工具",
       "AI应用"
@@ -3457,7 +3459,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -3615,7 +3617,8 @@
       "09563bb30f141d47",
       "095dfca23787399f",
       "095f2b521cc9284e"
-    ]
+    ],
+    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐"
   },
   {
     "title": "小红书专业号资质规范新增：分行业准入与资质要求",
@@ -5727,7 +5730,7 @@
       "risks": "大型逆向可涉版权与授权，成功率依赖项目，效果需实测",
       "next_step": "选一个有Demo授权的旧程序，先只迁移一个图形调用验证可行性"
     },
-    "column": "case",
+    "column": "archive",
     "topics": [
       "AI应用",
       "实用工具",
@@ -5794,7 +5797,7 @@
       "game"
     ],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -5946,7 +5949,8 @@
       "162d3883da22123f",
       "1639778646236762",
       "166d32735e17c06d"
-    ]
+    ],
+    "migration_reason": "编辑复核：一般招聘或趣味技术演示，不足以支撑新定位的默认推荐"
   },
   {
     "title": "小红书「种草直达」智能助攻产品手册要点",
@@ -9650,7 +9654,7 @@
     "review_status": "published",
     "source_published_at": "2026-06-10T11:25:07.315000+08:00",
     "collected_at": "2026-11-03T21:27:32.677415+08:00",
-    "evidence_status": "public_source_unverified",
+    "evidence_status": "author_reported_unverified",
     "score_type": "editorial_ranking",
     "original_url": "https://news.tonydinh.com/p/im-on-product-hunt-updates-jun-2026",
     "canonical_url": "https://news.tonydinh.com/p/im-on-product-hunt-updates-jun-2026",
@@ -9793,6 +9797,7 @@
       "0852dbe0e8487655",
       "0886853c85f53ecd",
       "088e1eefb78dc259"
-    ]
+    ],
+    "source_evidence_type": "author_self_report"
   }
 ]

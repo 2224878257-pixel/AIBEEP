@@ -177,7 +177,7 @@ class ScraperTests(unittest.TestCase):
 
     def test_retry_truncated_ai_output_then_succeed(self):
         data = dict(title='test',desc='summary',content='body',reason='reason',cat='case',tag='ad',ch='hw',score=80,relevant=True)
-        data.update(column='methods', topics=['实用工具'], score_breakdown={'relevance':20,'evidence':20,'actionability':16,'low_cost_fit':12,'durability':8,'novelty':4})
+        data.update(reader_fit='direct',reader_task='处理客户请求',column='methods', topics=['实用工具'], score_breakdown={'relevance':20,'evidence':20,'actionability':16,'low_cost_fit':12,'durability':8,'novelty':4})
         bad, good = Mock(), Mock()
         bad.json.return_value = {'choices':[{'finish_reason':'length','message':{'content':'{'}}]}
         good.json.return_value = {'choices':[{'finish_reason':'stop','message':{'content':json.dumps(data)}}]}
@@ -224,7 +224,7 @@ class ScraperTests(unittest.TestCase):
     def test_ai_multiple_labels_choose_supported_primary(self):
         data = dict(title='test', desc='summary', content='body', reason='reason', cat=['case','acq'], tag=['ad'], ch=['hw','general'], score=80, relevant=True)
         response = Mock()
-        data.update(column='case', topics=['商业案例'], score_breakdown={'relevance':20,'evidence':20,'actionability':16,'low_cost_fit':12,'durability':8,'novelty':4})
+        data.update(reader_fit='direct',reader_task='复盘客户获取',column='case', topics=['商业案例'], score_breakdown={'relevance':20,'evidence':20,'actionability':16,'low_cost_fit':12,'durability':8,'novelty':4})
         response.json.return_value = {'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(data)}}]}
         with patch.object(s, 'request', return_value=response):
             result = s.enrich({'source_kind': 'community'}, 'test')

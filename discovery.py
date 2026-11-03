@@ -23,4 +23,8 @@ def apply_schema(row, ai, article):
     row['income_claim_status']='unverified' if has_claim else 'not_stated'
     # Project/method items and any income promises require a human decision before publication.
     row['review_status']='pending' if discovery and (category in {'project','method'} or has_claim) else 'published'
+    if ai.get('column')=='case':
+        facts=ai.get('business_details',{})
+        if not isinstance(facts,dict) or any(not facts.get(k) or facts[k] in {'未披露','来源未说明'} for k in ('target_need','product_service')):
+            row.update(review_status='pending',hold_reason='insufficient_business_process')
     return row
