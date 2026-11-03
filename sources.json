@@ -13,5 +13,7 @@
   {"ch":"general","name":"运营派","url":"https://www.yunyingpai.com/feed","pattern":"/[^/]+/[0-9]+\\.html$","hosts":["www.yunyingpai.com"],"adapter":"rss","kind":"community","http_only":true},
   {"ch":"general","name":"青瓜传媒平台专题","url":"https://www.opp2.com/wp-json/wp/v2/posts","pattern":"/[0-9]+\\.html$","hosts":["www.opp2.com"],"adapter":"wordpress_search","kind":"community","http_only":true,"search_terms":["抖音","腾讯广告","快手","视频号","千川"],"limit":6},
   {"ch":"hw","name":"Meta官方新闻室","url":"https://about.fb.com/feed/","pattern":"/news/20[0-9]{2}/[0-9]{2}/.+","hosts":["about.fb.com"],"adapter":"rss","http_only":true,"require_relevance":true},
-  {"ch":"general","name":"运营派平台专题","url":"https://www.yunyingpai.com/","pattern":"/[^/]+/[0-9]+\\.html$","hosts":["www.yunyingpai.com"],"adapter":"site_search","kind":"community","http_only":true,"search_terms":["快手","腾讯广告","千川","抖音","巨量"],"limit":6}
+  {"ch":"general","name":"运营派平台专题","url":"https://www.yunyingpai.com/","pattern":"/[^/]+/[0-9]+\\.html$","hosts":["www.yunyingpai.com"],"adapter":"site_search","kind":"community","http_only":true,"search_terms":["快手","腾讯广告","千川","抖音","巨量"],"limit":6},
+  {"ch":"general","name":"GitHub官方更新","url":"https://github.blog/changelog/feed/","hosts":["github.blog"],"pattern":"/changelog/.+","adapter":"rss","require_relevance":true,"http_only":true,"limit":3},
+  {"ch":"general","name":"Hugging Face官方博客","url":"https://huggingface.co/blog/feed.xml","hosts":["huggingface.co"],"pattern":"/blog/.+","adapter":"rss","require_relevance":true,"http_only":true,"limit":3}
 ]

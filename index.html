@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AIBEEP · 广告投放 / 企业获客 / 营销 / AI+增长</title>
+<title>AIBEEP · 互联网赚钱机会与实用信息发现平台</title>
+<meta name="description" content="发现互联网机会、实用方法和 AI 工具。保留信息来源与发布日期，区分亲测、验证、赞助和项目方宣称。">
+<link rel="canonical" href="https://aibeep.cn/">
+<meta property="og:title" content="AIBEEP · 互联网赚钱机会与实用信息发现平台">
+<meta property="og:description" content="赚钱项目、赚钱方法、实用工具、AI工具和信息差；不将收入宣称视为已验证盈利。">
+<meta property="og:url" content="https://aibeep.cn/"><meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FF8200'/%3E%3Ctext x='16' y='22' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
 <script src="https://fastly.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 <style>
@@ -16,6 +21,10 @@
     --shadow:0 1px 3px rgba(31,35,41,.04), 0 1px 2px rgba(31,35,41,.03);
     --radius:8px;
   }
+  :root[data-theme="dark"]{--bg:#16191e;--card:#20252c;--ink:#e9edf4;--ink-2:#c4ccd8;--ink-3:#a2adbc;--line:#38404b;--line-soft:#292f38;--accent-soft:#35291f;--accent-ink:#ffad55}
+  :root[data-theme="dark"] .chip:not(.on),:root[data-theme="dark"] .search,:root[data-theme="dark"] .mini-search,:root[data-theme="dark"] .drawer,:root[data-theme="dark"] .card,:root[data-theme="dark"] input{background:var(--card);color:var(--ink)}
+  .discovery-intro{max-width:1280px;margin:0 auto;padding:18px 20px 0}.discovery-intro h1{font-size:clamp(20px,3vw,30px);line-height:1.4}.discovery-intro p{color:var(--ink-3);font-size:13px;margin-top:8px}.discovery-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--accent-ink)}
+  .trust-badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.trust-badges span{font-size:11px;padding:2px 7px;background:var(--line-soft);border-radius:4px;color:var(--ink-2)}.detail-section{margin:22px 0}.detail-section h3{font-size:16px;margin-bottom:9px}.detail-section p{white-space:pre-line;line-height:1.95}.theme-switch{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 9px;white-space:nowrap}
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
   body{background:var(--bg);color:var(--ink);font-family:"Source Han Sans SC","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;font-size:14px;line-height:1.7;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
@@ -403,7 +412,7 @@
 <header class="topbar">
   <div class="topbar-inner">
     <button class="menu-btn" id="menuBtn" aria-label="菜单"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-    <div class="brand"><div><span class="word">AIB<span>EEP</span></span><small>GROWTH DAILY</small></div></div>
+    <div class="brand"><div><span class="word">AIB<span>EEP</span></span><small>DISCOVER WHAT WORKS</small></div></div>
     <div class="spacer"></div>
     <div class="today"><span class="dot"></span>今日更新 <b id="todayCount">0</b> 条 · <span id="todayDate"></span></div>
     <div class="search">
@@ -430,11 +439,11 @@
     <!-- 栏目分类 -->
     <div class="chiprow" id="catRow">
       <button class="chip on" data-cat="all">全部</button>
-      <button class="chip" data-cat="platform">平台动态</button>
-      <button class="chip" data-cat="data">行业数据</button>
-      <button class="chip" data-cat="ai">AI营销工具</button>
-      <button class="chip" data-cat="case">投放案例</button>
-      <button class="chip" data-cat="acq">获客趋势</button>
+      <button class="chip" data-cat="project">赚钱项目</button>
+      <button class="chip" data-cat="method">赚钱方法</button>
+      <button class="chip" data-cat="tool">实用工具</button>
+      <button class="chip" data-cat="ai_tool">AI工具</button>
+      <button class="chip" data-cat="information">信息差</button>
     </div>
 
     <div class="chiprow" id="contentTypeRow" aria-label="内容类型">
@@ -496,13 +505,13 @@
    ============================================================ */
 const NAV = [
   {group:'内容', items:[
-    {id:'featured', name:'精选',     ico:'M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6L3.2 9.4l6.1-.9L12 3z'},
-    {id:'all',      name:'全部动态', ico:'M4 6h16M4 12h16M4 18h10'},
-    {id:'archive', name:'历史归档', ico:'M4 4h16v5H4zM6 9v11h12V9M10 13h4'},
+    {id:'featured', name:'每日精选',     ico:'M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6L3.2 9.4l6.1-.9L12 3z'},
+    {id:'all',      name:'全部发现', ico:'M4 6h16M4 12h16M4 18h10'},
+    {id:'archive', name:'历史广告栏目', ico:'M4 4h16v5H4zM6 9v11h12V9M10 13h4'},
     {id:'library', name:'干货库', ico:'M4 4h6l2 2 2-2h6v16h-6l-2 2-2-2H4z'},
     {id:'hot',      name:'推荐榜',   ico:'M12 2c1 4-4 5-4 9a4 4 0 008 0c0-1-.5-2-1-3 1 1 3 2 3 5a6 6 0 11-12 0c0-5 4-7 6-11z'},
-    {id:'daily',    name:'增长日报', ico:'M4 5h16v14H4zM8 3v4M16 3v4M4 10h16'},
-    {id:'topics',   name:'主题',     ico:'M4 6h16M4 12h10M4 18h7'},
+    {id:'daily',    name:'每日更新', ico:'M4 5h16v14H4zM8 3v4M16 3v4M4 10h16'},
+
     {id:'fav',      name:'收藏',     ico:'M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6L3.2 9.4l6.1-.9L12 3z'},
   ]},
   {group:'更多', items:[
@@ -515,6 +524,10 @@ const PLAT_IDS=['dj','tx','wx','ks','xhs','tmall','hw'];
 const IND_IDS=['ec','local','saas','game','edu'];
 const chMeta={all:'全部',dj:'巨量引擎/抖音',tx:'腾讯广告',wx:'微信/视频号',ks:'快手磁力',xhs:'小红书',tmall:'淘宝/天猫',multi:'多平台',hw:'海外投放',ec:'电商',local:'本地生活',saas:'企服SaaS',game:'游戏',edu:'教育',general:'投放与增长'};
 const CONTENT_TYPES={official:'官方动态',experience:'作者经验',analysis:'行业分析'};
+const DISCOVERY_CATEGORIES={project:'赚钱项目',method:'赚钱方法',tool:'实用工具',ai_tool:'AI工具',information:'信息差'};
+function isLegacy(i){return i.section!=='discovery';}
+function trustBadges(i){return `<div class="trust-badges"><span>${DISCOVERY_CATEGORIES[i.discovery_category]||'历史栏目'}</span><span>亲测：${i.tested_status==='tested'?'已亲测':'未标注'}</span><span>验证：${i.verification_status==='verified'?'已验证':'未验证'}</span><span>赞助：${i.sponsorship_status==='sponsored'?'是':i.sponsorship_status==='not_sponsored'?'否':'未标注'}</span></div>`;}
+function discoveryDetails(i){if(isLegacy(i))return '';const details=i.discovery_details||{};const title=i.detail_kind==='project'?'项目详情':i.detail_kind==='tool'?'工具详情':'信息详情';return `<section class="detail-section"><h3>${title}</h3>${Object.entries({purpose:'内容与用途',audience:'适用人群',requirements:'参与或使用前提',costs:'费用与成本',risks:'风险与限制',next_step:'下一步核实'}).map(([k,label])=>`<section class="detail-section"><h3>${label}</h3><p>${esc(details[k]||'来源未说明，请先查看原文或产品官方说明。')}</p></section>`).join('')}<p class="ocr-note">收录不等于推荐投资或保证盈利。项目方收入宣称未经本平台证实；亲测、验证与赞助状态分别记录。</p></section>`;}
 function contentType(i){return i.content_type||(i.source_kind==='community'?'experience':'official');}
 function contentBadge(i){return `<span class="tag">${CONTENT_TYPES[contentType(i)]||'作者分享'}</span>`;}
 const plats=[['all','全部'],...PLAT_IDS.map(id=>[id,chMeta[id]]),['general',chMeta.general]];
@@ -554,7 +567,7 @@ const LAO_QUOTES=[
   {t:'投放的护城河是素材供给', q:'智能投放把出价和定向越来越黑盒化，剩下的差异化只有一个：素材。谁能持续产出高质量素材，谁的转化成本就更低。这就是我建议每个增长团队都把内容产能当作核心资产的原因。'},
 ];
 
-let RAW = RAW_FALLBACK;
+let RAW = [];
 let ARCHIVE = [];
 let archiveError = '';
 function labelDate(i){const stamp=Date.parse(i.published_at);if(!stamp)return i;const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});return {...i,t:Date.now()-stamp>7*86400000?'archive':new Date(stamp).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})===today?'today':'week'};}
@@ -586,7 +599,7 @@ function articleDate(i,withTime=false){
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-function renderHeader(){const d=new Date();$('#todayDate').textContent=`${d.getMonth()+1}月${d.getDate()}日 周${['日','一','二','三','四','五','六'][d.getDay()]}`;$('#todayCount').textContent=RAW.filter(i=>i.t==='today').length;}
+function renderHeader(){const d=new Date();$('#todayDate').textContent=`${d.getMonth()+1}月${d.getDate()}日 周${['日','一','二','三','四','五','六'][d.getDay()]}`;$('#todayCount').textContent=RAW.filter(i=>!isLegacy(i)&&i.t==='today').length;}
 
 /* ===== 左侧功能导航 ===== */
 function renderNav(){
@@ -595,13 +608,13 @@ function renderNav(){
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="${i.ico}"/></svg>
       <span>${i.name}</span>
       ${i.id==='fav'?`<span class="n">${allArticles().filter(x=>state.saved.has(x.id)).length}</span>`:''}
-      ${i.id==='all'?`<span class="n">${RAW.length}</span>`:''}
+      ${i.id==='all'?`<span class="n">${RAW.filter(x=>!isLegacy(x)).length}</span>`:''}
     </button>`).join('')}</div>`).join('');
   document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>{
     const v=b.dataset.v;
     $('#railNav').classList.remove('open');
     if(v==='feedback'){openFeedback();return;}
-    if(['archive','library','all','featured','hot','daily','fav','about','topics','changelog'].includes(v)){ if(v!=='all'){state.plat='all';state.ind='all';} state.time='all';state.view=v; renderNav(); renderFeed(); }
+    if(['archive','library','all','featured','hot','daily','fav','about','topics','changelog'].includes(v)){ if(v!=='all'){state.plat='all';state.ind='all';} state.time='all';state.cat='all';document.querySelectorAll('#catRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));state.view=v; renderNav(); renderFeed(); }
     else toast(`${b.textContent.trim()} · 即将上线（骨架演示）`);
   });
 }
@@ -626,13 +639,14 @@ document.querySelectorAll('#contentTypeRow .chip').forEach(b=>b.onclick=()=>{
 });
 function filtered(){
   let list=['archive','library','fav'].includes(state.view)?allArticles():RAW.slice();
+  if(state.view==='archive')list=list.filter(isLegacy);else if(state.view!=='fav')list=list.filter(i=>!isLegacy(i)&&i.review_status!=='pending');
   if(state.view==='library') list=list.filter(isEvergreen);
   // 视图
   if(state.view==='fav') list=list.filter(i=>state.saved.has(i.id));
   else if(state.view==='daily') list=list.filter(i=>i.t==='today');
   else if(state.view==='hot') list=rankArticles(list,state.hotRange);
   // 栏目分类
-  if(state.cat!=='all') list=list.filter(i=>i.cat===state.cat);
+  if(state.cat!=='all'&&state.view!=='archive') list=list.filter(i=>i.discovery_category===state.cat);
   // 平台/行业（全部动态页）
   if(state.kind!=='all') list=list.filter(i=>contentType(i)===state.kind);
   if(state.plat!=='all') list=list.filter(i=>i.ch===state.plat||(i.platforms||[]).includes(state.plat));
@@ -647,11 +661,11 @@ function filtered(){
 }
 
 /* ===== 信息流 ===== */
-const VIEW_TITLE={archive:'历史归档',library:'干货库',all:'全部动态',featured:'精选',hot:'推荐榜',daily:'AI日报',fav:'我的收藏',about:'关于 AIBEEP',topics:'主题',changelog:'更新日志'};
+const VIEW_TITLE={archive:'历史广告栏目',library:'干货库',all:'全部发现',featured:'每日精选',hot:'推荐榜',daily:'AI日报',fav:'我的收藏',about:'关于 AIBEEP',topics:'主题',changelog:'更新日志'};
 function updateChrome(){
   const v=state.view;
   $('#heroSection').style.display='none';
-  $('#catRow').style.display=['all','archive','library'].includes(v)?'':'none';
+  $('#catRow').style.display=['featured','all','library','hot','daily'].includes(v)?'':'none';
   $('#contentTypeRow').style.display=['archive','library','featured','all','hot','fav','daily'].includes(v)?'':'none';
   // 标题栏 bar：首页精选显示
   $('#bar').style.display=(v==='featured')?'':'none';
@@ -670,7 +684,7 @@ function renderFeed(){
   $('#feedCount').textContent=list.length;
   $('#feedTitle').textContent=VIEW_TITLE[state.view];
   updateUnread();
-  if(!list.length&&!['archive','library','fav'].includes(state.view)){$('#feed').innerHTML=`<div class="empty">没有匹配的资讯<br><button class="chip" onclick="resetAll()">重置筛选</button></div>`;return;}
+  if(!list.length&&!['archive','library','fav'].includes(state.view)){$('#feed').innerHTML=`<div class="empty">暂时没有匹配的已发布内容。赚钱项目与方法需人工审核后上线。<br><button class="chip" onclick="resetAll()">重置筛选</button></div>`;return;}
   if(state.view==='hot'){
     renderHotBoard(list); return;
   }else if(state.view==='featured'){
@@ -679,7 +693,7 @@ function renderFeed(){
     const today=list.filter(i=>i.t==='today'), week=list.filter(i=>i.t==='week'), past=list.filter(i=>i.t==='archive');
     const d=new Date();const wd=['日','一','二','三','四','五','六'][d.getDay()];
     const cats=[];
-    let html=`<div class="crumb">AIBEEP <span>/</span> 广告投放 <span>/</span> 企业获客 <span>/</span> 营销 <span>/</span> AI+增长</div>
+    let html=`<div class="crumb">AIBEEP <span>/</span> 赚钱项目 <span>/</span> 赚钱方法 <span>/</span> 实用工具 <span>/</span> AI工具 <span>/</span> 信息差</div>
     <div class="page-head"><h1>${VIEW_TITLE[state.view]}</h1><p>${state.view==='archive'?'保留已收录的全部历史文章，可按平台、栏目和关键词查找。':state.view==='library'?'教程、方法和案例长期保留；阅读时请留意发布日期与平台规则变化。':'保留来源和记录时间，按需检索每一条信息。'}</p><p id="archiveStatus">${esc(archiveError)}</p></div>
     <div class="chiprow"><span class="lab">平台</span>`+plats.map(p=>`<button class="chip ${state.plat===p[0]?'on':''}" data-plat="${p[0]}">${p[1]}</button>`).join('')+`</div>
     <div class="chiprow"><span class="lab">行业</span>`+inds.map(p=>`<button class="chip ${state.ind===p[0]?'on':''}" data-ind="${p[0]}">${p[1]}</button>`).join('')+`</div>
@@ -730,7 +744,7 @@ function richCardHTML(i){
       <span class="flow-score">AI ${i.score}</span>
     </div>
     <h3>${esc(i.title)}</h3>
-    <p class="flow-desc">${esc(i.desc)}</p>
+    <p class="flow-desc">${esc(i.desc)}</p>${trustBadges(i)}
     <div class="flow-foot">
       <span class="flow-src">${esc(i.src)}</span>
       <span class="flow-actions">
@@ -768,7 +782,7 @@ function renderHotBoard(list){
 /* AI日报页：报纸式每日汇总 */
 function renderDaily(){
   const today=filtered().filter(i=>i.t==='today');
-  $('#feedCount').textContent=today.length;$('#feedTitle').textContent='AI日报';updateUnread();
+  $('#feedCount').textContent=today.length;$('#feedTitle').textContent='每日更新';updateUnread();
   const groups=[['ad','广告投放'],['acq','企业获客'],['mkt','营销方法'],['ai','AI+增长']];
   const d=new Date();
   $('#feed').innerHTML=`<div class="daily">
@@ -852,37 +866,8 @@ function renderChangelog(){
 }
 /* 关于页 */
 function renderAbout(){
-  $('#feedCount').textContent='';
-  $('#feedTitle').textContent='关于 AIBEEP';
-  $('#feed').innerHTML=`<div class="about">
-    <h1>AIBEEP</h1>
-    <p class="about-sub">广告投放 · 企业获客 · 营销方法 · AI+企业增长</p>
-    <div class="about-sec">
-      <h3>这个站是什么</h3>
-      <p>AIBEEP 不是新闻搬运，而是帮广告投放和增长从业者做信息筛选与解释。我们持续采集各平台官方动态、行业报告、AI 工具更新和投放案例，按栏目分类整理，每条都附来源、发布时间、摘要和我的判断，让你用最少时间找到值得关注的信息。</p>
-    </div>
-    <div class="about-sec">
-      <h3>六个栏目</h3>
-      <p><b>平台动态</b> — 巨量引擎、腾讯广告、快手磁力、小红书、Meta 等平台的官方更新与政策变化<br>
-      <b>行业数据</b> — 行业报告、大盘 benchmark、投放效果数据<br>
-      <b>AI 营销工具</b> — AI 工具、AI 功能更新、AI+营销落地案例<br>
-      <b>投放案例</b> — 具体行业的投放复盘、SOP、素材方法论<br>
-      <b>获客趋势</b> — 获客渠道变化、私域运营、用户增长打法</p>
-    </div>
-    <div class="about-sec">
-      <h3>更新节奏</h3>
-      <p>持续采集、定时发布，重要平台动态第一时间更新。不追求秒级速度，追求每条信息经过核验和判断后再推给你。</p>
-    </div>
-    <div class="about-sec">
-      <h3>关于侯同学</h3>
-      <p>7 年互联网广告投放与增长运营经验，做过增长负责人，现在专注 AI+企业增长。这个站是个人项目，每天筛选、判断、写推荐理由给你。</p>
-    </div>
-    <div class="about-cta">
-      <h4>想每天收到一份增长简报？</h4>
-      <p>邮件订阅暂未开放，当前可直接在站内阅读资讯。</p>
-      <button class="btn-orange" id="aboutCta" disabled style="opacity:.55;cursor:not-allowed">订阅暂未开放</button>
-    </div>
-  </div>`;
+  $('#feedCount').textContent='';$('#feedTitle').textContent='关于 AIBEEP';
+  $('#feed').innerHTML=`<div class="about"><h1>关于 AIBEEP</h1><p class="about-sub">互联网赚钱机会与实用信息发现平台</p><section class="about-sec"><h3>我们整理什么</h3><p>赚钱项目、赚钱方法、实用工具、AI工具和信息差。每条内容保留信息来源、发布日期、适用前提和限制。</p></section><section class="about-sec"><h3>如何理解标记</h3><p>亲测、验证和赞助是分别记录的状态，未标注不能理解为亲测、已验证或没有赞助。项目方收入宣称不代表平台已证实盈利。赚钱项目、方法及收益宣称进入人工待审队列，通过审核才会发布。</p></section><section class="about-sec"><h3>历史内容</h3><p>原有广告投放和企业获客内容继续保存在历史广告栏目，原始来源链接和文章编号保留。</p></section><section class="about-sec"><h3>侯同学呀</h3><p><a href="https://houyuping.cn/" target="_blank" rel="noopener noreferrer">访问个人网站 ↗</a> · <a href="mailto:2224878257@qq.com">商务合作联系</a></p></section></div>`;
 }
 function cardHTML(i){
   const on=state.saved.has(i.id), read=state.read.has(i.id);
@@ -893,7 +878,7 @@ function cardHTML(i){
         <span class="srcline"><span class="srcname">${esc(i.src)}</span><span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}${i.orig?'<span class="tag ai">译</span>':''}<span class="date">${esc(articleDate(i))}</span></span>
       </div>
       <h3>${esc(i.title)}</h3>
-      <p class="desc">${esc(i.desc)}</p>
+      <p class="desc">${esc(i.desc)}</p>${trustBadges(i)}
       <div class="meta">
         <a class="src" data-src="${i.id}">阅读原始来源<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
         <button class="star ${on?'on':''}" data-save="${i.id}" title="收藏"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6L3.2 9.4l6.1-.9L12 3z"/></svg></button>
@@ -922,9 +907,10 @@ function renderDrawer(i){
     <div class="tags"><span class="tag ch">${chMeta[i.ch]}</span>${contentBadge(i)}<span class="tag ${i.tag}">${TAG_NAME[i.tag]}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
     <h2>${esc(i.title)}</h2>
     <div class="dmeta"><span>${i.url?.includes('/next_help/docs/')?'更新于':'发布于'} ${esc(articleDate(i,true))}（北京时间）</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">AI 评分 <b>${i.score}</b></span></div>
-    <div class="reason">${esc(i.reason)}</div>
+    <a class="discovery-links" href="?article=${encodeURIComponent(i.id)}" target="_blank" rel="noopener noreferrer">打开可分享的详情链接 ↗</a>
+    ${trustBadges(i)}<div class="reason">${esc(i.reason)}</div>${discoveryDetails(i)}
     ${i.ocr_used?'<p class="ocr-note">本文含图片文字识别内容，尚未经人工核对；金额、比例和效果数据请核对原图。</p>':''}
-    <div class="body">${esc(i.content).split('\n').map(p=>`<p>${p}</p>`).join('')}${enBlock}</div>
+    <div class="body">${String(i.content||'').split(/\n+|(?<=[。；])/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}${enBlock}</div>
     ${articleImages(i)}
     ${i.ocr_used&&i.ocr_text?`<details class="ocr-note"><summary>查看图片识别文字（未人工核对）</summary><p>${esc(i.ocr_text)}</p></details>`:''}
     <div class="dfoot">
@@ -938,7 +924,7 @@ function renderDrawer(i){
   document.querySelector('#drawerPanel .star').onclick=e=>{e.stopPropagation();toggleSaved(i.id);renderNav();renderFeed();renderDrawer(i);};
   document.addEventListener('keydown',function escK(e){if(e.key==='Escape'){closeDrawer();document.removeEventListener('keydown',escK);}});
 }
-function updateUnread(){$('#unreadCount').textContent=RAW.filter(x=>!state.read.has(x.id)).length;$('#unreadToggle').classList.toggle('on',state.onlyUnread);}
+function updateUnread(){$('#unreadCount').textContent=RAW.filter(x=>!isLegacy(x)&&!state.read.has(x.id)).length;$('#unreadToggle').classList.toggle('on',state.onlyUnread);}
 $('#unreadToggle').onclick=()=>{state.onlyUnread=!state.onlyUnread;renderFeed();};
 
 /* ===== 今日重点 ===== */
@@ -963,14 +949,14 @@ function renderFocus(){
 }
 /* ===== 热点 ===== */
 function renderHot(){
-  const hot=rankArticles(RAW,'week').slice(0,5);
+  const hot=rankArticles(RAW.filter(i=>!isLegacy(i)),'week').slice(0,5);
   $('#hotList').innerHTML=hot.map((i,idx)=>`<li data-fid="${i.id}"><div class="rk">${idx+1}</div><div><p>${esc(i.title)}</p><div class="hs">AI ${i.score} 分 · ${esc(i.time)}</div></div></li>`).join('');
   document.querySelectorAll('#hotList li').forEach(li=>li.onclick=()=>openCard(+li.dataset.fid));
 }
 /* ===== 数据速览 ===== */
 function renderStats(){
-  $('#st1').textContent=RAW.filter(i=>i.t==='today').length;
-  const plat=new Set(PLAT_IDS);$('#st2').textContent=new Set(RAW.map(i=>i.ch).filter(c=>plat.has(c))).size;
+  $('#st1').textContent=RAW.filter(i=>!isLegacy(i)&&i.t==='today').length;
+  const plat=new Set(PLAT_IDS);$('#st2').textContent=new Set(RAW.filter(i=>!isLegacy(i)).map(i=>i.ch).filter(c=>plat.has(c))).size;
   const ind=new Set(IND_IDS);$('#st3').textContent=new Set(RAW.flatMap(i=>i.industries||[i.ch]).filter(c=>ind.has(c))).size;
   $('#st4').textContent=RAW.filter(i=>i.focus).length;
   if(window.echarts){const chart=echarts.init($('#trend'));
@@ -1000,7 +986,7 @@ async function init(){
     const j = await r.json();
     if(!Array.isArray(j)) throw new Error('data.json 必须是 JSON 数组');
     if(j.length) RAW = j;
-  }catch(e){console.warn('AIBEEP：资讯加载失败，使用内置示例数据。', e);}
+  }catch(e){console.warn('AIBEEP：资讯暂时无法加载。', e);}
   try{
     const url=new URL('archive.json',document.baseURI);url.searchParams.set('t',Date.now());
     const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('归档不可用');
@@ -1010,6 +996,7 @@ async function init(){
   RAW=RAW.map(labelDate).filter(i=>i.t!=='archive');
   restoreReadingState();
   renderHeader(); renderStats(); renderNav(); renderFeed(); renderFocus(); renderHot();
+  const requested=new URL(location.href).searchParams.get('article');if(requested)openCard(requested);
   loadCollectionStatus();
   loadCollectionHistory();
 }
@@ -1043,6 +1030,10 @@ async function loadCollectionHistory(){
     if(history.days.length<3){const li=document.createElement('li');li.textContent=`目前记录 ${history.days.length} 天，后续自动累计，不补造历史。`;list.appendChild(li);}
   }catch(e){list.textContent='暂无历史记录，下一轮采集后开始累计。';}
 }
+const intro=document.createElement('section');intro.className='discovery-intro';intro.innerHTML='<h1>互联网赚钱机会与实用信息发现平台</h1><p>发现值得核实的机会、方法和工具。保留来源与日期，收入宣称不等于已证实盈利。</p><nav class="discovery-links" aria-label="侯同学呀的个人网站和内容账号"><a href="https://houyuping.cn/" target="_blank" rel="noopener noreferrer">侯同学呀 · 个人网站 ↗</a><a href="https://x.com/LaohouGrowth" target="_blank" rel="noopener noreferrer">X ↗</a><a href="https://xhslink.cn/o/6GBc3jNCZAJ" target="_blank" rel="noopener noreferrer">小红书 ↗</a><a href="https://v.douyin.com/vRrS_vDoSOk/" target="_blank" rel="noopener noreferrer">抖音 ↗</a></nav>';document.querySelector('.topbar').after(intro);
+const themeButton=document.createElement('button');themeButton.className='theme-switch';themeButton.setAttribute('aria-label','切换日夜模式');themeButton.textContent='日 / 夜';document.querySelector('.topbar-inner').append(themeButton);
+try{document.documentElement.dataset.theme=localStorage.getItem('aibeep.theme.v1')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch{document.documentElement.dataset.theme='light';}
+themeButton.onclick=()=>{const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('aibeep.theme.v1',theme);}catch{}};
 init();
 </script>
 </body>

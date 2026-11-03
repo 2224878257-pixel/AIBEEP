@@ -56,7 +56,12 @@ def image_candidates(scope, page_url):
             continue
         if any(r['source_url'] == url for r in result):
             continue
-        result.append({'source_url': url, 'alt': (img.get('alt') or '')[:160], 'source_page': page_url})
+        previous = img.find_all_previous(['p','h2','h3'],limit=3)
+        following = img.find_all_next(['p','h2','h3'],limit=2)
+        before = ' '.join(e.get_text(' ',strip=True) for e in reversed(previous))[-600:]
+        after = ' '.join(e.get_text(' ',strip=True) for e in following)[:300]
+        result.append({'source_url': url, 'alt': (img.get('alt') or '')[:160], 'source_page': page_url,
+                       'context_before':before, 'context_after':after})
         if len(result) == MAX_IMAGES:
             break
     return result
@@ -151,7 +156,7 @@ def prepare_media(article, root, session):
             if article.get('needs_ocr'):
                 try:
                     text, confidence = recognize(image)
-                    item.update(ocr_characters=len(text), ocr_confidence=confidence)
+                    item.update(ocr_characters=len(text), ocr_confidence=confidence,context_before=text[:600])
                     if text:
                         extracted.append(text)
                 except (RuntimeError, pytesseract.TesseractNotFoundError, pytesseract.TesseractError):

@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['index.html', 'data.json', 'archive.json', 'assets/**', 'media.py', 'collection_status.json', 'collection_history.json', 'scraper.py', 'sources.json', 'requirements.txt', '.github/workflows/daily.yml']
+    paths: ['index.html', 'data.json', 'archive.json', 'assets/**', 'media.py', 'discovery.py', 'robots.txt', 'sitemap.xml', 'collection_status.json', 'collection_history.json', 'scraper.py', 'sources.json', 'requirements.txt', '.github/workflows/daily.yml']
 permissions:
   contents: write
   pages: write
@@ -30,6 +30,13 @@ jobs:
         if: github.event_name != 'push'
         run: sudo apt-get update -qq && sudo apt-get install -y tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-eng
       - run: python -m unittest discover -s tests -v
+      - name: Restore editorial review queue
+        if: github.event_name != 'push'
+        uses: actions/cache@v4
+        with:
+          path: review_queue.json
+          key: aibeep-review-v1-${{ github.run_id }}
+          restore-keys: aibeep-review-v1-
       - name: Collect public sources
         id: scrape
         continue-on-error: true
@@ -45,6 +52,14 @@ jobs:
         with:
           name: collection-report
           path: run_report.json
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Upload editorial review queue
+        if: always() && github.event_name != 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: editorial-review-queue
+          path: review_queue.json
           if-no-files-found: ignore
           retention-days: 14
       - name: Commit data
@@ -67,6 +82,7 @@ jobs:
         run: |
           mkdir site
           cp index.html data.json archive.json site/
+          cp robots.txt sitemap.xml site/
           if [ -d assets ]; then cp -R assets site/; fi
           if [ -f collection_status.json ]; then cp collection_status.json site/; fi
           if [ -f collection_history.json ]; then cp collection_history.json site/; fi

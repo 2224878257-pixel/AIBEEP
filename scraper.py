@@ -18,6 +18,7 @@ import requests
 from bs4 import BeautifulSoup
 from trafilatura import bare_extraction
 from media import MEDIA_VERSION, image_candidates, json_image_candidates, prepare_media, prune_unreferenced
+from discovery import apply_schema
 
 ROOT = Path(__file__).resolve().parent
 TZ = ZoneInfo('Asia/Shanghai')
@@ -26,6 +27,7 @@ TAGS = {'ad', 'acq', 'mkt', 'ai'}
 CHANNELS = {'dj', 'tx', 'ks', 'xhs', 'hw', 'ec', 'local', 'saas', 'game', 'edu', 'general', 'tmall', 'wx', 'multi'}
 QUALITY_VERSION = 3
 TOPIC = re.compile(r'投放|获客|转化|买量|信息流|素材|竞价|广告|营销|增长|私域|线索|归因|落地页|品牌|种草|市场预算|商业漏斗|生活服务|抖音|小红书|视频号|投流|拉新|google ads|meta|facebook|ppc|lead|conversion|campaign|attribution|creative|placement|audience', re.I)
+TOPIC = re.compile(TOPIC.pattern+r'|副业|赚钱|变现|工具|信息差|独立开发|数字产品|效率|自动化|开源|创作者|模型|copilot|workflow|open.source|agent|tool|assistant|transformer|model',re.I)
 SESSION = requests.Session()
 SESSION.headers['User-Agent'] = 'AIBEEP/1.0 (+https://github.com/2224878257-pixel/AIBEEP)'
 
@@ -308,6 +310,8 @@ def _enrich_once(article, key):
             {'role': 'system', 'content': '补充输出 practical(布尔)、actions(最多3条具体可执行操作的字符串数组)。扩大收录范围：允许与广告投放、营销获客相关的行业分析、预算变化、经验分享和案例观察，不强制要求具体操作步骤。实操文章仍优先，但practical仅作标记，不是发布硬条件；无法提炼操作时actions返回空数组。无关泛AI新闻、纯服务推广、无实质内容的软文relevant为false；相关性和事实要求不可降低。'},
             {'role': 'system', 'content': '额外输出content_type，作者方法、实操与案例复盘为experience，行业观察、新闻分析和数据解读为analysis。平台归属按文章讨论对象判断，不按发布网站判断；天猫不是腾讯广告。'},
             {'role': 'system', 'content': '如果ocr_used为true，正文含未经人工复核的图片识别文字。desc、reason、content禁止包含数字、金额、比例、倍数或具体效果结论，只概括主题与用途，并明确写出图片文字识别、细节需核对原图。图片不是人工核验依据。'},
+            {'role':'system','content':'新定位：互联网赚钱机会与实用信息发现平台。额外输出 discovery_relevant 布尔、discovery_category(project赚钱项目/method赚钱方法/tool实用工具/ai_toolAI工具/information信息差)、discovery_details对象含 purpose用途、audience适用人群、requirements前提、costs成本、risks风险、next_step可执行下一步。仅有具体机会、可复用方法或可用工具才相关，纯广告新闻归历史内容。资料不足写来源未说明。项目方收入说法仅为未核实宣称，不能改写为已证实盈利；禁止赚钱承诺、收益保证和夸大措辞，不生成亲测、已验证或非赞助结论。'},
+            {'role':'system','content':'relevant 字段同样按新定位判断：可用的 AI/开发/效率工具和实用信息不必与广告投放直接相关。旧 cat/ch 为兼容字段仍按允许值填写，新的五分类单独写 discovery_category。纯技术研究若无可用方法、工具或实际适用场景，判为不相关。'},
             {'role': 'user', 'content': json.dumps(payload, ensure_ascii=False)}]}).json()
     choice = result['choices'][0]
     if choice.get('finish_reason') != 'stop':
@@ -335,7 +339,8 @@ def _enrich_once(article, key):
     return {**{k: data[k] for k in ('title', 'desc', 'reason', 'content', 'cat', 'tag', 'score')},
             'relevant': data.get('relevant', True), 'detected_ch': data.get('ch', 'general'),
             'practical': data.get('practical') is True, 'actions': data.get('actions', []),
-            'content_type': data.get('content_type')}
+            'content_type': data.get('content_type'),
+            **{k:data.get(k) for k in ('discovery_relevant','discovery_category','discovery_details')}}
 
 
 def classify_row(row, source=None):
@@ -464,12 +469,12 @@ def publish_row(article, ai, source):
     ai.pop('actions', None)
     ai.pop('_attempts', None)
     ai['title'] = re.sub(r'^(?:(?:帮助文档(?:更新)?|文档更新)[：:\s]+)+', '', ai['title']).strip()
-    return classify_row({**ai, 'id': int(hashlib.sha256(article['url'].encode()).hexdigest()[:12], 16),
+    return apply_schema(classify_row({**ai, 'id': int(hashlib.sha256(article['url'].encode()).hexdigest()[:12], 16),
             'ch': channel, 't': 'week', 'src': source['name'] + (' · 作者经验' if source.get('kind') == 'community' else ''), 'url': article['url'],
             'time': '', 'heat': 0, 'focus': 0, 'st': False, 'co': 1,
             **{k:article.get(k,default) for k,default in [('images',[]),('cover',''),('ocr_used',False),('ocr_text',''),('media_version',0),('media_issues',[])]},
             'orig': article['body'] if source['ch'] == 'hw' and source.get('kind') != 'community' else '', 'published_at': article['published_at'],
-            'source_kind': source.get('kind', 'official'), 'author': article.get('author', ''), 'quality_version': QUALITY_VERSION}, source)
+            'source_kind': source.get('kind', 'official'), 'author': article.get('author', ''), 'quality_version': QUALITY_VERSION}, source),ai,article)
 
 
 def run(args, collector):
@@ -479,6 +484,8 @@ def run(args, collector):
         raise ValueError('Missing DEEPSEEK_API_KEY; data.json left unchanged')
     path = ROOT / 'data.json'
     old = json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
+    queue_path=ROOT/'review_queue.json'
+    queue=json.loads(queue_path.read_text(encoding='utf-8')) if queue_path.exists() else []
     if not isinstance(old, list):
         raise ValueError('data.json must contain an array')
     archive_path = ROOT / 'archive.json'
@@ -498,6 +505,7 @@ def run(args, collector):
             by_url[canonical(row.get('url', ''))] = row
         except ValueError:
             continue
+    protected_legacy={u:dict(r) for u,r in by_url.items() if r.get('section')!='discovery'}
     report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'updated': 0, 'ai_failures': 0, 'ai_successes': 0, 'ai_retries': 0, 'disabled_sources': [],
               'ignored_existing': max(0, len(old) + len(archived) - len(by_url))}
     fingerprints = {r.get('content_hash') for r in by_url.values() if r.get('content_hash') and
@@ -520,6 +528,9 @@ def run(args, collector):
             if not urls and source.get('adapter') != 'rss':
                 status['errors'].append('No article links; list may require login or adapter update')
             for url in urls:
+                if canonical(url) in {r.get('url') for r in queue}:
+                    status['cached'] += 1
+                    continue
                 known_date = date_value(collector.metadata.get(canonical(url))) if isinstance(getattr(collector, 'metadata', None), dict) else None
                 if known_date and not now - timedelta(days=7) <= known_date <= now:
                     status['out_of_window'] = status.get('out_of_window', 0) + 1
@@ -581,11 +592,17 @@ def run(args, collector):
                         if (source.get('kind') == 'community' or source.get('require_relevance')) and not community_passes(ai):
                             status['filtered'] += 1
                             screening[article['url']] = {'checked_at':now.isoformat(),'quality_version':QUALITY_VERSION}
-                            by_url.pop(article['url'], None)
+                            # Reclassification must never erase articles already in the historical archive.
                             continue
                         existing = article['url'] in by_url
                         aliases = by_url.get(article['url'], {}).get('also_reported_by', [])
-                        by_url[article['url']] = publish_row(article, ai, source)
+                        published_row=publish_row(article, ai, source)
+                        if article['url'] in by_url and by_url[article['url']].get('section')!='discovery':
+                            published_row['section']='legacy'
+                        if published_row.get('review_status')=='pending':
+                            queue=[r for r in queue if r.get('url')!=article['url']]+[published_row]
+                            continue
+                        by_url[article['url']] = published_row
                         if aliases:
                             by_url[article['url']]['also_reported_by'] = aliases
                         by_url[article['url']]['content_hash'] = fingerprint
@@ -611,6 +628,8 @@ def run(args, collector):
                            time=published.strftime('%H:%M') if published.date() == now.date() else published.strftime('%m/%d'))
                 rows.append(row)
         rows, report['merged_duplicates'] = deduplicate_rows(rows)
+        kept_urls={r['url'] for r in rows}
+        rows.extend(r for u,r in protected_legacy.items() if u not in kept_urls)
         # Total failure must not erase the last working snapshot.
         if any(s['readable'] for s in report['sources']) or (rows and any(s['discovery_ok'] for s in report['sources'])):
             ordered = sorted(rows, key=lambda r: r['published_at'], reverse=True)
@@ -631,6 +650,7 @@ def run(args, collector):
                 atomic_json(path, old)
     atomic_json(ROOT / 'run_report.json', report)
     if not args.check_sources:
+        atomic_json(queue_path,queue)
         atomic_json(screening_path, dict(list(screening.items())[-1000:]))
     failed = not any(s['discovery_ok'] for s in report['sources']) or bool(report['ai_failures'] and not report['ai_successes'])
     if not args.check_sources:
