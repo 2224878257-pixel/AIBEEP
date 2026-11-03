@@ -1397,19 +1397,129 @@
           "failures": 0
         }
       ]
+    },
+    {
+      "completed_at": "2026-11-03T21:30:20.486479+08:00",
+      "status": "partial",
+      "added": 6,
+      "updated": 0,
+      "filtered": 7,
+      "duplicates": 0,
+      "cached": 0,
+      "ai_failures": 0,
+      "ai_retries": 2,
+      "sources_disabled": [
+        "Starter Story",
+        "Indie Hackers",
+        "Product Hunt",
+        "Reddit 创业社区",
+        "Ben’s Bites",
+        "Future Tools",
+        "生财有术公开内容",
+        "数字生命卡兹克 / 秋芝2046",
+        "X 创业者原始分享",
+        "平台官方公告与创业者博客"
+      ],
+      "sources_total": 9,
+      "sources_with_errors": 1,
+      "last_success_at": "2026-11-03T21:30:20.486493+08:00",
+      "date": "2026-11-03",
+      "sources": [
+        {
+          "source": "少数派",
+          "added": 2,
+          "updated": 0,
+          "filtered": 1,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "Show HN",
+          "added": 1,
+          "updated": 0,
+          "filtered": 2,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 2
+        },
+        {
+          "source": "Ask HN",
+          "added": 1,
+          "updated": 0,
+          "filtered": 2,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "Pieter Levels 长文",
+          "added": 1,
+          "updated": 0,
+          "filtered": 1,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "Tony Dinh 公开通讯",
+          "added": 1,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "人人都是产品经理",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "青瓜传媒",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "运营派",
+          "added": 0,
+          "updated": 0,
+          "filtered": 1,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        },
+        {
+          "source": "运营派项目与方法线索",
+          "added": 0,
+          "updated": 0,
+          "filtered": 0,
+          "duplicates": 0,
+          "cached": 0,
+          "failures": 0
+        }
+      ]
     }
   ],
   "days": [
     {
       "date": "2026-11-03",
-      "runs": 2,
-      "added": 14,
+      "runs": 3,
+      "added": 20,
       "updated": 0,
-      "filtered": 12,
+      "filtered": 19,
       "duplicates": 1,
       "cached": 47,
       "failed_runs": 0,
-      "source_failures": 5
+      "source_failures": 6
     },
     {
       "date": "2026-11-02",

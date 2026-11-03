@@ -1,0 +1,95 @@
+{
+  "run_at": "2026-11-03T21:27:32.677415+08:00",
+  "search": {
+    "provider": "brave",
+    "enabled": false,
+    "state": "not_configured",
+    "queries": 0,
+    "cache_hits": 0,
+    "discovered_urls": 0
+  },
+  "summary": {
+    "queries": 0,
+    "discovered_urls": 203,
+    "read_urls": 32,
+    "readable": 26,
+    "duplicates": 0,
+    "qualified": 13,
+    "generated": 6,
+    "review_queue": 7,
+    "successful_source_listings": 9,
+    "successful_source_bodies": 8
+  },
+  "budget": {
+    "read_urls": 32,
+    "ai_articles": 20,
+    "max_urls": 100,
+    "max_ai": 20
+  },
+  "held_for_budget": 0,
+  "source_metrics": {
+    "少数派": {
+      "fetch_success_rate": 1.0,
+      "effective_content_rate": 0.6666666666666666,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.6666666666666666
+    },
+    "Show HN": {
+      "fetch_success_rate": 0.6,
+      "effective_content_rate": 0.3333333333333333,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.3333333333333333
+    },
+    "Ask HN": {
+      "fetch_success_rate": 1.0,
+      "effective_content_rate": 0.3333333333333333,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.3333333333333333
+    },
+    "Pieter Levels 长文": {
+      "fetch_success_rate": 1.0,
+      "effective_content_rate": 0.5,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.5
+    },
+    "Tony Dinh 公开通讯": {
+      "fetch_success_rate": 1.0,
+      "effective_content_rate": 1.0,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.5
+    },
+    "人人都是产品经理": {
+      "fetch_success_rate": 1.0,
+      "effective_content_rate": 0.75,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.0
+    },
+    "青瓜传媒": {
+      "fetch_success_rate": 1.0,
+      "effective_content_rate": 0.375,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.0
+    },
+    "运营派": {
+      "fetch_success_rate": 1.0,
+      "effective_content_rate": 0.0,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.0
+    },
+    "运营派项目与方法线索": {
+      "fetch_success_rate": 0.0,
+      "effective_content_rate": 0.0,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.0
+    }
+  }
+}

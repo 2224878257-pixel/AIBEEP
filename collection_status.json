@@ -1,19 +1,26 @@
 {
-  "completed_at": "2026-11-03T20:10:50.480896+08:00",
+  "completed_at": "2026-11-03T21:30:20.486479+08:00",
   "status": "partial",
-  "added": 7,
+  "added": 6,
   "updated": 0,
-  "filtered": 9,
+  "filtered": 7,
   "duplicates": 0,
-  "cached": 25,
+  "cached": 0,
   "ai_failures": 0,
-  "ai_retries": 3,
+  "ai_retries": 2,
   "sources_disabled": [
-    "巨量学",
-    "快手磁力引擎",
-    "数英"
+    "Starter Story",
+    "Indie Hackers",
+    "Product Hunt",
+    "Reddit 创业社区",
+    "Ben’s Bites",
+    "Future Tools",
+    "生财有术公开内容",
+    "数字生命卡兹克 / 秋芝2046",
+    "X 创业者原始分享",
+    "平台官方公告与创业者博客"
   ],
-  "sources_total": 14,
-  "sources_with_errors": 2,
-  "last_success_at": "2026-11-03T20:10:50.480924+08:00"
+  "sources_total": 9,
+  "sources_with_errors": 1,
+  "last_success_at": "2026-11-03T21:30:20.486493+08:00"
 }
