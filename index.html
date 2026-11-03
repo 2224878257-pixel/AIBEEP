@@ -23,6 +23,8 @@
   }
   :root[data-theme="dark"]{--bg:#16191e;--card:#20252c;--ink:#e9edf4;--ink-2:#c4ccd8;--ink-3:#a2adbc;--line:#38404b;--line-soft:#292f38;--accent-soft:#35291f;--accent-ink:#ffad55}
   :root[data-theme="dark"] .chip:not(.on),:root[data-theme="dark"] .search,:root[data-theme="dark"] .mini-search,:root[data-theme="dark"] .drawer,:root[data-theme="dark"] .card,:root[data-theme="dark"] input{background:var(--card);color:var(--ink)}
+  :root[data-theme="dark"] .topbar{background:rgba(32,37,44,.96)}
+  :root[data-theme="dark"] .chip:not(.on),:root[data-theme="dark"] .toggle,:root[data-theme="dark"] .bar .cnt,:root[data-theme="dark"] .hot-tabs button{background:#20252c;color:#e9edf4;border-color:#38404b}
   .discovery-intro{max-width:1280px;margin:0 auto;padding:18px 20px 0}.discovery-intro h1{font-size:clamp(20px,3vw,30px);line-height:1.4}.discovery-intro p{color:var(--ink-3);font-size:13px;margin-top:8px}.discovery-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--accent-ink)}
   body.discovery-view #feed .chiprow{display:none}
   .trust-badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.trust-badges span{font-size:11px;padding:2px 7px;background:var(--line-soft);border-radius:4px;color:var(--ink-2)}.detail-section{margin:22px 0}.detail-section h3{font-size:16px;margin-bottom:9px}.detail-section p{white-space:pre-line;line-height:1.95}.theme-switch{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 9px;white-space:nowrap}
@@ -478,10 +480,9 @@
         <div class="stat"><div class="v" id="st4">0</div><div class="k">历史记录</div></div>
       </div>
       <div id="trend"></div>
-      <p class="trend-cap">近 7 日「AI+增长」资讯热度趋势（示例）</p>
     </section>
     <section class="cta">
-      <h5>把资讯变成增长动作</h5>
+      <h5>发现用得上的方法与工具</h5>
       <p>邮件订阅暂未开放，当前可在站内阅读和收藏资讯。</p>
       <button class="btn" id="ctaBtn" disabled style="opacity:.55;cursor:not-allowed">订阅暂未开放</button>
     </section>
