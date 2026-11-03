@@ -450,7 +450,7 @@
     </div>
 
     <div class="chiprow" id="contentTypeRow" aria-label="内容类型">
-      <span class="lab">内容类型</span><button class="chip on" data-kind="all">全部类型</button><button class="chip" data-kind="official">官方动态</button><button class="chip" data-kind="experience">作者经验</button><button class="chip" data-kind="analysis">行业分析</button>
+      <span class="lab">内容类型</span><button class="chip on" data-kind="all">全部类型</button><button class="chip" data-kind="editorial">编辑整理</button><button class="chip" data-kind="official">官方动态</button><button class="chip" data-kind="experience">作者经验</button><button class="chip" data-kind="analysis">行业分析</button>
     </div>
     <div class="bar" id="bar">
       <h2 id="feedTitle">全部动态</h2>
@@ -525,11 +525,12 @@ const NAV = [
 const PLAT_IDS=['dj','tx','wx','ks','xhs','tmall','hw'];
 const IND_IDS=['ec','local','saas','game','edu'];
 const chMeta={all:'全部',dj:'巨量引擎/抖音',tx:'腾讯广告',wx:'微信/视频号',ks:'快手磁力',xhs:'小红书',tmall:'淘宝/天猫',multi:'多平台',hw:'海外投放',ec:'电商',local:'本地生活',saas:'企服SaaS',game:'游戏',edu:'教育',general:'投放与增长'};
-const CONTENT_TYPES={official:'官方动态',experience:'作者经验',analysis:'行业分析'};
+const CONTENT_TYPES={editorial:'编辑整理',official:'官方动态',experience:'作者经验',analysis:'行业分析'};
+function scoreLabel(i){return i.score_type==='not_scored'?'编辑整理':`AI ${Number(i.score)||0} 分`;}
 const DISCOVERY_CATEGORIES={project:'赚钱项目',method:'赚钱方法',tool:'实用工具',ai_tool:'AI工具',information:'信息差'};
 function isLegacy(i){return i.section!=='discovery';}
 function trustBadges(i){return `<div class="trust-badges"><span>${DISCOVERY_CATEGORIES[i.discovery_category]||'历史栏目'}</span><span>亲测：${i.tested_status==='tested'?'已亲测':'未标注'}</span><span>验证：${i.verification_status==='verified'?'已验证':'未验证'}</span><span>赞助：${i.sponsorship_status==='sponsored'?'是':i.sponsorship_status==='not_sponsored'?'否':'未标注'}</span></div>`;}
-function discoveryDetails(i){if(isLegacy(i))return '';const details=i.discovery_details||{};const title=i.detail_kind==='project'?'项目详情':i.detail_kind==='tool'?'工具详情':'信息详情';return `<section class="detail-section"><h3>${title}</h3>${Object.entries({purpose:'内容与用途',audience:'适用人群',requirements:'参与或使用前提',costs:'费用与成本',risks:'风险与限制',next_step:'下一步核实'}).map(([k,label])=>`<section class="detail-section"><h3>${label}</h3><p>${esc(details[k]||'来源未说明，请先查看原文或产品官方说明。')}</p></section>`).join('')}<p class="ocr-note">收录不等于推荐投资或保证盈利。项目方收入宣称未经本平台证实；亲测、验证与赞助状态分别记录。</p></section>`;}
+function discoveryDetails(i){if(isLegacy(i))return '';const details=i.discovery_details||{};const title=i.discovery_category==='method'?'方法详情':i.detail_kind==='project'?'项目详情':i.detail_kind==='tool'?'工具详情':'信息详情';return `<section class="detail-section"><h3>${title}</h3>${Object.entries({purpose:'内容与用途',audience:'适用人群',requirements:'参与或使用前提',costs:'费用与成本',risks:'风险与限制',next_step:'下一步核实'}).map(([k,label])=>`<section class="detail-section"><h3>${label}</h3><p>${esc(details[k]||'来源未说明，请先查看原文或产品官方说明。')}</p></section>`).join('')}<p class="ocr-note">收录不等于推荐投资或保证盈利。项目方收入宣称未经本平台证实；亲测、验证与赞助状态分别记录。</p></section>`;}
 function contentType(i){return i.content_type||(i.source_kind==='community'?'experience':'official');}
 function contentBadge(i){return `<span class="tag">${CONTENT_TYPES[contentType(i)]||'作者分享'}</span>`;}
 const plats=[['all','全部'],...PLAT_IDS.map(id=>[id,chMeta[id]]),['general',chMeta.general]];
@@ -574,7 +575,7 @@ let ARCHIVE = [];
 let archiveError = '';
 function labelDate(i){const stamp=Date.parse(i.published_at);if(!stamp)return i;const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});return {...i,t:Date.now()-stamp>7*86400000?'archive':new Date(stamp).toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})===today?'today':'week'};}
 function allArticles(){return [...new Map([...ARCHIVE,...RAW].map(i=>[i.url||i.id,i])).values()].sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0));}
-function isEvergreen(i){return i.content_type==='experience'||i.cat==='case'||i.practical===true||(/教程|指南|方法|技巧|实操|复盘|步骤|手册|误区|SOP/i.test(i.title));}
+function isEvergreen(i){return i.discovery_category==='method'||i.content_type==='experience'||i.cat==='case'||i.practical===true||(/教程|指南|方法|技巧|实操|复盘|步骤|手册|误区|SOP/i.test(i.title));}
 const state={ kind:'all', hotRange:'week', view:'featured', cat:'all', plat:'all', ind:'all', time:'all', q:'',
   saved:new Set(), read:new Set(), onlyUnread:false };
 const READING_KEY='aibeep.reading.v1';
@@ -743,7 +744,7 @@ function richCardHTML(i){
       <span class="flow-dot">·</span>
       <span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span>
       ${i.orig?'<span class="tag ai">译</span>':''}
-      <span class="flow-score">AI ${i.score}</span>
+      <span class="flow-score">${scoreLabel(i)}</span>
     </div>
     <h3>${esc(i.title)}</h3>
     <p class="flow-desc">${esc(i.desc)}</p>${trustBadges(i)}
@@ -765,7 +766,7 @@ function rankArticles(items,range='week'){
 }
 function renderHotBoard(list){
   $('#feed').innerHTML=`<div class="hotboard">
-    <p style="font-size:12px;color:var(--ink-3);margin-bottom:12px">按 AI 评分降序排列，同分按发布时间排序；评分不代表阅读量或真实热度。</p>
+    <p style="font-size:12px;color:var(--ink-3);margin-bottom:12px">已评分内容按 AI 分数排序，同分按时间排序；编辑整理条目未做 AI 评分，列于其后。分数不代表盈利能力或真实热度。</p>
     <div class="hot-tabs"><button class="${state.hotRange==='today'?'on':''}" data-ht="today">今日榜</button><button class="${state.hotRange==='week'?'on':''}" data-ht="week">本周榜</button></div>
     <div class="hb-list">`+list.map((i,idx)=>{
       const rank=idx+1;
@@ -773,7 +774,7 @@ function renderHotBoard(list){
         <span class="hb-rank r${rank}">${rank}</span>
         <div class="hb-body"><p class="hb-title">${esc(i.title)}</p>
         <span class="hb-meta"><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span> · ${esc(i.src)}</span></div>
-        <div class="hb-right"><span class="hb-heat">AI ${i.score} 分</span></div>
+        <div class="hb-right"><span class="hb-heat">${scoreLabel(i)}</span></div>
       </div>`;
     }).join('')+`</div></div>`;
   document.querySelectorAll('.hot-tabs button').forEach(b=>b.onclick=()=>{
@@ -869,7 +870,7 @@ function renderChangelog(){
 /* 关于页 */
 function renderAbout(){
   $('#feedCount').textContent='';$('#feedTitle').textContent='关于 AIBEEP';
-  $('#feed').innerHTML=`<div class="about"><h1>关于 AIBEEP</h1><p class="about-sub">互联网赚钱机会与实用信息发现平台</p><section class="about-sec"><h3>我们整理什么</h3><p>赚钱项目、赚钱方法、实用工具、AI工具和信息差。每条内容保留信息来源、发布日期、适用前提和限制。</p></section><section class="about-sec"><h3>如何理解标记</h3><p>亲测、验证和赞助是分别记录的状态，未标注不能理解为亲测、已验证或没有赞助。项目方收入宣称不代表平台已证实盈利。赚钱项目、方法及收益宣称进入人工待审队列，通过审核才会发布。</p></section><section class="about-sec"><h3>历史内容</h3><p>原有广告投放和企业获客内容继续保存在历史广告栏目，原始来源链接和文章编号保留。</p></section><section class="about-sec"><h3>侯同学呀</h3><p><a href="https://houyuping.cn/" target="_blank" rel="noopener noreferrer">访问个人网站 ↗</a> · <a href="mailto:2224878257@qq.com">商务合作联系</a></p></section></div>`;
+  $('#feed').innerHTML=`<div class="about"><h1>关于 AIBEEP</h1><p class="about-sub">互联网赚钱机会与实用信息发现平台</p><section class="about-sec"><h3>我们整理什么</h3><p>赚钱项目、赚钱方法、实用工具、AI工具和信息差。每条内容保留信息来源、发布日期、适用前提和限制。</p></section><section class="about-sec"><h3>如何理解标记</h3><p>亲测、验证和赞助是分别记录的状态，未标注不能理解为亲测、已验证或没有赞助。项目方收入宣称不代表平台已证实盈利。自动采集的赚钱项目、方法及收益宣称先进入待审队列。编辑整理条目会单独注明资料核对范围，不代表盈利验证。</p></section><section class="about-sec"><h3>历史内容</h3><p>原有广告投放和企业获客内容继续保存在历史广告栏目，原始来源链接和文章编号保留。</p></section><section class="about-sec"><h3>侯同学呀</h3><p><a href="https://houyuping.cn/" target="_blank" rel="noopener noreferrer">访问个人网站 ↗</a> · <a href="mailto:2224878257@qq.com">商务合作联系</a></p></section></div>`;
 }
 function cardHTML(i){
   const on=state.saved.has(i.id), read=state.read.has(i.id);
@@ -908,11 +909,13 @@ function renderDrawer(i){
     <button class="close" onclick="closeDrawer()" aria-label="关闭"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="tags"><span class="tag ch">${isLegacy(i)?chMeta[i.ch]:(DISCOVERY_CATEGORIES[i.discovery_category]||'实用信息')}</span>${contentBadge(i)}<span class="tag ${i.tag}">${isLegacy(i)?TAG_NAME[i.tag]:'发现'}</span>${i.orig?'<span class="tag ai">英文 · 已译中</span>':''}</div>
     <h2>${esc(i.title)}</h2>
-    <div class="dmeta"><span>${i.url?.includes('/next_help/docs/')?'更新于':'发布于'} ${esc(articleDate(i,true))}（北京时间）</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">AI 评分 <b>${i.score}</b></span></div>
+    <div class="dmeta"><span>${i.publication_basis==='editorial_source_review'?'整理发布于':i.url?.includes('/next_help/docs/')?'更新于':'发布于'} ${esc(articleDate(i,true))}（北京时间）</span><span>${esc(i.src)}</span>${i.heat>0?`<span>热度 ${i.heat}</span>`:''}<span class="score">${scoreLabel(i)}</span></div>
+    ${i.publication_basis==='editorial_source_review'?`<section class="ocr-note"><p>资料核对日期：${esc(i.source_checked_at)}。官方页面未明确标注原始发布日期；上方为本站整理时间。</p><p>${esc(i.verification_scope)}</p><p>以下内容区分平台公开功能与编辑建议，没有实施注册、接单、销售或提现测试。</p></section>`:''}
     <a class="discovery-links" href="?article=${encodeURIComponent(i.id)}" target="_blank" rel="noopener noreferrer">打开可分享的详情链接 ↗</a>
     ${trustBadges(i)}<div class="reason">${esc(i.reason)}</div>${discoveryDetails(i)}
     ${i.ocr_used?'<p class="ocr-note">本文含图片文字识别内容，尚未经人工核对；金额、比例和效果数据请核对原图。</p>':''}
     <div class="body">${String(i.content||'').split(/\n+|(?<=[。；])/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}${enBlock}</div>
+    ${Array.isArray(i.references)?`<section class="detail-section"><h3>资料来源</h3><ul>${i.references.filter(r=>safeSourceLink(r.url)).map(r=>`<li><a href="${esc(safeSourceLink(r.url))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-ink)">${esc(r.title)} ↗</a></li>`).join('')}</ul></section>`:''}
     ${articleImages(i)}
     ${i.ocr_used&&i.ocr_text?`<details class="ocr-note"><summary>查看图片识别文字（未人工核对）</summary><p>${esc(i.ocr_text)}</p></details>`:''}
     <div class="dfoot">
@@ -952,7 +955,7 @@ function renderFocus(){
 /* ===== 热点 ===== */
 function renderHot(){
   const hot=rankArticles(RAW.filter(i=>!isLegacy(i)),'week').slice(0,5);
-  $('#hotList').innerHTML=hot.map((i,idx)=>`<li data-fid="${i.id}"><div class="rk">${idx+1}</div><div><p>${esc(i.title)}</p><div class="hs">AI ${i.score} 分 · ${esc(i.time)}</div></div></li>`).join('');
+  $('#hotList').innerHTML=hot.map((i,idx)=>`<li data-fid="${i.id}"><div class="rk">${idx+1}</div><div><p>${esc(i.title)}</p><div class="hs">${scoreLabel(i)} · ${esc(i.time)}</div></div></li>`).join('');
   document.querySelectorAll('#hotList li').forEach(li=>li.onclick=()=>openCard(+li.dataset.fid));
 }
 /* ===== 数据速览 ===== */

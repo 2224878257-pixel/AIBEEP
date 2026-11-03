@@ -27,7 +27,7 @@ TAGS = {'ad', 'acq', 'mkt', 'ai'}
 CHANNELS = {'dj', 'tx', 'ks', 'xhs', 'hw', 'ec', 'local', 'saas', 'game', 'edu', 'general', 'tmall', 'wx', 'multi'}
 QUALITY_VERSION = 3
 TOPIC = re.compile(r'投放|获客|转化|买量|信息流|素材|竞价|广告|营销|增长|私域|线索|归因|落地页|品牌|种草|市场预算|商业漏斗|生活服务|抖音|小红书|视频号|投流|拉新|google ads|meta|facebook|ppc|lead|conversion|campaign|attribution|creative|placement|audience', re.I)
-TOPIC = re.compile(TOPIC.pattern+r'|副业|赚钱|变现|工具|信息差|独立开发|数字产品|效率|自动化|开源|创作者|模型|copilot|workflow|open.source|agent|tool|assistant|transformer|model',re.I)
+TOPIC = re.compile(TOPIC.pattern+r'|副业|赚钱|变现|接单|自由职业|付费专栏|知识产品|素材销售|模板|工具|信息差|独立开发|数字产品|效率|自动化|开源|创作者|模型|copilot|workflow|open.source|agent|tool|assistant|transformer|model',re.I)
 SESSION = requests.Session()
 SESSION.headers['User-Agent'] = 'AIBEEP/1.0 (+https://github.com/2224878257-pixel/AIBEEP)'
 

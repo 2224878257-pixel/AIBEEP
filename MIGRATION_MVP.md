@@ -25,3 +25,6 @@
 - 对比 afd3f34，原 50 条文章的 id/url 全部保留。原有来源中仍有公众号验证页与 Meta 日期不完整问题，未绕过验证。
 - 新增 GitHub 与 Hugging Face 官方 RSS；仅增加来源，不覆盖已有配置和密钥。
 - 最小回滚：从 afd3f34 恢复 index.html、scraper.py、sources.json、.github/workflows/daily.yml 等代码文件，提交后正常推送；不要恢复或删除 data.json/archive.json/assets，以保留迁移后新增数据。辅助新增模块可保留为未调用文件。需整体撤销功能时，按逆序 git revert 功能代码提交，处理数据保留冲突后再部署，禁止 reset/强推。
+
+## 首批项目与方法（2026-11-03）
+按用户增加项目与方法的明确要求，新增 4 篇项目资料和 4 篇编辑方法：小报童、Gumroad、Fiverr、itch.io。publication_basis=editorial_source_review 仅表示核对公开平台功能与规则，不表示人工亲测、真实收款或盈利验证；verification_status 保持 unverified，tested_status 和 sponsorship_status 保持 unknown。没有收入案例、利润数字或收益承诺。原文日期未标注时保留 null，页面区分整理发布时间与资料核对日期。编辑稿不伪造 AI 评分，显示编辑整理。自动采集仍执行原有待审规则，没有放开项目/方法的自动发布门禁。新增相关搜索关键词及专题线索来源，未覆盖已有文章。
