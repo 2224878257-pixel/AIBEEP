@@ -65,6 +65,8 @@
         "source_url": "https://image.woshipm.com/wp-files/sha256/09/82/0982f2e11b8ff537bb2d5ecca09d46d0e2d1f117ffa105214159eafd8dfd6a21.png",
         "alt": "个神级",
         "source_page": "https://www.opp2.com/387472.html",
+        "context_before": "这个开源项目有 66 种影片风格，每种都附着制作说明和代码样片。 白板科普、像素故事、水墨短片、剪辑与纪实等等都有。 ",
+        "context_after": "不多说了，直接看几个效果你就能看出来了。 但是呢，这个开源项目 一定要配合 Claude Opus 5.5 用啊。",
         "src": "assets/images/6fd66d2e594492ef7c0c7c7a8a12ad27.webp",
         "width": 1080,
         "height": 589
@@ -73,6 +75,8 @@
         "source_url": "https://image.woshipm.com/wp-files/sha256/9d/0d/9d0df6426b8dfce5c621d0df1fbe14bf7553140ed7ab5f9e316c7eb602f2d097.png",
         "alt": "个神级",
         "source_page": "https://www.opp2.com/387472.html",
+        "context_before": "花叔开源的 huashu-art-motion，能做艺术动画，也能 根据口播生成一个讲解视频。 它整理了数十种艺术风格，包括白板、Vox、3Blue1Brown 等解说方式。 ",
+        "context_after": "比如下面这个 100 秒的短片。 《Clawd 博物馆奇妙夜》就是基于这个开源项目搞出来的。",
         "src": "assets/images/79c377621dcca4cb838d30d90370f62d.webp",
         "width": 1080,
         "height": 717
@@ -81,6 +85,8 @@
         "source_url": "https://image.woshipm.com/wp-files/sha256/93/42/934225bb4b5e387737a0757f712cc4c917593cce7501e00ba487acef8e9c9941.png",
         "alt": "个神级",
         "source_page": "https://www.opp2.com/387472.html",
+        "context_before": "开源地址：https://github.com/alchaincyf/huashu-art-motion 03 15 种动态设计风格 ",
+        "context_after": "mg-styles-15 这个开源项目 公开了 15 种动态设计风格。 每种都有一支 10 秒样片。现在已经 2500 多的 Star 了。",
         "src": "assets/images/22cce65a496ffaa2c2f5a277386121ea.webp",
         "width": 1080,
         "height": 392
@@ -89,6 +95,8 @@
         "source_url": "https://image.woshipm.com/wp-files/sha256/af/8a/af8ad0209179533d924fda2819c94ad6c3755efbbd9cea43f190a23723707655.png",
         "alt": "个神级",
         "source_page": "https://www.opp2.com/387472.html",
+        "context_before": "开源地址：https://github.com/Vincentwei1021/video-shotcraft 05 用 Coding 绘制插画 ",
+        "context_after": "这个 1200 人点赞的开源项目是 用代码绘制插画和动画的。 可以选择铅笔、水彩、粉笔、蓝图等 32 种风格。",
         "src": "assets/images/73745e510862bba89024a54068081311.webp",
         "width": 1080,
         "height": 912
@@ -9867,7 +9875,7 @@
     "content_type": "official",
     "id": 239313683442115,
     "ch": "tx",
-    "t": "week",
+    "t": "archive",
     "src": "腾讯广告",
     "url": "https://e.qq.com/latestnews/detail?pid=15267",
     "time": "10/29",
