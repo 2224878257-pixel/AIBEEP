@@ -22,18 +22,18 @@
     ],
     "method": "rss",
     "status": "automatic",
-    "last_success_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_success_at": "2026-11-06T11:58:45.692132+08:00",
     "last_error": null,
     "require_relevance": true,
     "limit": 3,
     "discover_all": true,
-    "last_checked_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_checked_at": "2026-11-06T11:58:45.692132+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://www.woshipm.com/share/6487997.html",
     "sample_title": "HarmonyOS7更新亮点实录4：Account Kit 全局单点登录与星盾引擎底座安全验证 – 人人都是产品经理",
     "sample_published_at": "2026-11-03T18:11:16+08:00",
-    "last_listing_success_at": "2026-11-06T03:11:34.559752+08:00"
+    "last_listing_success_at": "2026-11-06T11:58:45.692132+08:00"
   },
   {
     "ch": "general",
@@ -57,18 +57,18 @@
     ],
     "method": "rss",
     "status": "automatic",
-    "last_success_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_success_at": "2026-11-06T11:58:45.692132+08:00",
     "last_error": null,
     "require_relevance": true,
     "limit": 3,
     "discover_all": true,
-    "last_checked_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_checked_at": "2026-11-06T11:58:45.692132+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://www.opp2.com/387437.html",
     "sample_title": "用WorkBuddy10分钟做了个工具，然后抓狂一星期",
     "sample_published_at": "2026-11-04T01:17:49+08:00",
-    "last_listing_success_at": "2026-11-06T03:11:34.559752+08:00"
+    "last_listing_success_at": "2026-11-06T11:58:45.692132+08:00"
   },
   {
     "ch": "general",
@@ -135,16 +135,16 @@
     ],
     "method": "site_search",
     "status": "automatic",
-    "last_success_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_success_at": "2026-11-06T11:58:45.692132+08:00",
     "last_error": null,
     "require_relevance": true,
-    "last_checked_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_checked_at": "2026-11-06T11:58:45.692132+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://www.yunyingpai.com/user/1067867.html",
     "sample_title": "流量越来越贵，为什么还有大量的品牌在低成本高增长？ | 运营派",
     "sample_published_at": "2026-11-01T11:11:53+08:00",
-    "last_listing_success_at": "2026-11-06T03:11:34.559752+08:00"
+    "last_listing_success_at": "2026-11-06T11:58:45.692132+08:00"
   },
   {
     "name": "少数派",
@@ -168,16 +168,16 @@
     ],
     "status": "automatic",
     "limit": 3,
-    "last_success_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_success_at": "2026-11-06T11:58:45.692132+08:00",
     "last_error": null,
     "discover_all": true,
-    "last_checked_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_checked_at": "2026-11-06T11:58:45.692132+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://sspai.com/post/118317",
     "sample_title": "社区速递 164 | 1500 元圆梦昔日卡皇与派友们做的 AI 平替 - 少数派",
     "sample_published_at": "2026-11-03T15:12:54+08:00",
-    "last_listing_success_at": "2026-11-06T03:11:34.559752+08:00"
+    "last_listing_success_at": "2026-11-06T11:58:45.692132+08:00"
   },
   {
     "name": "Show HN",
@@ -201,15 +201,15 @@
     ],
     "status": "automatic",
     "limit": 3,
-    "last_success_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_success_at": "2026-11-06T11:58:45.692132+08:00",
     "last_error": "ValueError: HN submission has insufficient author text; manual research required",
-    "last_checked_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_checked_at": "2026-11-06T11:58:45.692132+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://news.ycombinator.com/item?id=50340088",
     "sample_title": "Show HN: Subvocal – Talk to your computer without making noise",
     "sample_published_at": "2026-11-03T01:16:17+08:00",
-    "last_listing_success_at": "2026-11-06T03:11:34.559752+08:00"
+    "last_listing_success_at": "2026-11-06T11:58:45.692132+08:00"
   },
   {
     "name": "Ask HN",
@@ -233,15 +233,15 @@
     ],
     "status": "automatic",
     "limit": 3,
-    "last_success_at": "2026-11-06T03:11:34.559752+08:00",
-    "last_error": null,
-    "last_checked_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_success_at": "2026-11-06T11:58:45.692132+08:00",
+    "last_error": "ValueError: Invalid AI classification",
+    "last_checked_at": "2026-11-06T11:58:45.692132+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://news.ycombinator.com/item?id=50338728",
     "sample_title": "Ask HN: Who is hiring? (November 2026)",
     "sample_published_at": "2026-11-03T00:01:37+08:00",
-    "last_listing_success_at": "2026-11-06T03:11:34.559752+08:00"
+    "last_listing_success_at": "2026-11-06T11:58:45.692132+08:00"
   },
   {
     "name": "Starter Story",
@@ -476,15 +476,15 @@
     ],
     "status": "automatic",
     "limit": 2,
-    "last_success_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_success_at": "2026-11-06T11:58:45.692132+08:00",
     "last_error": null,
-    "last_checked_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_checked_at": "2026-11-06T11:58:45.692132+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://levels.io/decompiled-battlefield-1942-web-multiplayer",
     "sample_title": "I decompiled Battlefield 1942 and put it on the web with multiplayer — @levelsio (Pieter Levels)",
     "sample_published_at": "2026-11-02T00:00:00+08:00",
-    "last_listing_success_at": "2026-11-06T03:11:34.559752+08:00"
+    "last_listing_success_at": "2026-11-06T11:58:45.692132+08:00"
   },
   {
     "name": "Tony Dinh 公开通讯",
@@ -511,12 +511,12 @@
     "limit": 2,
     "last_success_at": "2026-11-04T11:42:11.020766+08:00",
     "last_error": null,
-    "last_checked_at": "2026-11-06T03:11:34.559752+08:00",
+    "last_checked_at": "2026-11-06T11:58:45.692132+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://news.tonydinh.com/p/i-made-a-game-with-ai",
     "sample_title": "I made a game with AI",
     "sample_published_at": "2026-08-29T09:55:45.678000+08:00",
-    "last_listing_success_at": "2026-11-06T03:11:34.559752+08:00"
+    "last_listing_success_at": "2026-11-06T11:58:45.692132+08:00"
   }
 ]
