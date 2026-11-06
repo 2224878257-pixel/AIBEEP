@@ -1,5 +1,6 @@
 """Evidence-aware editorial policy, additive to the existing article schema."""
 import json
+import re
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -47,6 +48,14 @@ def upgrade(row, ai=None, article=None):
     row['income_claims'] = []
     for claim in claims[:8] if isinstance(claims,list) else []:
         if not isinstance(claim,dict):
+            continue
+        # An explicitly quoted platform fee/price is a cost, not earned revenue.
+        quote=str(claim.get('source_quote') or '')
+        source_body=re.sub(r'\s+',' ',str(article.get('body','')))
+        if (quote and re.sub(r'\s+',' ',quote) in source_body
+                and re.search(r'平台服务费|手续费|店铺月租|订阅价格|platform fee|transaction fee',quote,re.I)
+                and not re.search(r'收入|收益|盈利|利润|赚|营收|revenue|profit|earned|income',quote,re.I)):
+            row.setdefault('cost_source_quotes',[]).append(quote[:400])
             continue
         row['income_claims'].append({k:str(claim.get(k) or '未披露')[:400] for k in ('metric','amount','period','attribution','source_quote')})
         row['income_claims'][-1]['attribution']='作者自述（未经独立核验）'

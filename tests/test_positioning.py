@@ -129,3 +129,21 @@ class PositioningTests(unittest.TestCase):
         with patch.object(s,'request',return_value=response):
             self.assertEqual(collector.discover({'adapter':'rss','url':'https://example.com/feed','hosts':['example.com'],'pattern':'/tool'},1),['https://example.com/tool'])
         self.assertEqual(collector.metadata['https://example.com/tool'],'2026-11-01T00:00:00Z')
+
+
+class FeeClassificationTests(unittest.TestCase):
+    def test_explicit_source_platform_fee_is_cost_not_earned_revenue(self):
+        quote='内测期间，WorkBuddy 收取的平台服务费为 1%。'
+        row=upgrade({'section':'discovery','review_status':'published','discovery_category':'method'},
+                    {'income_claims':[{'metric':'交易额','amount':'1%','source_quote':quote}]},
+                    {'body':quote})
+        self.assertEqual(row['review_status'],'published')
+        self.assertEqual(row['income_claims'],[])
+        self.assertEqual(row['cost_source_quotes'],[quote])
+
+    def test_fee_word_does_not_clear_actual_revenue_or_unread_quote(self):
+        for quote,body in [('扣除平台服务费后，收入达到100元','扣除平台服务费后，收入达到100元'),
+                           ('平台服务费为 1%。','来源根本没说服务费')]:
+            row=upgrade({'section':'discovery','review_status':'published'},
+                        {'income_claims':[{'metric':'营收','source_quote':quote}]},{'body':body})
+            self.assertEqual(row['review_status'],'pending')
