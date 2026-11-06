@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-06T22:01:10.410092+08:00",
+  "run_at": "2026-11-06T22:10:47.963015+08:00",
   "search": {
     "provider": "brave",
     "enabled": false,
@@ -15,9 +15,9 @@
     "read_urls": 31,
     "readable": 28,
     "duplicates": 0,
-    "qualified": 7,
+    "qualified": 3,
     "generated": 0,
-    "review_queue": 28,
+    "review_queue": 24,
     "successful_source_listings": 10,
     "successful_source_bodies": 6,
     "new_domain_candidates": 44,
@@ -29,7 +29,7 @@
     "max_urls": 100,
     "max_ai": 20
   },
-  "held_for_budget": 0,
+  "held_for_budget": 1,
   "source_metrics": {
     "少数派": {
       "fetch_success_rate": 1.0,
@@ -46,32 +46,32 @@
       "selection_rate": 0.0
     },
     "Ask HN": {
-      "fetch_success_rate": 0.8571428571428571,
-      "effective_content_rate": 0.16666666666666666,
+      "fetch_success_rate": 0.875,
+      "effective_content_rate": 0.14285714285714285,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.05555555555555555
+      "selection_rate": 0.047619047619047616
     },
     "Pieter Levels 长文": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.35714285714285715,
+      "effective_content_rate": 0.3125,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.07142857142857142
+      "selection_rate": 0.0625
     },
     "Tony Dinh 公开通讯": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.2,
+      "effective_content_rate": 0.14285714285714285,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
       "selection_rate": 0.0
     },
     "人人都是产品经理": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.38095238095238093,
+      "effective_content_rate": 0.375,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.14285714285714285
+      "selection_rate": 0.125
     },
     "青瓜传媒": {
       "fetch_success_rate": 1.0,
@@ -89,14 +89,14 @@
     },
     "运营派项目与方法线索": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.4444444444444444,
+      "effective_content_rate": 0.35714285714285715,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
       "selection_rate": 0.0
     },
     "青瓜赚钱项目与方法": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.6,
+      "effective_content_rate": 0.4,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
       "selection_rate": 0.0

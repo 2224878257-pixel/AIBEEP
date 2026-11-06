@@ -21,7 +21,7 @@
     ],
     "method": "official_api",
     "status": "automatic",
-    "last_success_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_success_at": "2026-11-06T22:10:47.963015+08:00",
     "last_error": null,
     "require_relevance": true,
     "limit": 5,
@@ -33,13 +33,13 @@
       "变现"
     ],
     "max_age_days": 365,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://www.opp2.com/222514.html",
     "sample_title": "闲鱼赚钱日记：新手如何做闲鱼副业",
     "sample_published_at": "2020-11-22T00:04:34+08:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "ch": "general",
@@ -64,17 +64,17 @@
     ],
     "method": "rss",
     "status": "automatic",
-    "last_success_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_success_at": "2026-11-06T22:10:47.963015+08:00",
     "last_error": null,
     "require_relevance": true,
     "limit": 3,
     "discover_all": false,
     "priority": 60,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 0,
     "article_readable": false,
     "last_error_at": "2026-11-06T13:55:23.889429+00:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "ch": "general",
@@ -104,11 +104,11 @@
     "limit": 3,
     "discover_all": false,
     "priority": 60,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 0,
     "article_readable": false,
     "last_error_at": "2026-11-06T13:55:23.889429+00:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "ch": "general",
@@ -138,11 +138,11 @@
     "limit": 3,
     "discover_all": false,
     "priority": 60,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 0,
     "article_readable": false,
     "last_error_at": "2026-11-06T13:55:23.889429+00:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "ch": "general",
@@ -174,18 +174,18 @@
     ],
     "method": "site_search",
     "status": "automatic",
-    "last_success_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_success_at": "2026-11-06T22:10:47.963015+08:00",
     "last_error": null,
     "require_relevance": true,
     "priority": 10,
     "max_age_days": 365,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://www.yunyingpai.com/experience/1063786.html",
     "sample_title": "副业做亚马逊要准备多少钱？真实账单摊给你看 | 运营派",
     "sample_published_at": "2026-09-29T10:09:43+08:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "name": "少数派",
@@ -213,11 +213,11 @@
     "last_error": null,
     "discover_all": false,
     "priority": 90,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 0,
     "article_readable": false,
     "last_error_at": "2026-11-06T13:55:24.895897+00:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "name": "Show HN",
@@ -245,13 +245,13 @@
     "last_error": null,
     "evidence_type": "author_self_report",
     "priority": 60,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://news.ycombinator.com/item?id=50378643",
     "sample_title": "Show HN: Firenook – Firebase emulators in Rust: 40× faster writes, 10× less RAM",
     "sample_published_at": "2026-11-05T21:07:29+08:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "name": "Ask HN",
@@ -275,17 +275,17 @@
     ],
     "status": "automatic",
     "limit": 3,
-    "last_success_at": "2026-11-06T22:01:10.410092+08:00",
-    "last_error": null,
+    "last_success_at": "2026-11-06T22:10:47.963015+08:00",
+    "last_error": "ValueError: Invalid AI classification",
     "evidence_type": "author_self_report",
     "priority": 60,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://news.ycombinator.com/item?id=50391313",
     "sample_title": "Seeking advice: Wix stolen my .com domain",
     "sample_published_at": "2026-11-06T19:57:47+08:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "name": "Starter Story",
@@ -520,18 +520,18 @@
     ],
     "status": "automatic",
     "limit": 2,
-    "last_success_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_success_at": "2026-11-06T22:10:47.963015+08:00",
     "last_error": null,
     "max_age_days": 365,
     "evidence_type": "author_self_report",
     "priority": 20,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://levels.io/biz-expenses-dropped-to-300",
     "sample_title": "I dropped my total biz expenses to just $300 per month — @levelsio (Pieter Levels)",
     "sample_published_at": "2026-11-03T00:00:00+08:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   },
   {
     "name": "Tony Dinh 公开通讯",
@@ -556,17 +556,17 @@
     ],
     "status": "automatic",
     "limit": 2,
-    "last_success_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_success_at": "2026-11-06T22:10:47.963015+08:00",
     "last_error": null,
     "max_age_days": 365,
     "evidence_type": "author_self_report",
     "priority": 20,
-    "last_checked_at": "2026-11-06T22:01:10.410092+08:00",
+    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://news.tonydinh.com/p/i-made-a-game-with-ai",
     "sample_title": "I made a game with AI",
     "sample_published_at": "2026-08-29T09:55:45.678000+08:00",
-    "last_listing_success_at": "2026-11-06T22:01:10.410092+08:00"
+    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
   }
 ]

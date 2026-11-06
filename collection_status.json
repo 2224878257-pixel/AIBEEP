@@ -1,13 +1,13 @@
 {
-  "completed_at": "2026-11-06T22:05:10.396975+08:00",
-  "status": "success",
+  "completed_at": "2026-11-06T22:14:00.779856+08:00",
+  "status": "partial",
   "added": 0,
   "updated": 0,
-  "filtered": 13,
+  "filtered": 16,
   "duplicates": 0,
   "cached": 8,
-  "ai_failures": 0,
-  "ai_retries": 5,
+  "ai_failures": 1,
+  "ai_retries": 4,
   "sources_disabled": [],
   "sources_pending": [
     "Starter Story",
@@ -22,6 +22,6 @@
     "平台官方公告与创业者博客"
   ],
   "sources_total": 10,
-  "sources_with_errors": 0,
-  "last_success_at": "2026-11-06T22:05:10.396990+08:00"
+  "sources_with_errors": 1,
+  "last_success_at": "2026-11-06T22:14:00.779868+08:00"
 }
