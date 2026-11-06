@@ -21,7 +21,7 @@
     ],
     "method": "official_api",
     "status": "automatic",
-    "last_success_at": "2026-11-06T22:10:47.963015+08:00",
+    "last_success_at": "2026-11-06T22:29:51.146661+08:00",
     "last_error": null,
     "require_relevance": true,
     "limit": 5,
@@ -33,13 +33,13 @@
       "变现"
     ],
     "max_age_days": 365,
-    "last_checked_at": "2026-11-06T22:10:47.963015+08:00",
+    "last_checked_at": "2026-11-06T22:29:51.146661+08:00",
     "discovery_count": 3,
     "article_readable": true,
     "sample_url": "https://www.opp2.com/222514.html",
     "sample_title": "闲鱼赚钱日记：新手如何做闲鱼副业",
     "sample_published_at": "2020-11-22T00:04:34+08:00",
-    "last_listing_success_at": "2026-11-06T22:10:47.963015+08:00"
+    "last_listing_success_at": "2026-11-06T22:29:51.146661+08:00"
   },
   {
     "ch": "general",

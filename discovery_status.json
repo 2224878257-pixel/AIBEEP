@@ -1,35 +1,35 @@
 {
-  "run_at": "2026-11-06T22:10:47.963015+08:00",
+  "run_at": "2026-11-06T22:29:51.146661+08:00",
   "search": {
-    "provider": "brave",
+    "provider": null,
     "enabled": false,
-    "state": "not_configured",
+    "state": "targeted_fixed_source",
     "queries": 0,
-    "cache_hits": 0,
+    "cache_hits": null,
     "discovered_urls": 0
   },
   "summary": {
     "queries": 0,
-    "discovered_urls": 180,
-    "discovered_unique_urls": 163,
-    "read_urls": 31,
-    "readable": 28,
+    "discovered_urls": 17,
+    "discovered_unique_urls": 17,
+    "read_urls": 5,
+    "readable": 5,
     "duplicates": 0,
-    "qualified": 3,
+    "qualified": 2,
     "generated": 0,
-    "review_queue": 24,
-    "successful_source_listings": 10,
-    "successful_source_bodies": 6,
+    "review_queue": 25,
+    "successful_source_listings": 1,
+    "successful_source_bodies": 1,
     "new_domain_candidates": 44,
     "known_platform_candidates": 3
   },
   "budget": {
-    "read_urls": 31,
-    "ai_articles": 20,
+    "read_urls": 5,
+    "ai_articles": 5,
     "max_urls": 100,
     "max_ai": 20
   },
-  "held_for_budget": 1,
+  "held_for_budget": 0,
   "source_metrics": {
     "少数派": {
       "fetch_success_rate": 1.0,
