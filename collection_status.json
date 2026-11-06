@@ -1,16 +1,27 @@
 {
-  "completed_at": "2026-11-06T22:31:05.925685+08:00",
-  "status": "success",
+  "completed_at": "2026-11-07T02:41:37.475108+08:00",
+  "status": "partial",
   "added": 0,
   "updated": 0,
-  "filtered": 3,
-  "duplicates": 0,
-  "cached": 2,
+  "filtered": 13,
+  "duplicates": 4,
+  "cached": 24,
   "ai_failures": 0,
-  "ai_retries": 0,
+  "ai_retries": 5,
   "sources_disabled": [],
-  "sources_pending": [],
-  "sources_total": 1,
-  "sources_with_errors": 0,
-  "last_success_at": "2026-11-06T22:31:05.925704+08:00"
+  "sources_pending": [
+    "Starter Story",
+    "Indie Hackers",
+    "Product Hunt",
+    "Reddit 创业社区",
+    "Ben’s Bites",
+    "Future Tools",
+    "生财有术公开内容",
+    "数字生命卡兹克 / 秋芝2046",
+    "X 创业者原始分享",
+    "平台官方公告与创业者博客"
+  ],
+  "sources_total": 9,
+  "sources_with_errors": 1,
+  "last_success_at": "2026-11-07T02:41:37.475123+08:00"
 }

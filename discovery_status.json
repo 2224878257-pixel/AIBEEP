@@ -1,31 +1,31 @@
 {
-  "run_at": "2026-11-06T22:29:51.146661+08:00",
+  "run_at": "2026-11-07T02:38:33.160614+08:00",
   "search": {
-    "provider": null,
+    "provider": "brave",
     "enabled": false,
-    "state": "targeted_fixed_source",
+    "state": "not_configured",
     "queries": 0,
-    "cache_hits": null,
+    "cache_hits": 0,
     "discovered_urls": 0
   },
   "summary": {
     "queries": 0,
-    "discovered_urls": 17,
-    "discovered_unique_urls": 17,
-    "read_urls": 5,
-    "readable": 5,
-    "duplicates": 0,
-    "qualified": 2,
+    "discovered_urls": 167,
+    "discovered_unique_urls": 160,
+    "read_urls": 35,
+    "readable": 25,
+    "duplicates": 4,
+    "qualified": 3,
     "generated": 0,
-    "review_queue": 25,
-    "successful_source_listings": 1,
-    "successful_source_bodies": 1,
-    "new_domain_candidates": 44,
+    "review_queue": 28,
+    "successful_source_listings": 9,
+    "successful_source_bodies": 6,
+    "new_domain_candidates": 58,
     "known_platform_candidates": 3
   },
   "budget": {
-    "read_urls": 5,
-    "ai_articles": 5,
+    "read_urls": 35,
+    "ai_articles": 16,
     "max_urls": 100,
     "max_ai": 20
   },
@@ -39,25 +39,25 @@
       "selection_rate": 0.08
     },
     "Show HN": {
-      "fetch_success_rate": 0.4666666666666667,
-      "effective_content_rate": 0.21428571428571427,
+      "fetch_success_rate": 0.41025641025641024,
+      "effective_content_rate": 0.1875,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
       "selection_rate": 0.0
     },
     "Ask HN": {
-      "fetch_success_rate": 0.875,
-      "effective_content_rate": 0.14285714285714285,
+      "fetch_success_rate": 0.8888888888888888,
+      "effective_content_rate": 0.125,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.047619047619047616
+      "selection_rate": 0.041666666666666664
     },
     "Pieter Levels 长文": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.3125,
+      "effective_content_rate": 0.2777777777777778,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.0625
+      "selection_rate": 0.05555555555555555
     },
     "Tony Dinh 公开通讯": {
       "fetch_success_rate": 1.0,
@@ -68,15 +68,15 @@
     },
     "人人都是产品经理": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.375,
+      "effective_content_rate": 0.36,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.125
+      "selection_rate": 0.12
     },
     "青瓜传媒": {
       "fetch_success_rate": 1.0,
       "effective_content_rate": 0.5294117647058824,
-      "duplicate_rate": 0.0,
+      "duplicate_rate": 0.047619047619047616,
       "missing_date_rate": 0.0,
       "selection_rate": 0.05
     },
@@ -89,14 +89,14 @@
     },
     "运营派项目与方法线索": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.35714285714285715,
+      "effective_content_rate": 0.3157894736842105,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
       "selection_rate": 0.0
     },
     "青瓜赚钱项目与方法": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.4,
+      "effective_content_rate": 0.4444444444444444,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
       "selection_rate": 0.0
