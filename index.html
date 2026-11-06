@@ -989,28 +989,40 @@ function openFeedback(){
 }
 function resetAll(){state.view='all';state.kind='all';state.plat='all';state.ind='all';state.cat='all';state.topic='all';$('#topicFilter').value='all';state.time='all';state.q='';state.onlyUnread=false;$('#q').value='';document.querySelectorAll('#contentTypeRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#catRow .chip').forEach((c,i)=>c.classList.toggle('on',i===0));document.querySelectorAll('#timeFilters .chip').forEach((c,i)=>c.classList.toggle('on',i===0));renderNav();renderFeed();}
 
+async function fetchSnapshot(name){
+  async function read(url){
+    const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
+    try{const response=await fetch(url,{cache:'no-cache',signal:controller.signal});if(!response.ok)throw new Error(`${name} HTTP ${response.status}`);return await response.json();}finally{clearTimeout(timer);}
+  }
+  const url=new URL(name,document.baseURI);url.searchParams.set('t',Date.now());
+  try{return await read(url);}catch(error){return await read(new URL(name,document.baseURI));}
+}
+function renderLoadedContent(){
+  restoreReadingState();renderHeader();renderStats();renderNav();renderFeed();renderFocus();renderHot();
+}
 async function init(){
+  $('#feed').textContent='正在加载赚钱项目与方法…';
+  // Start archive concurrently, but do not let it block the recent feed.
+  const archived=fetchSnapshot('archive.json').then(rows=>({rows}),error=>({error}));
+  let dataError=false;
   try{
-    const dataUrl = new URL('data.json', document.baseURI);
-    dataUrl.searchParams.set('t', Date.now());
-    const r = await fetch(dataUrl, {cache:'no-store'});
-    if(!r.ok) throw new Error(`data.json HTTP ${r.status}`);
-    const j = await r.json();
+    const j = await fetchSnapshot('data.json');
     if(!Array.isArray(j)) throw new Error('data.json 必须是 JSON 数组');
     if(j.length) RAW = j;
-  }catch(e){console.warn('AIBEEP：资讯暂时无法加载。', e);}
+  }catch(e){dataError=true;console.warn('AIBEEP：资讯暂时无法加载。', e);}
+  RAW=RAW.map(labelDate).filter(i=>i.t!=='archive').sort((a,b)=>(Date.parse(b.collected_at||b.published_at)||0)-(Date.parse(a.collected_at||a.published_at)||0));
+  renderLoadedContent();
+  if(dataError&&!RAW.length)$('#feed').textContent='近期内容加载失败，请刷新重试；正在尝试读取历史归档。';
+  loadCollectionStatus();loadCollectionHistory();
   try{
-    const url=new URL('archive.json',document.baseURI);url.searchParams.set('t',Date.now());
-    const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('归档不可用');
-    const rows=await response.json();if(!Array.isArray(rows))throw new Error('归档格式无效');
+    const result=await archived;if(result.error)throw result.error;const rows=result.rows;
+    if(!Array.isArray(rows))throw new Error('归档格式无效');
     ARCHIVE=rows.map(labelDate);
   }catch(e){archiveError='历史归档暂时加载失败，当前仅显示已加载的近期文章。';}
-  RAW=RAW.map(labelDate).filter(i=>i.t!=='archive').sort((a,b)=>(Date.parse(b.collected_at||b.published_at)||0)-(Date.parse(a.collected_at||a.published_at)||0));
-  restoreReadingState();
-  renderHeader(); renderStats(); renderNav(); renderFeed(); renderFocus(); renderHot();
+  if(dataError&&!RAW.length)RAW=ARCHIVE.filter(i=>i.t!=='archive');
+  renderLoadedContent();
+  if(dataError&&!RAW.length)$('#feed').textContent='内容加载失败，请刷新重试。';
   const requested=new URL(location.href).searchParams.get('article');if(requested)openCard(requested);
-  loadCollectionStatus();
-  loadCollectionHistory();
 }
 async function loadCollectionStatus(){
   const el=$('#collectionStatus');
