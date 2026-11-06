@@ -3,6 +3,12 @@ on:
   schedule:
     - cron: '0 0,12 * * *' # 08:00 and 20:00 Asia/Shanghai (UTC+8)
   workflow_dispatch:
+    inputs:
+      source:
+        description: "Optional fixed source name for a targeted recheck; blank runs all"
+        required: false
+        default: ""
+        type: string
   push:
     branches: [main]
     paths: ['index.html', 'data.json', 'archive.json', 'assets/**', 'media.py', 'discovery.py', 'positioning.py', 'sources.html', 'public_web.py', 'discovery_runtime.py', 'search_discovery.py', 'collection_config.json', 'discovery_keywords.json', 'manual_submissions.json', 'source_catalog.json', 'source_catalog_summary.json', 'editorial_policy.json', 'discovery_sources.json', 'source_audit.py', 'source_status.json', 'robots.txt', 'sitemap.xml', 'collection_status.json', 'collection_history.json', 'scraper.py', 'sources.json', 'requirements.txt', '.github/workflows/daily.yml']
@@ -47,12 +53,13 @@ jobs:
         continue-on-error: true
         if: github.event_name != 'push'
         env:
+          AIBEEP_SOURCE_FILTER: ${{ inputs.source || '' }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
           BRAVE_ALLOW_RESULT_STORAGE: ${{ vars.BRAVE_ALLOW_RESULT_STORAGE || 'false' }}
           DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || 'deepseek-flash' }}
         run: |
-          python scraper.py --limit 6
+          python scraper.py --limit 6 --source "$AIBEEP_SOURCE_FILTER"
       - name: Upload collection report
         if: always() && github.event_name != 'push'
         uses: actions/upload-artifact@v4

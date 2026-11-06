@@ -570,7 +570,12 @@ def run(args, collector):
     protected_existing={u:dict(r) for u,r in by_url.items()}
     report = {'run_at': now.isoformat(), 'sources': [], 'added': 0, 'updated': 0, 'ai_failures': 0, 'ai_successes': 0, 'ai_retries': 0, 'disabled_sources': [],
               'ignored_existing': max(0, len(old) + len(archived) - len(by_url))}
-    config, searched_sources, search_report, candidate_pool = prepare(ROOT,now,args.check_sources)
+    source_filter=getattr(args,'source','')
+    source_filter=source_filter.strip() if isinstance(source_filter,str) else ''
+    config, searched_sources, search_report, candidate_pool = prepare(ROOT,now,args.check_sources or bool(source_filter))
+    if source_filter:
+        searched_sources=[]
+        search_report={'state':'targeted_fixed_source','enabled':False,'queries':0,'discovered_urls':0}
     report['search'] = search_report
     report['budget'] = {'read_urls':0,'ai_articles':0,'max_urls':config['max_new_urls'],'max_ai':config['max_ai_articles']}
     budget=report['budget']
@@ -583,6 +588,10 @@ def run(args, collector):
                     (r.get('source_kind') != 'community' or r.get('quality_version') == QUALITY_VERSION)}
     known_aliases = {alias['url'] for row in by_url.values() for alias in row.get('also_reported_by', [])}
     configured_sources=json.loads((ROOT / ('discovery_sources.json' if (ROOT/'discovery_sources.json').exists() else 'sources.json')).read_text(encoding='utf-8'))
+    if source_filter:
+        configured_sources=[s for s in configured_sources if s.get('name')==source_filter and s.get('enabled') is not False]
+        if not configured_sources:
+            raise ValueError('Unknown or disabled fixed source: '+source_filter)
     fixed=[s for s in configured_sources if s.get('enabled') is not False]
     disabled=[s for s in configured_sources if s.get('enabled') is False]
     if fixed:
@@ -600,7 +609,7 @@ def run(args, collector):
         quality=source_quality.get(source['name'],{})
         last_attempt=date_value(quality.get('last_attempt'))
         interval=quality.get('next_interval_hours',0) if quality.get('policy_version')==QUALITY_VERSION else 0
-        if not args.check_sources and last_attempt and now-last_attempt<timedelta(hours=interval):
+        if not args.check_sources and not source_filter and last_attempt and now-last_attempt<timedelta(hours=interval):
             report.setdefault('backoff_sources',[]).append(source['name'])
             continue
         source_limit = min(args.limit, source.get('limit', args.limit))
@@ -632,7 +641,7 @@ def run(args, collector):
                 if failed_at and now-failed_at<timedelta(hours=12):
                     status['cached']+=1
                     continue
-                if canonical(url) in {r.get('url') for r in queue if r.get('quality_version')==QUALITY_VERSION}:
+                if canonical(url) in {r.get('url') for r in queue if r.get('quality_version')==QUALITY_VERSION and r.get('hold_reason')!='daily_budget_or_source_concentration'}:
                     status['cached'] += 1
                     continue
                 known_date = date_value(collector.metadata.get(canonical(url))) if isinstance(getattr(collector, 'metadata', None), dict) else None
@@ -841,6 +850,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--check-sources', action='store_true', help='Check collection without AI or changing data.json')
     parser.add_argument('--browser', action='store_true', help='Render JS article pages in Chromium')
+    parser.add_argument('--source', default='', help='Recheck one enabled fixed source by exact name, without web search')
     parser.add_argument('--limit', type=int, default=8, choices=range(1, 31))
     args = parser.parse_args()
     if args.browser:

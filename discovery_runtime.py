@@ -99,7 +99,7 @@ def select_publications(staged,existing,config,now):
     today=[]
     for row in existing:
         try:
-            if row.get('score_type')=='editorial_ranking' and datetime.fromisoformat(row['collected_at']).astimezone(now.tzinfo).date()==now.date():
+            if row.get('section')=='discovery' and row.get('review_status')=='published' and row.get('score_type')=='editorial_ranking' and datetime.fromisoformat(row['collected_at']).astimezone(now.tzinfo).date()==now.date():
                 today.append(row)
         except (KeyError,TypeError,ValueError):
             pass

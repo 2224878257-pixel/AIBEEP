@@ -102,3 +102,12 @@ class MoneyFocusTests(unittest.TestCase):
         accepted,held=select_publications(rows,[],{**DEFAULT,'max_publications_per_day':1},now)
         self.assertEqual(accepted[0]['row']['discovery_category'],'project')
         self.assertEqual(held[0]['row']['discovery_category'],'tool')
+
+
+class ArchiveBudgetTests(unittest.TestCase):
+    def test_archived_tool_does_not_take_budget_from_new_business_content(self):
+        now=datetime.now(timezone.utc)
+        old={'section':'legacy','review_status':'published','score_type':'editorial_ranking','collected_at':now.isoformat(),'src':'same'}
+        entry={'row':{'section':'discovery','review_status':'published','discovery_category':'method','score':80,'src':'same'}}
+        accepted,held=select_publications([entry],[old],{**DEFAULT,'max_publications_per_day':1},now)
+        self.assertEqual(accepted,[entry]);self.assertEqual(held,[])

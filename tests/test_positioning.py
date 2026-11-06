@@ -147,3 +147,14 @@ class FeeClassificationTests(unittest.TestCase):
             row=upgrade({'section':'discovery','review_status':'published'},
                         {'income_claims':[{'metric':'营收','source_quote':quote}]},{'body':body})
             self.assertEqual(row['review_status'],'pending')
+
+
+class TargetedSourceTests(unittest.TestCase):
+    def test_targeted_check_never_reads_other_sources(self):
+        from argparse import Namespace
+        with tempfile.TemporaryDirectory() as tmp,patch.object(s,'ROOT',Path(tmp)):
+            root=Path(tmp);(root/'sources.json').write_text('[{"name":"picked"},{"name":"other"}]')
+            collector=Mock();collector.discover.return_value=[]
+            self.assertEqual(s.run(Namespace(check_sources=True,source='picked',limit=1),collector),0)
+            collector.discover.assert_called_once()
+            self.assertEqual(collector.discover.call_args.args[0]['name'],'picked')
