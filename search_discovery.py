@@ -45,9 +45,11 @@ def plan_queries(groups,slot):
             queries.append({'query':query,'group':group['id'],'language':language,
                             'country':'CN' if language=='zh' else 'US',
                             'freshness':'py' if group['id'] in {'first_customer','small_business','failure','digital_products'} else 'pw'})
-    priority=[q for group in ('failure','demand') for q in queries if q['group']==group]
-    if len(priority)==4:priority=[priority[0],priority[2],priority[1],priority[3]]
-    return priority+[q for q in queries if q['group'] not in {'failure','demand'}]
+    # Reserve early slots for business projects/methods; keep failure and demand
+    # ahead of auxiliary workflow/platform updates even under reduced budgets.
+    order=('first_customer','small_business','failure','demand','digital_products','platform_change','workflow')
+    return [q for group in order for q in queries if q['group']==group]
+
 
 
 def discover(config,provider=None,root=ROOT,now=None):

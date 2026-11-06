@@ -105,7 +105,7 @@ def select_publications(staged,existing,config,now):
             pass
     remaining=max(0,config['max_publications_per_day']-len(today))
     refreshes=[entry for entry in staged if entry.get('refresh_only')]
-    ordered=sorted([entry for entry in staged if not entry.get('refresh_only')],key=lambda r:r['row'].get('score',0),reverse=True)
+    ordered=sorted([entry for entry in staged if not entry.get('refresh_only')],key=lambda r:(r['row'].get('discovery_category') in {'project','method'},r['row'].get('score',0)),reverse=True)
     target=min(config['max_publications_per_day'],len(today)+len(ordered))
     # Integer rounding permits one item when there are fewer than five selections.
     per_source=max(1,math.floor(target*config['max_source_share']))

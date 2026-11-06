@@ -95,16 +95,18 @@
     "page_accessible": false,
     "body_readable": false,
     "sustainable": false,
-    "last_checked_at": "2026-11-03T13:01:40.929489+00:00",
+    "last_checked_at": "2026-11-06",
     "last_success_at": null,
-    "last_error": "Bot verification page",
+    "last_error": "RSS发现10条；抽测3篇均未取得可读正文，未启用自动采集",
     "http_status": 200,
     "final_url": "https://www.sidehustlenation.com/",
     "page_title": "Bot Verification",
-    "declared_feeds": [],
+    "declared_feeds": [
+      "https://www.sidehustlenation.com/feed/"
+    ],
     "active_endpoints": [],
     "fit_assessment": "主题适配暂无法核实：本次起始页访问未成功；不自动接入",
-    "activation_note": "Not subscribed. Homepage access or one readable sample is insufficient for promotion.",
+    "activation_note": "2026-11-06: RSS可发现文章，正文提取未通过；保持待接入，不绕过访问限制。",
     "domain": "sidehustlenation.com",
     "author_identity_verified": false,
     "author_identity_evidence": null

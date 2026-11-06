@@ -2,18 +2,18 @@
   {
     "id": "first_customer",
     "zh": [
-      "第一单",
-      "第一笔收入",
-      "首批付费用户",
-      "冷启动",
-      "预售验证"
+      "副业 第一单 获客",
+      "接单 首批客户",
+      "数字产品 第一笔订单",
+      "付费用户 冷启动",
+      "小生意 预售验证"
     ],
     "en": [
-      "first customer",
-      "first paying users",
-      "first sale",
-      "pre-sell",
-      "validated idea"
+      "side business first paying customers",
+      "freelance first client",
+      "digital product first sale",
+      "bootstrapped customer acquisition",
+      "validate paid business idea"
     ],
     "domains": [
       "indiehackers.com",
@@ -23,20 +23,18 @@
   {
     "id": "small_business",
     "zh": [
-      "一人公司",
-      "独立开发",
-      "副业复盘",
-      "细分需求",
-      "数字产品",
-      "小生意"
+      "互联网小生意 项目复盘",
+      "个人创业 收费方式",
+      "副业项目 操作流程",
+      "一人公司 产品 获客",
+      "自由职业 服务 定价"
     ],
     "en": [
-      "solopreneur",
-      "bootstrapped",
-      "micro SaaS",
-      "side project",
-      "digital product",
-      "niche business"
+      "online side hustle business process",
+      "solopreneur product pricing customers",
+      "internet service business case study",
+      "bootstrapped business lessons",
+      "freelance service business workflow"
     ],
     "domains": [
       "levels.io",
@@ -46,20 +44,18 @@
   {
     "id": "failure",
     "zh": [
-      "项目复盘",
-      "没人买",
-      "获客失败",
-      "退款",
-      "停止运营",
-      "转型"
+      "副业项目 复盘 没人买",
+      "数字产品 获客失败",
+      "接单 退款 教训",
+      "网店 停止运营",
+      "个人创业 转型"
     ],
     "en": [
-      "postmortem",
-      "failed startup",
-      "no customers",
-      "shutting down",
-      "churn",
-      "lessons learned"
+      "side business postmortem no customers",
+      "digital product failed acquisition",
+      "freelance refunds lessons",
+      "online business shutting down",
+      "bootstrapped business pivot"
     ],
     "domains": [
       "failory.com",
@@ -69,17 +65,14 @@
   {
     "id": "workflow",
     "zh": [
-      "AI工作流",
-      "自动化",
-      "批量处理",
-      "效率工具",
-      "开源替代"
+      "接单 自动化 交付流程",
+      "内容变现 工作流",
+      "网店 订单处理 自动化"
     ],
     "en": [
-      "workflow automation",
-      "AI workflow",
-      "open source alternative",
-      "productivity tool"
+      "freelance client delivery automation",
+      "digital product sales workflow",
+      "online store order automation"
     ],
     "domains": [
       "sspai.com",
@@ -89,18 +82,14 @@
   {
     "id": "demand",
     "zh": [
-      "有没有工具",
-      "太贵了",
-      "求替代",
-      "手动处理",
-      "愿意付费"
+      "小商家 手动处理 愿意付费",
+      "服务 接单 客户需求",
+      "数字产品 用户痛点"
     ],
     "en": [
-      "looking for a tool",
-      "too expensive",
-      "alternative to",
-      "manual process",
-      "would pay for"
+      "small business manual process would pay",
+      "freelance service customer demand",
+      "digital product customer pain point"
     ],
     "domains": [
       "v2ex.com",
@@ -110,20 +99,18 @@
   {
     "id": "digital_products",
     "zh": [
-      "付费订阅",
-      "模板销售",
-      "电子书",
-      "插件",
-      "内容变现",
-      "知识产品"
+      "模板销售 获客 方法",
+      "电子书 销售 复盘",
+      "付费专栏 内容变现",
+      "插件 付费用户",
+      "数字产品 定价 退款"
     ],
     "en": [
-      "paid newsletter",
-      "template business",
-      "ebook",
-      "plugin",
-      "creator business",
-      "membership"
+      "selling digital templates first customers",
+      "ebook business sales process",
+      "paid newsletter acquisition lessons",
+      "paid plugin business",
+      "digital product pricing refunds"
     ],
     "domains": [
       "gumroad.com",
@@ -133,18 +120,14 @@
   {
     "id": "platform_change",
     "zh": [
-      "规则更新",
-      "分成调整",
-      "新功能",
-      "创作者收益",
-      "开放接口"
+      "创作者 分成规则 变化",
+      "网店 商家收费 新规",
+      "内容变现 平台规则"
     ],
     "en": [
-      "policy update",
-      "monetization update",
-      "revenue share",
-      "creator program",
-      "API update"
+      "creator monetization policy change",
+      "online seller fee update",
+      "digital product platform payment rules"
     ],
     "domains": [
       "blog.youtube",

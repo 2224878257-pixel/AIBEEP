@@ -85,3 +85,20 @@ class PublicationBudgetTests(unittest.TestCase):
         finish_provenance(row,article,{'fact_sources':[{'fact':'price','url':'https://product.example/pricing'},{'fact':'fake proof','url':'https://unread.example/'}]})
         self.assertEqual(len(row['fact_sources']),1)
         self.assertEqual(row['fact_sources'][0]['url'],'https://product.example/pricing')
+
+
+class MoneyFocusTests(unittest.TestCase):
+    def test_search_reserves_business_before_auxiliary_tools(self):
+        groups=json.loads((search.ROOT/'discovery_keywords.json').read_text(encoding='utf-8'))
+        plan=search.plan_queries(groups,0)
+        self.assertEqual([q['group'] for q in plan[:4]],['first_customer','first_customer','small_business','small_business'])
+        self.assertEqual(len([q for q in plan[:10] if q['group'] in {'failure','demand'}]),4)
+        self.assertEqual(plan[-1]['group'],'workflow')
+
+    def test_project_precedes_higher_scoring_tool_under_daily_budget(self):
+        from datetime import timezone
+        now=datetime.now(timezone.utc)
+        rows=[{'row':{'src':'same','discovery_category':cat,'score':score}} for cat,score in [('tool',99),('project',70)]]
+        accepted,held=select_publications(rows,[],{**DEFAULT,'max_publications_per_day':1},now)
+        self.assertEqual(accepted[0]['row']['discovery_category'],'project')
+        self.assertEqual(held[0]['row']['discovery_category'],'tool')

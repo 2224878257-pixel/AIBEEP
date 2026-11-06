@@ -233,7 +233,7 @@ class ScraperTests(unittest.TestCase):
 
     def test_feed_filters_topics_and_external_links(self):
         response = Mock()
-        response.content = b'<rss><channel><item><title>Customer acquisition tool testing</title><link>https://www.jonloomer.com/testing/</link><pubDate>Sat, 31 Oct 2026 08:00:00 +0000</pubDate></item><item><title>Customer acquisition tool fake</title><link>https://evil.example/testing/</link></item><item><title>Weather today</title><link>https://www.jonloomer.com/weather/</link></item></channel></rss>'
+        response.content = b'<rss><channel><item><title>First customer acquisition testing</title><link>https://www.jonloomer.com/testing/</link><pubDate>Sat, 31 Oct 2026 08:00:00 +0000</pubDate></item><item><title>First customer acquisition fake</title><link>https://evil.example/testing/</link></item><item><title>Weather today</title><link>https://www.jonloomer.com/weather/</link></item></channel></rss>'
         source = {'adapter': 'rss', 'url': 'https://www.jonloomer.com/feed/', 'hosts': ['www.jonloomer.com'], 'pattern': '/.+'}
         with patch.object(s, 'request', return_value=response):
             collector = s.Collector()

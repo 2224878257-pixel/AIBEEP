@@ -49,13 +49,13 @@ class PositioningTests(unittest.TestCase):
     def test_unchanged_body_must_be_reviewed_after_policy_version_change(self):
         with tempfile.TemporaryDirectory() as tmp,patch.object(s,'ROOT',Path(tmp)):
             root=Path(tmp);stamp=datetime.now(s.TZ).isoformat();url='https://example.com/article';body='原文实际内容'
-            old={'id':42,'url':url,'title':'旧分类','source_kind':'community','published_at':stamp,'quality_version':0,
+            old={'id':42,'url':url,'title':'旧分类','desc':'旧摘要','source_kind':'community','published_at':stamp,'quality_version':0,
                  'media_version':s.MEDIA_VERSION,'content_hash':s.hashlib.sha256(s.re.sub(r'\W+','',body).encode()).hexdigest()}
             (root/'data.json').write_text(json.dumps([old]))
             (root/'sources.json').write_text('[{"name":"test","ch":"general","kind":"community","hosts":["example.com"],"pattern":"/article"}]')
             collector=Mock();collector.discover.return_value=[url]
             collector.article.return_value={'url':url,'title':'原文','body':body,'published_at':stamp}
-            ai=dict(title='重新审核后的工具',desc='摘要',content='要点',reason='用途',cat='ai',tag='ai',score=80,relevant=True,discovery_relevant=True,discovery_category='tool')
+            ai=dict(title='重新审核后的工具',desc='摘要',content='要点',reason='用途',cat='ai',tag='ai',score=80,relevant=True,discovery_relevant=False,discovery_category='tool')
             with patch.dict(s.os.environ,{'DEEPSEEK_API_KEY':'test'}),patch.object(s,'enrich',return_value=ai) as enrich:
                 s.run(Mock(check_sources=False,limit=1),collector)
             enrich.assert_called_once()

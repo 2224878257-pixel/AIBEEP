@@ -18,7 +18,7 @@
       "risks": "作者所述数据为厂商披露，不能等同于效率或质量提升",
       "next_step": "按只读、隔离实验、研究协作、模型变更四层划分Agent权限"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "AI应用",
       "实用工具",
@@ -97,7 +97,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -250,7 +250,9 @@
       "09ea2816173203f1",
       "09f314f66eeb0d72",
       "09fe7c929bb52669"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "Viggle Remake：一句话改写视频人物与场景",
@@ -271,7 +273,7 @@
       "risks": "素材版权与肖像权风险，生成效果可能不稳定",
       "next_step": "用一段自有短视频试做单处人物替换"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "AI应用",
       "实用工具",
@@ -331,7 +333,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -484,7 +486,9 @@
       "0b193daa7af3a024",
       "0b200a10cf0d71b2",
       "0b2ae927f83e56a8"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "九个用Agent做动画短片的开源GitHub项目合集",
@@ -505,7 +509,7 @@
       "risks": "依赖特定模型版本，实际效果与稳定性未核实；作者所述Star与效果仅为原文说法，需自行测试",
       "next_step": "挑选一个用途对口的项目，按其说明跑通示例并试做一段短片"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "AI应用",
       "实用工具",
@@ -604,7 +608,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -757,7 +761,9 @@
       "0f78ed30248971bd",
       "0f8b2d7151423a6d",
       "0fad974136019ef7"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "Gemini 订阅用户聊天记录默认用于训练：如何关闭",
@@ -778,7 +784,7 @@
       "risks": "已保存记录可能已被使用；人工审核记录保留较久",
       "next_step": "打开 Gemini 设置检查 Keep Activity 状态"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "实用工具",
       "AI应用",
@@ -829,7 +835,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -982,7 +988,9 @@
       "1d7b2881c32934b7",
       "1decd4b34cfe31f8",
       "1e1c4afbc0b1c5e0"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "Topview T1 视频模型实测：长镜头与短剧对白生成",
@@ -1003,7 +1011,7 @@
       "risks": "效果与价格来自作者自述，需自行核实",
       "next_step": "在官网用小段提示词试跑一条长镜头"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "AI应用",
       "实用工具",
@@ -1059,7 +1067,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -1212,7 +1220,9 @@
       "0e3234b44ee387bf",
       "0e38c80b61417793",
       "0ead4fe51e271cd4"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "国行 Apple 智能上手：写作、翻译与图片处理有哪些能用的功能",
@@ -1233,7 +1243,7 @@
       "risks": "测试版系统存在稳定性风险；部分功能效果有限，部分数据需经用户同意后发往第三方模型",
       "next_step": "核对机型与账户条件，备份后升级测试版并逐项试用"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "实用工具",
       "AI应用",
@@ -1291,7 +1301,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -1444,7 +1454,9 @@
       "05efd90b350f6145",
       "05f29a8a792ec3b7",
       "06086669a02b3bc8"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "id": 36833318317454,
@@ -2148,7 +2160,7 @@
       "risks": "代码未运行验证，参数与权限需以官方文档核对",
       "next_step": "按文中示例封装登录类并在测试设备上验证静默与降级两条路径"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "实用工具",
       "平台变化"
@@ -2203,7 +2215,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -2356,7 +2368,9 @@
       "0e5d46c1fe7a70dc",
       "0e63d45f8c843ad7",
       "0e7a6aacf4ac1265"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "品牌总监工作重心转向投流的行业观察",
@@ -2559,7 +2573,7 @@
       "risks": "维护成本、AI 订阅费用与代码长期稳定性",
       "next_step": "挑一个边缘需求，先用开源项目或 AI 编程做小范围替代试用"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "实用工具",
       "AI应用",
@@ -2621,7 +2635,7 @@
       "saas"
     ],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -2784,7 +2798,9 @@
       "04a9f4dee0ef15d1",
       "04bca0428f63bc1c",
       "04c8aab35b7e3d87"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "小红书企业员工号（KOS）资质规范新增要点",
@@ -4819,7 +4835,7 @@
       "risks": "需授予屏幕读取与点击权限；识别容差需调试",
       "next_step": "在Google Play或F-Droid安装，先设一个签到页识别测试"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "实用工具",
       "AI应用"
@@ -4880,7 +4896,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -5044,7 +5060,9 @@
       "03f4a66d0872eb20",
       "04013148415d6a19",
       "04068418ddcec9da"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "新品上线广告预算怎么定：从盈亏平衡CPA到边际CPA的六步决策模型",
@@ -8686,7 +8704,7 @@
       "risks": "成片质量需人工复核；声纹与人脸识别涉及隐私；素材与模型输出需自行校验",
       "next_step": "用一段短视频按转录加抽帧流程试剪，核对成片后再扩大素材量"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "AI应用",
       "实用工具",
@@ -8759,7 +8777,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -8912,7 +8930,9 @@
       "1787b5b196c743fc",
       "179f08fb160d7895",
       "1807982efb80c686"
-    ]
+    ],
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "天猫母婴双11观察：从婴幼儿到中大童、家庭场景与礼赠的新增长路径",
@@ -11386,7 +11406,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -11528,7 +11548,7 @@
       "AI应用",
       "实用工具"
     ],
-    "column": "methods",
+    "column": "archive",
     "source_published_at": "2026-10-28T00:00:00+08:00",
     "collected_at": null,
     "evidence_status": "public_source_unverified",
@@ -11542,7 +11562,9 @@
       "first_test": "未披露"
     },
     "income_claims": [],
-    "score_type": "legacy_unscored"
+    "score_type": "legacy_unscored",
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "GitHub Copilot 应用新增项目与电脑操作功能",
@@ -11610,7 +11632,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -11752,7 +11774,7 @@
       "AI应用",
       "实用工具"
     ],
-    "column": "methods",
+    "column": "archive",
     "source_published_at": "2026-10-28T00:00:00+08:00",
     "collected_at": null,
     "evidence_status": "public_source_unverified",
@@ -11766,7 +11788,9 @@
       "first_test": "未披露"
     },
     "income_claims": [],
-    "score_type": "legacy_unscored"
+    "score_type": "legacy_unscored",
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   },
   {
     "title": "Google Ads 六种常见“优化”误区与应对",
@@ -12978,7 +13002,7 @@
       "risks": "整机授权与提示注入等安全风险，代理操作可能出错",
       "next_step": "先用隔离环境与独立账号跑一个低风险小项目验证"
     },
-    "column": "methods",
+    "column": "archive",
     "topics": [
       "AI应用",
       "实用工具"
@@ -13075,7 +13099,7 @@
     "platforms": [],
     "industries": [],
     "schema_version": 3,
-    "section": "discovery",
+    "section": "legacy",
     "tested_status": "unknown",
     "verification_status": "unverified",
     "sponsorship_status": "unknown",
@@ -13228,6 +13252,8 @@
       "0886853c85f53ecd",
       "088e1eefb78dc259"
     ],
-    "source_evidence_type": "author_self_report"
+    "source_evidence_type": "author_self_report",
+    "editorial_visibility": "archive",
+    "editorial_archive_reason": "money_focus_2026_11_06: generic tool/developer content without earning business process"
   }
 ]

@@ -1,8 +1,82 @@
 {
-  "version": 1,
+  "version": 2,
   "threshold": 65,
-  "weights": {"relevance":25,"evidence":25,"actionability":20,"low_cost_fit":15,"durability":10,"novelty":5},
-  "topics": ["互联网小生意","个人创业","副业项目","AI应用","实用工具","数字产品","内容变现","获客与分发","商业案例","平台变化"],
-  "keywords": ["小生意","创业","副业","数字产品","独立开发","一人公司","接单","付费专栏","需求验证","第一笔订单","获客","分发","自动化","工具","工作流","复盘","定价","订阅","创作者","模板","freelance","business","customer","revenue","pricing","bootstrapped","SaaS","workflow","tool","Show HN","Ask HN","launch","product","indie","automation","founder"],
-  "columns": {"opportunity":"机会发现","case":"案例拆解","methods":"方法与工具","experiments":"项目实测"}
+  "weights": {
+    "relevance": 25,
+    "evidence": 25,
+    "actionability": 20,
+    "low_cost_fit": 15,
+    "durability": 10,
+    "novelty": 5
+  },
+  "topics": [
+    "互联网小生意",
+    "个人创业",
+    "副业项目",
+    "AI应用",
+    "实用工具",
+    "数字产品",
+    "内容变现",
+    "获客与分发",
+    "商业案例",
+    "平台变化"
+  ],
+  "keywords": [
+    "赚钱项目",
+    "赚钱方法",
+    "小生意",
+    "个人创业",
+    "副业",
+    "接单",
+    "自由职业",
+    "内容变现",
+    "数字产品",
+    "模板销售",
+    "付费专栏",
+    "付费订阅",
+    "首单",
+    "第一笔订单",
+    "付费用户",
+    "需求验证",
+    "商业模式",
+    "获客",
+    "定价",
+    "经营复盘",
+    "网店",
+    "独立站",
+    "联盟营销",
+    "side hustle",
+    "freelance",
+    "first customer",
+    "first sale",
+    "paying users",
+    "digital product",
+    "bootstrapped",
+    "solopreneur",
+    "micro SaaS",
+    "monetization",
+    "pricing",
+    "revenue",
+    "business",
+    "customers"
+  ],
+  "columns": {
+    "opportunity": "机会发现",
+    "case": "案例拆解",
+    "methods": "方法与工具",
+    "experiments": "项目实测"
+  },
+  "focus": {
+    "primary_categories": [
+      "project",
+      "method"
+    ],
+    "secondary_categories": [
+      "tool",
+      "ai_tool",
+      "information"
+    ],
+    "require_source_business_quotes": true,
+    "scope": "网上的赚钱项目和赚钱方法为主；工具仅服务于原文明确的产品销售、接单、收费、获客或内容变现任务。普通开发教程、模型新闻、通用效率和趣味实验不收录。"
+  }
 }
