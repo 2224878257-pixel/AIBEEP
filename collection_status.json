@@ -1,13 +1,13 @@
 {
-  "completed_at": "2026-11-06T12:01:26.141211+08:00",
-  "status": "partial",
+  "completed_at": "2026-11-06T22:05:10.396975+08:00",
+  "status": "success",
   "added": 0,
   "updated": 0,
-  "filtered": 12,
+  "filtered": 13,
   "duplicates": 0,
-  "cached": 16,
-  "ai_failures": 1,
-  "ai_retries": 2,
+  "cached": 8,
+  "ai_failures": 0,
+  "ai_retries": 5,
   "sources_disabled": [],
   "sources_pending": [
     "Starter Story",
@@ -21,7 +21,7 @@
     "X 创业者原始分享",
     "平台官方公告与创业者博客"
   ],
-  "sources_total": 8,
-  "sources_with_errors": 2,
-  "last_success_at": "2026-11-06T12:01:26.141222+08:00"
+  "sources_total": 10,
+  "sources_with_errors": 0,
+  "last_success_at": "2026-11-06T22:05:10.396990+08:00"
 }

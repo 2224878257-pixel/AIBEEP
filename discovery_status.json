@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-06T11:58:45.692132+08:00",
+  "run_at": "2026-11-06T22:01:10.410092+08:00",
   "search": {
     "provider": "brave",
     "enabled": false,
@@ -10,22 +10,22 @@
   },
   "summary": {
     "queries": 0,
-    "discovered_urls": 175,
-    "discovered_unique_urls": 173,
-    "read_urls": 46,
-    "readable": 33,
+    "discovered_urls": 180,
+    "discovered_unique_urls": 163,
+    "read_urls": 31,
+    "readable": 28,
     "duplicates": 0,
-    "qualified": 1,
+    "qualified": 7,
     "generated": 0,
-    "review_queue": 24,
-    "successful_source_listings": 8,
-    "successful_source_bodies": 7,
-    "new_domain_candidates": 39,
-    "known_platform_candidates": 2
+    "review_queue": 28,
+    "successful_source_listings": 10,
+    "successful_source_bodies": 6,
+    "new_domain_candidates": 44,
+    "known_platform_candidates": 3
   },
   "budget": {
-    "read_urls": 46,
-    "ai_articles": 14,
+    "read_urls": 31,
+    "ai_articles": 20,
     "max_urls": 100,
     "max_ai": 20
   },
@@ -46,32 +46,32 @@
       "selection_rate": 0.0
     },
     "Ask HN": {
-      "fetch_success_rate": 0.8333333333333334,
-      "effective_content_rate": 0.2,
+      "fetch_success_rate": 0.8571428571428571,
+      "effective_content_rate": 0.16666666666666666,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.06666666666666667
+      "selection_rate": 0.05555555555555555
     },
     "Pieter Levels 长文": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.4166666666666667,
+      "effective_content_rate": 0.35714285714285715,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.08333333333333333
+      "selection_rate": 0.07142857142857142
     },
     "Tony Dinh 公开通讯": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.3333333333333333,
+      "effective_content_rate": 0.2,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
       "selection_rate": 0.0
     },
     "人人都是产品经理": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.3333333333333333,
+      "effective_content_rate": 0.38095238095238093,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
-      "selection_rate": 0.16666666666666666
+      "selection_rate": 0.14285714285714285
     },
     "青瓜传媒": {
       "fetch_success_rate": 1.0,
@@ -89,7 +89,14 @@
     },
     "运营派项目与方法线索": {
       "fetch_success_rate": 1.0,
-      "effective_content_rate": 0.5,
+      "effective_content_rate": 0.4444444444444444,
+      "duplicate_rate": 0.0,
+      "missing_date_rate": 0.0,
+      "selection_rate": 0.0
+    },
+    "青瓜赚钱项目与方法": {
+      "fetch_success_rate": 1.0,
+      "effective_content_rate": 0.6,
       "duplicate_rate": 0.0,
       "missing_date_rate": 0.0,
       "selection_rate": 0.0
