@@ -126,5 +126,49 @@
   "https://news.ycombinator.com/item?id=50395134": {
     "checked_at": "2026-11-07T02:38:33.160614+08:00",
     "quality_version": 7
+  },
+  "https://www.yunyingpai.com/news/1067508.html": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://www.yunyingpai.com/news/1061324.html": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://www.yunyingpai.com/news/1066667.html": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://levels.io/claude-code-security-audit-every-vps": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://levels.io/vps-tailscale-cloudflare-tunnel": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://news.ycombinator.com/item?id=50379221": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://news.ycombinator.com/item?id=50397325": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://news.ycombinator.com/item?id=50368208": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://news.ycombinator.com/item?id=50399909": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://news.ycombinator.com/item?id=50398646": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
+  },
+  "https://news.ycombinator.com/item?id=50347425": {
+    "checked_at": "2026-11-07T11:34:33.153468+08:00",
+    "quality_version": 7
   }
 }
